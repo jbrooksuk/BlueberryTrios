@@ -1,0 +1,83 @@
+import Foundation
+import GameKit
+import Observation
+
+@Observable
+final class GameCenterService {
+    private(set) var isAuthenticated = false
+
+    // Achievement identifiers
+    enum Achievement: String, CaseIterable {
+        case firstPuzzle = "com.alt-three.Blueberries.first_puzzle"
+        case dedicated = "com.alt-three.Blueberries.dedicated"
+        case centurion = "com.alt-three.Blueberries.centurion"
+        case master = "com.alt-three.Blueberries.master"
+        case onARoll = "com.alt-three.Blueberries.streak_3"
+        case weekWarrior = "com.alt-three.Blueberries.streak_7"
+        case berryCommitted = "com.alt-three.Blueberries.streak_30"
+    }
+
+    // Leaderboard identifier
+    static let fastestTimeLeaderboard = "com.alt-three.Blueberries.fastest_time"
+
+    func authenticate() {
+        GKLocalPlayer.local.authenticateHandler = { [weak self] viewController, error in
+            if let error {
+                print("Game Center auth error: \(error)")
+                return
+            }
+            self?.isAuthenticated = GKLocalPlayer.local.isAuthenticated
+        }
+    }
+
+    func reportPuzzleCompleted(totalCompleted: Int, completionTime: TimeInterval, streak: Int) {
+        guard isAuthenticated else { return }
+
+        var achievements: [GKAchievement] = []
+
+        // Puzzle count achievements
+        let milestones: [(Achievement, Int)] = [
+            (.firstPuzzle, 1),
+            (.dedicated, 10),
+            (.centurion, 100),
+            (.master, 500),
+        ]
+        for (achievement, target) in milestones {
+            let percent = min(100.0, Double(totalCompleted) / Double(target) * 100.0)
+            let gkAchievement = GKAchievement(identifier: achievement.rawValue)
+            gkAchievement.percentComplete = percent
+            gkAchievement.showsCompletionBanner = true
+            achievements.append(gkAchievement)
+        }
+
+        // Streak achievements
+        let streakMilestones: [(Achievement, Int)] = [
+            (.onARoll, 3),
+            (.weekWarrior, 7),
+            (.berryCommitted, 30),
+        ]
+        for (achievement, target) in streakMilestones {
+            let percent = min(100.0, Double(streak) / Double(target) * 100.0)
+            let gkAchievement = GKAchievement(identifier: achievement.rawValue)
+            gkAchievement.percentComplete = percent
+            gkAchievement.showsCompletionBanner = true
+            achievements.append(gkAchievement)
+        }
+
+        GKAchievement.report(achievements) { error in
+            if let error {
+                print("Failed to report achievements: \(error)")
+            }
+        }
+
+        // Report to fastest time leaderboard (in seconds)
+        Task {
+            try? await GKLeaderboard.submitScore(
+                Int(completionTime),
+                context: 0,
+                player: GKLocalPlayer.local,
+                leaderboardIDs: [Self.fastestTimeLeaderboard]
+            )
+        }
+    }
+}

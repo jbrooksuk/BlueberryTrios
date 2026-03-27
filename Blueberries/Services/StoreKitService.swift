@@ -1,0 +1,90 @@
+import Foundation
+import StoreKit
+import Observation
+
+@Observable
+final class StoreKitService {
+    static let proProductID = "com.alt-three.Blueberries.pro"
+
+    private(set) var proProduct: Product?
+    private(set) var isProUnlocked: Bool = false
+    private var transactionListener: Task<Void, Never>?
+
+    init() {
+        transactionListener = listenForTransactions()
+        Task {
+            await loadProducts()
+            await updatePurchaseStatus()
+        }
+    }
+
+    deinit {
+        transactionListener?.cancel()
+    }
+
+    func loadProducts() async {
+        do {
+            let products = try await Product.products(for: [Self.proProductID])
+            proProduct = products.first
+        } catch {
+            print("Failed to load products: \(error)")
+        }
+    }
+
+    func purchasePro() async throws {
+        guard let product = proProduct else { return }
+        let result = try await product.purchase()
+        switch result {
+        case .success(let verification):
+            let transaction = try checkVerified(verification)
+            await transaction.finish()
+            await updatePurchaseStatus()
+        case .userCancelled:
+            break
+        case .pending:
+            break
+        @unknown default:
+            break
+        }
+    }
+
+    func restorePurchases() async {
+        try? await AppStore.sync()
+        await updatePurchaseStatus()
+    }
+
+    private func updatePurchaseStatus() async {
+        for await result in Transaction.currentEntitlements {
+            if case .verified(let transaction) = result,
+               transaction.productID == Self.proProductID {
+                isProUnlocked = true
+                return
+            }
+        }
+        isProUnlocked = false
+    }
+
+    private func listenForTransactions() -> Task<Void, Never> {
+        Task.detached {
+            for await result in Transaction.updates {
+                if case .verified(let transaction) = result {
+                    await transaction.finish()
+                    await self.updatePurchaseStatus()
+                }
+            }
+        }
+    }
+
+    private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
+        switch result {
+        case .unverified:
+            throw StoreError.failedVerification
+        case .verified(let safe):
+            return safe
+        }
+    }
+
+    enum StoreError: Error {
+        case failedVerification
+    }
+}

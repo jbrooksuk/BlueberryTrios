@@ -1,0 +1,91 @@
+{
+  "identifier" : "8A3C4E2F-1B5D-4A7E-9C8F-6D2E0A1B3C4D",
+  "nonRenewableSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "1.99",
+      "familyShareable" : false,
+      "internalID" : "B7E2A1C3-4D5F-6E7A-8B9C-0D1E2F3A4B5C",
+      "localizations" : [
+        {
+          "description" : "Unlock unlimited additional puzzle sets beyond the daily puzzles.",
+          "displayName" : "Pro Puzzles",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "Unlock unlimited additional puzzle sets beyond the daily puzzles.",
+          "displayName" : "Pro Puzzles",
+          "locale" : "en_GB"
+        }
+      ],
+      "locale_prices" : {
+        "en_GB" : "1.99"
+      },
+      "productID" : "com.alt-three.Blueberries.pro",
+      "referenceName" : "Pro Puzzles",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "1234567890",
+    "_developerTeamID" : "G4ACBQ3J5M",
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 733276800,
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ]
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}
