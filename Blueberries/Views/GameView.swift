@@ -52,17 +52,46 @@ struct GameView: View {
                 PuzzleGridView(model: model, autoCheck: autoCheck, hapticsEnabled: hapticsEnabled, onStateChanged: saveCurrentState)
                     .padding(.horizontal, 8)
 
-                Spacer(minLength: 12)
-                toolbarView(model: model)
+                Spacer(minLength: 0)
             } else {
                 Spacer()
                 Text("No puzzle available")
                     .foregroundStyle(.secondary)
                 Spacer()
             }
-
-            Spacer(minLength: 8)
         }
+        .toolbar {
+            ToolbarItemGroup(placement: .bottomBar) {
+                if let model {
+                    let solved = model.isSolved
+                    Button { model.undo(); saveCurrentState() } label: {
+                        Label("Undo", systemImage: "arrow.uturn.backward")
+                    }
+                    .disabled(!model.canUndo || solved)
+
+                    Button { model.redo(); saveCurrentState() } label: {
+                        Label("Redo", systemImage: "arrow.uturn.forward")
+                    }
+                    .disabled(!model.canRedo || solved)
+
+                    Button { model.erase(); saveCurrentState() } label: {
+                        Label("Erase", systemImage: "eraser")
+                    }
+                    .disabled(solved)
+
+                    Button { useHint(model: model) } label: {
+                        Label("Hint", systemImage: "lightbulb")
+                    }
+                    .disabled(solved)
+
+                    Button { _ = model.checkSolved() } label: {
+                        Label("Check", systemImage: "checkmark.circle")
+                    }
+                    .disabled(solved)
+                }
+            }
+        }
+        .toolbarRole(.automatic)
         .background(Color(.systemBackground))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
@@ -158,46 +187,6 @@ struct GameView: View {
         }
         .padding(.horizontal, 16)
         .padding(.top, 8)
-    }
-
-    // MARK: - Toolbar
-
-    private func toolbarView(model: PuzzleModel) -> some View {
-        HStack(spacing: 20) {
-            toolbarButton("arrow.uturn.backward", label: "Undo", enabled: model.canUndo) {
-                model.undo()
-                saveCurrentState()
-            }
-            toolbarButton("arrow.uturn.forward", label: "Redo", enabled: model.canRedo) {
-                model.redo()
-                saveCurrentState()
-            }
-            toolbarButton("eraser", label: "Erase", enabled: true) {
-                model.erase()
-                saveCurrentState()
-            }
-            toolbarButton("lightbulb", label: "Hint", enabled: !model.isSolved) {
-                useHint(model: model)
-            }
-            toolbarButton("checkmark.circle", label: "Check", enabled: true) {
-                _ = model.checkSolved()
-            }
-        }
-        .padding(.horizontal, 16)
-    }
-
-    private func toolbarButton(_ systemImage: String, label: String, enabled: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            VStack(spacing: 4) {
-                Image(systemName: systemImage)
-                    .font(.title3)
-                Text(label)
-                    .font(.caption2)
-            }
-            .frame(minWidth: 50)
-        }
-        .disabled(!enabled)
-        .foregroundStyle(enabled ? .primary : .tertiary)
     }
 
     // MARK: - Settings
