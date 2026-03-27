@@ -9,17 +9,19 @@ struct HomeView: View {
 
     @State private var storeService = StoreKitService()
     @State private var gameCenterService = GameCenterService()
-    @State private var puzzleStore = PuzzleStore()
+    private let puzzleStore = PuzzleStore()
     @State private var navigateToGame = false
     @State private var selectedSource: PuzzleSource = .daily
     @State private var selectedDifficulty: Difficulty = .standard
-    @State private var animateBerries = false
 
-    private var stats: PlayerStats {
-        if let existing = statsRecords.first { return existing }
-        let new = PlayerStats()
-        modelContext.insert(new)
-        return new
+    private var stats: PlayerStats? {
+        statsRecords.first
+    }
+
+    private func ensureStats() {
+        if statsRecords.isEmpty {
+            modelContext.insert(PlayerStats())
+        }
     }
 
     var body: some View {
@@ -30,11 +32,13 @@ struct HomeView: View {
                     heroHeader
                         .padding(.bottom, 24)
 
-                    VStack(spacing: 20) {
-                        dailyPuzzleCard
-                        proPuzzlesCard
-                        statsCard
-                        achievementsCard
+                    GlassEffectContainer(spacing: 20) {
+                        VStack(spacing: 20) {
+                            dailyPuzzleCard
+                            proPuzzlesCard
+                            statsCard
+                            achievementsCard
+                        }
                     }
                     .padding(.horizontal, 16)
                     .padding(.bottom, 24)
@@ -49,10 +53,8 @@ struct HomeView: View {
             )
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
+                ensureStats()
                 gameCenterService.authenticate()
-                withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
-                    animateBerries = true
-                }
             }
             .navigationDestination(isPresented: $navigateToGame) {
                 GameView(
@@ -68,32 +70,39 @@ struct HomeView: View {
 
     // MARK: - Hero Header
 
+    private static let berryDecorations: [(opacity: Double, size: CGFloat, x: CGFloat, y: CGFloat)] = [
+        (0.20, 16, -50, -20),
+        (0.30, 20, 60, 10),
+        (0.18, 14, -30, 25),
+        (0.35, 22, 70, -15),
+        (0.25, 18, -60, 20),
+    ]
+
     private var heroHeader: some View {
         VStack(spacing: 12) {
-            // Floating berries decoration
-            ZStack {
-                // Background berries scattered
-                ForEach(0..<5, id: \.self) { i in
-                    Circle()
-                        .fill(Theme.berryBlue.opacity(Double.random(in: 0.15...0.35)))
-                        .frame(width: CGFloat.random(in: 12...24))
-                        .offset(
-                            x: CGFloat([-50, 60, -30, 70, -60][i]),
-                            y: CGFloat([-20, 10, 25, -15, 20][i]) + (animateBerries ? 4 : -4)
-                        )
-                }
-
-                // Main berry icon
-                Circle()
-                    .fill(Theme.berryBlue)
-                    .frame(width: 72, height: 72)
-                    .shadow(color: Theme.berryBlue.opacity(0.4), radius: 12, y: 4)
-                    .overlay {
-                        Image(systemName: "circle.grid.3x3.fill")
-                            .font(.system(size: 30))
-                            .foregroundStyle(.white)
+            PhaseAnimator([false, true]) { phase in
+                ZStack {
+                    ForEach(0..<5, id: \.self) { i in
+                        let d = Self.berryDecorations[i]
+                        Circle()
+                            .fill(Theme.berryBlue.opacity(d.opacity))
+                            .frame(width: d.size)
+                            .offset(x: d.x, y: d.y + (phase ? 4 : -4))
                     }
-                    .scaleEffect(animateBerries ? 1.02 : 0.98)
+
+                    Circle()
+                        .fill(Theme.berryBlue)
+                        .frame(width: 72, height: 72)
+                        .shadow(color: Theme.berryBlue.opacity(0.4), radius: 12, y: 4)
+                        .overlay {
+                            Image(systemName: "circle.grid.3x3.fill")
+                                .font(.system(size: 30))
+                                .foregroundStyle(.white)
+                        }
+                        .scaleEffect(phase ? 1.02 : 0.98)
+                }
+            } animation: { _ in
+                .easeInOut(duration: 1.2)
             }
             .frame(height: 100)
 
@@ -172,8 +181,7 @@ struct HomeView: View {
             }
         }
         .padding(20)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .glassEffect(in: .rect(cornerRadius: 16))
     }
 
     // MARK: - Pro Puzzles Card
@@ -204,7 +212,7 @@ struct HomeView: View {
                         .font(.subheadline.weight(.semibold))
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.glassProminent)
                 .controlSize(.large)
             } else {
                 Text("Unlock unlimited additional puzzle sets beyond the daily puzzles.")
@@ -219,7 +227,7 @@ struct HomeView: View {
                             Text("Unlock Pro \(product.displayPrice)")
                                 .font(.subheadline.weight(.semibold))
                         }
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(.glassProminent)
                     } else {
                         ProgressView()
                             .controlSize(.small)
@@ -231,15 +239,14 @@ struct HomeView: View {
                     Button("Restore") {
                         Task { await storeService.restorePurchases() }
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(.glass)
                     .font(.subheadline)
                 }
             }
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .glassEffect(in: .rect(cornerRadius: 16))
     }
 
     // MARK: - Stats Card
@@ -250,15 +257,14 @@ struct HomeView: View {
                 .font(.headline)
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                statItem(value: "\(stats.totalPuzzlesCompleted)", label: "Puzzles Solved", icon: "puzzlepiece.fill")
-                statItem(value: stats.fastestCompletionTime.map { formatTime($0) } ?? "--:--", label: "Fastest Time", icon: "bolt.fill")
-                statItem(value: "\(stats.currentStreak)", label: "Current Streak", icon: "flame.fill")
-                statItem(value: "\(stats.longestStreak)", label: "Best Streak", icon: "trophy.fill")
+                statItem(value: "\(stats?.totalPuzzlesCompleted ?? 0)", label: "Puzzles Solved", icon: "puzzlepiece.fill")
+                statItem(value: stats?.fastestCompletionTime.map { formatTime($0) } ?? "--:--", label: "Fastest Time", icon: "bolt.fill")
+                statItem(value: "\(stats?.currentStreak ?? 0)", label: "Current Streak", icon: "flame.fill")
+                statItem(value: "\(stats?.longestStreak ?? 0)", label: "Best Streak", icon: "trophy.fill")
             }
         }
         .padding(20)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .glassEffect(in: .rect(cornerRadius: 16))
     }
 
     private func statItem(value: String, label: String, icon: String) -> some View {
@@ -287,26 +293,25 @@ struct HomeView: View {
                 .font(.headline)
 
             VStack(spacing: 0) {
-                achievementRow(icon: "1.circle.fill", title: "First Puzzle", subtitle: "Complete your first puzzle", progress: stats.totalPuzzlesCompleted, target: 1)
+                achievementRow(icon: "1.circle.fill", title: "First Puzzle", subtitle: "Complete your first puzzle", progress: stats?.totalPuzzlesCompleted ?? 0, target: 1)
                 Divider().padding(.leading, 44)
-                achievementRow(icon: "10.circle.fill", title: "Dedicated", subtitle: "Complete 10 puzzles", progress: stats.totalPuzzlesCompleted, target: 10)
+                achievementRow(icon: "10.circle.fill", title: "Dedicated", subtitle: "Complete 10 puzzles", progress: stats?.totalPuzzlesCompleted ?? 0, target: 10)
                 Divider().padding(.leading, 44)
-                achievementRow(icon: "star.circle.fill", title: "Centurion", subtitle: "Complete 100 puzzles", progress: stats.totalPuzzlesCompleted, target: 100)
+                achievementRow(icon: "star.circle.fill", title: "Centurion", subtitle: "Complete 100 puzzles", progress: stats?.totalPuzzlesCompleted ?? 0, target: 100)
                 Divider().padding(.leading, 44)
-                achievementRow(icon: "crown.fill", title: "Master", subtitle: "Complete 500 puzzles", progress: stats.totalPuzzlesCompleted, target: 500)
+                achievementRow(icon: "crown.fill", title: "Master", subtitle: "Complete 500 puzzles", progress: stats?.totalPuzzlesCompleted ?? 0, target: 500)
             }
 
             VStack(spacing: 0) {
-                achievementRow(icon: "flame.fill", title: "On a Roll", subtitle: "3-day streak", progress: stats.longestStreak, target: 3)
+                achievementRow(icon: "flame.fill", title: "On a Roll", subtitle: "3-day streak", progress: stats?.longestStreak ?? 0, target: 3)
                 Divider().padding(.leading, 44)
-                achievementRow(icon: "flame.fill", title: "Week Warrior", subtitle: "7-day streak", progress: stats.longestStreak, target: 7)
+                achievementRow(icon: "flame.fill", title: "Week Warrior", subtitle: "7-day streak", progress: stats?.longestStreak ?? 0, target: 7)
                 Divider().padding(.leading, 44)
-                achievementRow(icon: "flame.fill", title: "Berry Committed", subtitle: "30-day streak", progress: stats.longestStreak, target: 30)
+                achievementRow(icon: "flame.fill", title: "Berry Committed", subtitle: "30-day streak", progress: stats?.longestStreak ?? 0, target: 30)
             }
         }
         .padding(20)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .glassEffect(in: .rect(cornerRadius: 16))
     }
 
     private func achievementRow(icon: String, title: String, subtitle: String, progress: Int, target: Int) -> some View {
@@ -363,11 +368,6 @@ struct HomeView: View {
         return savedStates.contains { $0.puzzleJSON == key && $0.solved }
     }
 
-    private func formatTime(_ seconds: TimeInterval) -> String {
-        let mins = Int(seconds) / 60
-        let secs = Int(seconds) % 60
-        return String(format: "%d:%02d", mins, secs)
-    }
 }
 
 #Preview {

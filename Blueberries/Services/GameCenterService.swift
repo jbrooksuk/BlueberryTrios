@@ -2,6 +2,7 @@ import Foundation
 import GameKit
 import Observation
 
+@MainActor
 @Observable
 final class GameCenterService {
     private(set) var isAuthenticated = false

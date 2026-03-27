@@ -63,18 +63,20 @@ struct PuzzleStore {
         return puzzleList[index]
     }
 
-    /// Port of the cyrb53 hash function from the original JS
-    private func cyrb53(_ str: String, seed: UInt64 = 0) -> UInt64 {
-        var h1: UInt64 = 0xdeadbeef ^ seed
-        var h2: UInt64 = 0x41c6ce57 ^ seed
-        let bytes = Array(str.utf8)
-        for byte in bytes {
-            let ch = UInt64(byte)
-            h1 = (h1 ^ ch) &* 2654435761
-            h2 = (h2 ^ ch) &* 1597334677
+    /// Port of the cyrb53 hash function from the original JS.
+    /// Uses UInt32 to match Math.imul and .utf16 to match charCodeAt.
+    private func cyrb53(_ str: String, seed: UInt32 = 0) -> UInt64 {
+        var h1: UInt32 = 0xdeadbeef ^ seed
+        var h2: UInt32 = 0x41c6ce57 ^ seed
+        for ch in str.utf16 {
+            let c = UInt32(ch)
+            h1 = (h1 ^ c) &* 2654435761
+            h2 = (h2 ^ c) &* 1597334677
         }
-        h1 = ((h1 ^ (h1 >> 16)) &* 2246822507) ^ ((h2 ^ (h2 >> 13)) &* 3266489909)
-        h2 = ((h2 ^ (h2 >> 16)) &* 2246822507) ^ ((h1 ^ (h1 >> 13)) &* 3266489909)
-        return (h2 &<< 32) | (h1 & 0xFFFFFFFF)
+        h1 = (h1 ^ (h1 >> 16)) &* 2246822507
+        h1 ^= (h2 ^ (h2 >> 13)) &* 3266489909
+        h2 = (h2 ^ (h2 >> 16)) &* 2246822507
+        h2 ^= (h1 ^ (h1 >> 13)) &* 3266489909
+        return UInt64(2097151 & h2) &* 4294967296 &+ UInt64(h1)
     }
 }

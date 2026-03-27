@@ -2,6 +2,7 @@ import Foundation
 import StoreKit
 import Observation
 
+@MainActor
 @Observable
 final class StoreKitService {
     static let proProductID = "com.alt-three.Blueberries.pro"
@@ -16,10 +17,6 @@ final class StoreKitService {
             await loadProducts()
             await updatePurchaseStatus()
         }
-    }
-
-    deinit {
-        transactionListener?.cancel()
     }
 
     func loadProducts() async {

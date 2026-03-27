@@ -8,7 +8,7 @@ struct PuzzleGridView: View {
     var onStateChanged: (() -> Void)?
 
     @State private var dragState: DragState?
-    private let lightImpact = UIImpactFeedbackGenerator(style: .light)
+    @State private var lightImpact = UIImpactFeedbackGenerator(style: .light)
 
     private struct DragState {
         let fromState: CellState
@@ -45,9 +45,9 @@ struct PuzzleGridView: View {
                             model.dragSetCell(cell, to: nextState)
                             dragState = DragState(fromState: currentState, toState: nextState, lastCell: cell)
                             if hapticsEnabled { lightImpact.impactOccurred() }
-                        } else if cell != dragState?.lastCell {
+                        } else if let ds = dragState, cell != ds.lastCell {
                             // Dragging over a new cell
-                            model.dragSetCell(cell, to: dragState!.toState)
+                            model.dragSetCell(cell, to: ds.toState)
                             dragState?.lastCell = cell
                             if hapticsEnabled { lightImpact.impactOccurred() }
                         }

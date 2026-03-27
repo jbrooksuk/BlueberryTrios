@@ -37,6 +37,7 @@ struct CheckResult {
     }
 }
 
+@MainActor
 @Observable
 final class PuzzleModel {
     let definition: PuzzleDefinition
@@ -64,9 +65,9 @@ final class PuzzleModel {
     // Hint
     var hintedCell: CellID?
 
-    // Timer
-    var elapsedTime: TimeInterval = 0
-    var isTimerRunning: Bool = false
+    // Stored set for quick lookup (avoid recomputing)
+    let clueCells: Set<CellID>
+
     var hintUsed: Bool = false
 
     init(definition: PuzzleDefinition) {
@@ -198,14 +199,11 @@ final class PuzzleModel {
         self.blockOfCell = blockOfCell
         self.neighborsOfCell = neighborsOfCell
         self.cells = cells
+        self.clueCells = Set(clueForCell.keys)
         self.lastCheck = checkSolved()
     }
 
     // MARK: - Cell State Management
-
-    var hasClue: Set<CellID> {
-        Set(clueForCell.keys)
-    }
 
     func isInteractive(_ cell: CellID) -> Bool {
         clueForCell[cell] == nil
@@ -363,7 +361,6 @@ final class PuzzleModel {
         lastCheck = result
         if result.status == .solved && !isSolved {
             isSolved = true
-            isTimerRunning = false
         }
     }
 

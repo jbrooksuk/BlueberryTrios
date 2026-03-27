@@ -20,7 +20,8 @@ struct GameView: View {
     @State private var showTimer: Bool = true
     @State private var fillHints: Bool = false
     @State private var hapticsEnabled: Bool = true
-    @State private var timerTask: Task<Void, Never>?
+    @State private var gameTimer = GameTimer()
+    @State private var cachedPuzzleKey: String?
 
     init(
         storeService: StoreKitService,
@@ -36,11 +37,8 @@ struct GameView: View {
         _difficulty = State(initialValue: initialDifficulty)
     }
 
-    private var stats: PlayerStats {
-        if let existing = statsRecords.first { return existing }
-        let new = PlayerStats()
-        modelContext.insert(new)
-        return new
+    private var stats: PlayerStats? {
+        statsRecords.first
     }
 
     var body: some View {
@@ -116,6 +114,7 @@ struct GameView: View {
                 solvedOverlay
             }
         }
+        .animation(.spring(duration: 0.4, bounce: 0.3), value: model?.isSolved)
     }
 
     // MARK: - Header
@@ -128,10 +127,8 @@ struct GameView: View {
 
                 Spacer()
 
-                if showTimer, let model {
-                    Text(formatTime(model.elapsedTime))
-                        .font(.system(.body, design: .monospaced))
-                        .foregroundStyle(.secondary)
+                if showTimer {
+                    TimerDisplayView(timer: gameTimer)
                 }
 
                 Button {
@@ -253,21 +250,17 @@ struct GameView: View {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 48))
                 .foregroundStyle(.green)
+                .symbolEffect(.bounce, value: model?.isSolved)
             Text("Solved!")
                 .font(.title.bold())
-            if let model {
-                Text(formatTime(model.elapsedTime))
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
-            }
+            TimerDisplayView(timer: gameTimer)
             Button("Next Puzzle") {
                 advanceToNextPuzzle()
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(.glassProminent)
         }
         .padding(32)
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .glassEffect(in: .rect(cornerRadius: 16))
         .shadow(radius: 10)
         .transition(.scale.combined(with: .opacity))
     }
@@ -275,7 +268,7 @@ struct GameView: View {
     // MARK: - Puzzle Loading
 
     private func loadPuzzle() {
-        stopTimer()
+        gameTimer.reset()
         let date = Date()
         let definition: PuzzleDefinition?
         switch source {
@@ -287,15 +280,17 @@ struct GameView: View {
         guard let definition else { return }
         let newModel = PuzzleModel(definition: definition)
 
-        // Try to restore saved state
+        // Cache the puzzle key for save operations
         let puzzleKey = puzzleIdentifier(definition)
+        cachedPuzzleKey = puzzleKey
+
         if let saved = savedStates.first(where: { $0.puzzleJSON == puzzleKey }) {
             restoreState(saved, into: newModel)
         }
 
         self.model = newModel
         if !newModel.isSolved {
-            startTimer()
+            gameTimer.start()
         }
     }
 
@@ -338,36 +333,39 @@ struct GameView: View {
     }
 
     private func saveCurrentState() {
-        guard let model else { return }
-        let puzzleKey = puzzleIdentifier(model.definition)
+        guard let model, let puzzleKey = cachedPuzzleKey else { return }
         let cellString = model.allCells.map { (model.cells[$0] ?? .undecided).rawValue }.joined()
-        let dateString = currentDateString()
+        let elapsed = gameTimer.elapsedTime
+
+        if model.isSolved {
+            gameTimer.stop()
+        }
 
         if let existing = savedStates.first(where: { $0.puzzleJSON == puzzleKey }) {
             existing.cellStates = cellString
-            existing.elapsedTime = model.elapsedTime
+            existing.elapsedTime = elapsed
             existing.hintUsed = model.hintUsed
             existing.solved = model.isSolved
             if model.isSolved && existing.completionDate == nil {
                 existing.completionDate = Date()
-                recordCompletion(time: model.elapsedTime)
+                recordCompletion(time: elapsed)
             }
         } else {
             let state = GameState(
                 puzzleJSON: puzzleKey,
                 cellStates: cellString,
-                elapsedTime: model.elapsedTime,
+                elapsedTime: elapsed,
                 hintUsed: model.hintUsed,
                 solved: model.isSolved,
                 completionDate: model.isSolved ? Date() : nil,
                 source: source.rawValue,
                 difficulty: difficulty.rawValue,
-                dateString: dateString,
+                dateString: currentDateString(),
                 proSetNumber: proSetNumber
             )
             modelContext.insert(state)
             if model.isSolved {
-                recordCompletion(time: model.elapsedTime)
+                recordCompletion(time: elapsed)
             }
         }
     }
@@ -381,7 +379,7 @@ struct GameView: View {
                 model.cells[cell] = state
             }
         }
-        model.elapsedTime = saved.elapsedTime
+        gameTimer.elapsedTime = saved.elapsedTime
         model.hintUsed = saved.hintUsed
         model.isSolved = saved.solved
         _ = model.checkSolved()
@@ -409,11 +407,11 @@ struct GameView: View {
     }
 
     private func recordCompletion(time: TimeInterval) {
-        stats.recordCompletion(time: time, date: Date())
+        stats?.recordCompletion(time: time, date: Date())
         gameCenterService.reportPuzzleCompleted(
-            totalCompleted: stats.totalPuzzlesCompleted,
+            totalCompleted: stats?.totalPuzzlesCompleted ?? 0,
             completionTime: time,
-            streak: stats.currentStreak
+            streak: stats?.currentStreak ?? 0
         )
     }
 
@@ -423,30 +421,19 @@ struct GameView: View {
         return "\(cal.component(.day, from: d)) \(cal.component(.month, from: d)) \(cal.component(.year, from: d))"
     }
 
-    // MARK: - Timer
+}
 
-    private func startTimer() {
-        guard let model else { return }
-        model.isTimerRunning = true
-        timerTask = Task {
-            while !Task.isCancelled && model.isTimerRunning {
-                try? await Task.sleep(for: .seconds(1))
-                if !Task.isCancelled && model.isTimerRunning {
-                    model.elapsedTime += 1
-                }
-            }
-        }
+// MARK: - Isolated Timer Display
+
+private struct TimerDisplayView: View {
+    @Bindable var timer: GameTimer
+
+    var body: some View {
+        Text(formatTime(timer.elapsedTime))
+            .font(.system(.body, design: .monospaced))
+            .foregroundStyle(.secondary)
+            .contentTransition(.numericText())
+            .animation(.default, value: timer.elapsedTime)
     }
 
-    private func stopTimer() {
-        timerTask?.cancel()
-        timerTask = nil
-        model?.isTimerRunning = false
-    }
-
-    private func formatTime(_ seconds: TimeInterval) -> String {
-        let mins = Int(seconds) / 60
-        let secs = Int(seconds) % 60
-        return String(format: "%d:%02d", mins, secs)
-    }
 }
