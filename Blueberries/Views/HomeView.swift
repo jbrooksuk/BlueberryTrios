@@ -309,6 +309,10 @@ struct HomeView: View {
                 Divider().padding(.leading, 44)
                 achievementRow(icon: "flame.fill", title: "Berry Committed", subtitle: "30-day streak", progress: stats?.longestStreak ?? 0, target: 30)
             }
+
+            VStack(spacing: 0) {
+                achievementRow(icon: "bolt.fill", title: "Speed Demon", subtitle: "Solve a puzzle in under 1 minute", progress: (stats?.fastestCompletionTime ?? .infinity) < 60 ? 1 : 0, target: 1)
+            }
         }
         .padding(20)
         .glassEffect(in: .rect(cornerRadius: 16))
