@@ -16,6 +16,7 @@ final class GameCenterService {
         case onARoll = "com.alt-three.Blueberries.streak_3"
         case weekWarrior = "com.alt-three.Blueberries.streak_7"
         case berryCommitted = "com.alt-three.Blueberries.streak_30"
+        case speedDemon = "com.alt-three.Blueberries.speed_demon"
     }
 
     // Leaderboard identifier
@@ -64,6 +65,12 @@ final class GameCenterService {
             gkAchievement.showsCompletionBanner = true
             achievements.append(gkAchievement)
         }
+
+        // Speed achievement — sub 1 minute
+        let speedAchievement = GKAchievement(identifier: Achievement.speedDemon.rawValue)
+        speedAchievement.percentComplete = completionTime < 60 ? 100.0 : 0.0
+        speedAchievement.showsCompletionBanner = true
+        achievements.append(speedAchievement)
 
         GKAchievement.report(achievements) { error in
             if let error {
