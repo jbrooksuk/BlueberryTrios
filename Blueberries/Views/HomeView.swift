@@ -109,7 +109,7 @@ struct HomeView: View {
             }
             .frame(height: 100)
 
-            Text("Blueberry Trio")
+            Text("Berroku")
                 .font(.largeTitle.bold())
 
             if allDailySolved {

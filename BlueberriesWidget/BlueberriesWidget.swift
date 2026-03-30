@@ -135,7 +135,7 @@ private struct MediumWidgetView: View {
                     }
 
                     VStack(alignment: .leading, spacing: 1) {
-                        Text("Blueberry Trio")
+                        Text("Berroku")
                             .font(.subheadline.bold())
                         Text("Today's Puzzles")
                             .font(.caption2)

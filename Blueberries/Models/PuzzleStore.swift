@@ -59,7 +59,7 @@ struct PuzzleStore {
         let year = calendar.component(.year, from: date)
         let dateString = "\(day) \(month) \(year)"
         let seed = "\(dateString) \(difficulty.rawValue) \(source.rawValue) \(setNumber)"
-        let hash = cyrb53(seed)
+        let hash = cyrb53(seed, seed: 42)
         let index = Int(hash % UInt64(puzzleList.count))
         return puzzleList[index]
     }

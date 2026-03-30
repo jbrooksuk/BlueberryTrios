@@ -151,7 +151,7 @@ struct GameView: View {
     private var headerView: some View {
         VStack(spacing: 8) {
             HStack {
-                Text("Blueberry Trio")
+                Text("Berroku")
                     .font(.title2.bold())
 
                 Spacer()

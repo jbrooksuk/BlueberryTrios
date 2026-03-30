@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Blueberry Trio is a logic puzzle game for iOS, ported from the web version at circle9puzzle.com/bbtrio. Players place 3 berries into each row, column, and block of a 9x9 grid, guided by number clues indicating how many of the 8 surrounding cells contain berries.
+Berroku is a logic puzzle game for iOS, ported from the web version at circle9puzzle.com/bbtrio. Players place 3 berries into each row, column, and block of a 9x9 grid, guided by number clues indicating how many of the 8 surrounding cells contain berries.
 
 ## Build & Run
 

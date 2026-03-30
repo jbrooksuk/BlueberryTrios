@@ -32,7 +32,7 @@ final class NotificationService {
         center.removeAllPendingNotificationRequests()
 
         let content = UNMutableNotificationContent()
-        content.title = "Blueberry Trio"
+        content.title = "Berroku"
         content.body = "Today's puzzles are ready! Can you keep your streak going?"
         content.sound = .default
 
