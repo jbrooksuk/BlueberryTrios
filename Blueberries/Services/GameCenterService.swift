@@ -17,6 +17,10 @@ final class GameCenterService {
         case weekWarrior = "com.alt-three.Blueberries.streak_7"
         case berryCommitted = "com.alt-three.Blueberries.streak_30"
         case speedDemon = "com.alt-three.Blueberries.speed_demon"
+        case standardComplete = "com.alt-three.Blueberries.standard_complete"
+        case advancedComplete = "com.alt-three.Blueberries.advanced_complete"
+        case expertComplete = "com.alt-three.Blueberries.expert_complete"
+        case dailySweep = "com.alt-three.Blueberries.daily_sweep"
     }
 
     // Leaderboard identifier
@@ -32,7 +36,7 @@ final class GameCenterService {
         }
     }
 
-    func reportPuzzleCompleted(totalCompleted: Int, completionTime: TimeInterval, streak: Int) {
+    func reportPuzzleCompleted(totalCompleted: Int, completionTime: TimeInterval, streak: Int, difficulty: Difficulty? = nil, allDailySolved: Bool = false) {
         guard isAuthenticated else { return }
 
         var achievements: [GKAchievement] = []
@@ -71,6 +75,29 @@ final class GameCenterService {
         speedAchievement.percentComplete = completionTime < 60 ? 100.0 : 0.0
         speedAchievement.showsCompletionBanner = true
         achievements.append(speedAchievement)
+
+        // Difficulty achievements
+        if let difficulty {
+            let diffAchievement: Achievement? = switch difficulty {
+            case .standard: .standardComplete
+            case .advanced: .advancedComplete
+            case .expert: .expertComplete
+            }
+            if let diffAchievement {
+                let gkAchievement = GKAchievement(identifier: diffAchievement.rawValue)
+                gkAchievement.percentComplete = 100.0
+                gkAchievement.showsCompletionBanner = true
+                achievements.append(gkAchievement)
+            }
+        }
+
+        // Daily sweep — all 3 difficulties in one day
+        if allDailySolved {
+            let sweepAchievement = GKAchievement(identifier: Achievement.dailySweep.rawValue)
+            sweepAchievement.percentComplete = 100.0
+            sweepAchievement.showsCompletionBanner = true
+            achievements.append(sweepAchievement)
+        }
 
         Task {
             do {

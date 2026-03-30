@@ -329,6 +329,16 @@ struct HomeView: View {
             VStack(spacing: 0) {
                 achievementRow(icon: "bolt.fill", title: "Speed Demon", subtitle: "Solve a puzzle in under 1 minute", progress: (stats?.fastestCompletionTime ?? .infinity) < 60 ? 1 : 0, target: 1)
             }
+
+            VStack(spacing: 0) {
+                achievementRow(icon: "square.grid.3x3.fill", title: "Standard Solver", subtitle: "Complete a Standard puzzle", progress: hasSolvedDifficulty(.standard) ? 1 : 0, target: 1)
+                Divider().padding(.leading, 44)
+                achievementRow(icon: "square.grid.3x3.fill", title: "Advanced Solver", subtitle: "Complete an Advanced puzzle", progress: hasSolvedDifficulty(.advanced) ? 1 : 0, target: 1)
+                Divider().padding(.leading, 44)
+                achievementRow(icon: "square.grid.3x3.fill", title: "Expert Solver", subtitle: "Complete an Expert puzzle", progress: hasSolvedDifficulty(.expert) ? 1 : 0, target: 1)
+                Divider().padding(.leading, 44)
+                achievementRow(icon: "sparkles", title: "Daily Sweep", subtitle: "Complete all 3 daily puzzles", progress: allDailySolved ? 1 : 0, target: 1)
+            }
         }
         .padding(20)
         .glassEffect(in: .rect(cornerRadius: 16))
@@ -376,6 +386,10 @@ struct HomeView: View {
 
     private var allDailySolved: Bool {
         Difficulty.allCases.allSatisfy { isDailySolved($0) }
+    }
+
+    private func hasSolvedDifficulty(_ difficulty: Difficulty) -> Bool {
+        savedStates.contains { $0.difficulty == difficulty.rawValue && $0.solved }
     }
 
     private func isDailySolved(_ difficulty: Difficulty) -> Bool {

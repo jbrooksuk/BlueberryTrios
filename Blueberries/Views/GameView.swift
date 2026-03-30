@@ -445,10 +445,23 @@ struct GameView: View {
 
     private func recordCompletion(time: TimeInterval) {
         stats?.recordCompletion(time: time, date: Date.now)
+
+        // Check if all daily puzzles are now solved
+        let allDailySolved = source == .daily && Difficulty.allCases.allSatisfy { diff in
+            guard let def = puzzleStore.dailyPuzzle(date: Date.now, difficulty: diff) else { return false }
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .sortedKeys
+            guard let data = try? encoder.encode(def),
+                  let key = String(data: data, encoding: .utf8) else { return false }
+            return savedStates.contains { $0.puzzleJSON == key && $0.solved }
+        }
+
         gameCenterService.reportPuzzleCompleted(
             totalCompleted: stats?.totalPuzzlesCompleted ?? 0,
             completionTime: time,
-            streak: stats?.currentStreak ?? 0
+            streak: stats?.currentStreak ?? 0,
+            difficulty: difficulty,
+            allDailySolved: allDailySolved
         )
         updateWidgetData()
     }
