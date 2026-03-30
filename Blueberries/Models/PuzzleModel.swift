@@ -57,13 +57,20 @@ final class PuzzleModel {
 
     // Game state
     var cells: [CellID: CellState]
-    var undoStack: [[CellCommand]] = []
-    var redoStack: [[CellCommand]] = []
+    var undoStack: [CellCommand] = []
+    var redoStack: [CellCommand] = []
     var isSolved: Bool = false
     var lastCheck: CheckResult?
 
     // Hint
     var hintedCell: CellID?
+
+    // Animation state
+    var recentlyPlacedBerries: Set<CellID> = []
+    var showErrors: Bool = false
+    var lastChangeTime: Date = .now
+    var celebrationProgress: Double = 0 // 0 to 1, row-by-row cascade
+    var showSolvedOverlay: Bool = false
 
     // Stored set for quick lookup (avoid recomputing)
     let clueCells: Set<CellID>
@@ -209,55 +216,32 @@ final class PuzzleModel {
         clueForCell[cell] == nil
     }
 
-    func setCellState(_ cell: CellID, to newState: CellState) {
+    func applyCell(_ cell: CellID, to newState: CellState) {
         guard isInteractive(cell) else { return }
         let oldState = cells[cell] ?? .undecided
         guard oldState != newState else { return }
         cells[cell] = newState
-        let command = CellCommand(cell: cell, oldState: oldState, newState: newState)
-        if let last = undoStack.last, !last.isEmpty {
-            // During a drag, append to current batch
-        } else {
-            undoStack.append([command])
-        }
+        undoStack.append(CellCommand(cell: cell, oldState: oldState, newState: newState))
         redoStack.removeAll()
-        updateCheck()
-    }
 
-    func beginDrag() {
-        undoStack.append([])
-    }
-
-    func dragSetCell(_ cell: CellID, to newState: CellState) {
-        guard isInteractive(cell) else { return }
-        let oldState = cells[cell] ?? .undecided
-        guard oldState != newState else { return }
-        cells[cell] = newState
-        let command = CellCommand(cell: cell, oldState: oldState, newState: newState)
-        if undoStack.isEmpty {
-            undoStack.append([command])
+        // Track berry placement for animation
+        if newState == .berry {
+            recentlyPlacedBerries.insert(cell)
         } else {
-            undoStack[undoStack.count - 1].append(command)
+            recentlyPlacedBerries.remove(cell)
         }
-        redoStack.removeAll()
-        updateCheck()
-    }
 
-    func endDrag() {
-        // Remove empty batches
-        if let last = undoStack.last, last.isEmpty {
-            undoStack.removeLast()
-        }
+        // Reset error delay
+        showErrors = false
+        lastChangeTime = .now
+
+        updateCheck()
     }
 
     func tapCell(_ cell: CellID) {
         guard isInteractive(cell) else { return }
-        let oldState = cells[cell] ?? .undecided
-        let newState = oldState.next
-        cells[cell] = newState
-        undoStack.append([CellCommand(cell: cell, oldState: oldState, newState: newState)])
-        redoStack.removeAll()
-        updateCheck()
+        let currentState = cells[cell] ?? .undecided
+        applyCell(cell, to: currentState.next)
     }
 
     // MARK: - Undo / Redo
@@ -266,38 +250,38 @@ final class PuzzleModel {
     var canRedo: Bool { !redoStack.isEmpty }
 
     func undo() {
-        guard let batch = undoStack.popLast() else { return }
-        for command in batch.reversed() {
+        guard let command = undoStack.popLast() else { return }
+        cells[command.cell] = command.oldState
+        redoStack.append(command)
+        updateCheck()
+    }
+
+    func undoAll() {
+        while let command = undoStack.popLast() {
             cells[command.cell] = command.oldState
+            redoStack.append(command)
         }
-        redoStack.append(batch)
         updateCheck()
     }
 
     func redo() {
-        guard let batch = redoStack.popLast() else { return }
-        for command in batch {
-            cells[command.cell] = command.newState
-        }
-        undoStack.append(batch)
+        guard let command = redoStack.popLast() else { return }
+        cells[command.cell] = command.newState
+        undoStack.append(command)
         updateCheck()
     }
 
     func erase() {
-        var batch: [CellCommand] = []
         for cell in allCells {
             if isInteractive(cell) {
                 let oldState = cells[cell] ?? .undecided
                 if oldState != .undecided {
-                    batch.append(CellCommand(cell: cell, oldState: oldState, newState: .undecided))
                     cells[cell] = .undecided
+                    undoStack.append(CellCommand(cell: cell, oldState: oldState, newState: .undecided))
                 }
             }
         }
-        if !batch.isEmpty {
-            undoStack.append(batch)
-            redoStack.removeAll()
-        }
+        redoStack.removeAll()
         updateCheck()
     }
 
