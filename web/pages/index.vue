@@ -9,9 +9,9 @@
         <section class="hero">
             <div class="container" style="text-align: center;">
                 <div class="hero-berries">
-                    <div class="hero-berry" />
-                    <div class="hero-berry" />
-                    <div class="hero-berry" />
+                    <img src="/berry-smile.svg" alt="" class="hero-berry berry-left" />
+                    <img src="/berry-happy.svg" alt="" class="hero-berry berry-center" />
+                    <img src="/berry-wink.svg" alt="" class="hero-berry berry-right" />
                 </div>
                 <h1>Berroku</h1>
                 <p class="hero-tagline">Place 3 berries in every row, column &amp; block. A fresh logic puzzle that's delightfully addictive.</p>
@@ -135,8 +135,36 @@ section { position: relative; z-index: 1; padding: 80px 0; }
 .hero-berries {
     display: flex;
     justify-content: center;
-    gap: 8px;
-    margin-bottom: 32px;
+    align-items: flex-end;
+    gap: 0;
+    margin-bottom: 24px;
+}
+.hero-berry {
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+    animation: heroFloat 3s ease-in-out infinite;
+    width: auto;
+    height: auto;
+}
+.hero-berry::before, .hero-berry::after { display: none; }
+.berry-left {
+    width: 56px;
+    transform: rotate(-8deg);
+    animation-delay: 0s;
+    margin-right: -8px;
+}
+.berry-center {
+    width: 72px;
+    animation-delay: 0.3s;
+    z-index: 1;
+    filter: drop-shadow(0 8px 20px rgba(53,132,228,0.3));
+}
+.berry-right {
+    width: 56px;
+    transform: rotate(8deg);
+    animation-delay: 0.6s;
+    margin-left: -8px;
 }
 h1 {
     font-family: 'DM Serif Display', serif;

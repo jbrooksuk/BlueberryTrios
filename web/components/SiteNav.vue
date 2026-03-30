@@ -2,7 +2,7 @@
     <nav>
         <div class="container nav-inner">
             <NuxtLink to="/" class="nav-brand">
-                <span class="nav-berry" />
+                <img src="/berry-happy.svg" alt="" class="nav-berry" />
                 Berroku
             </NuxtLink>
             <NuxtLink to="/#download" class="btn-nav">
@@ -36,22 +36,10 @@ nav {
     text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 .nav-berry {
-    display: block;
-    width: 28px; height: 28px;
-    background: var(--berry);
-    border-radius: 50%;
-    position: relative;
-}
-.nav-berry::before {
-    content: '';
-    position: absolute;
-    width: 8px; height: 12px;
-    background: var(--leaf);
-    border-radius: 0 8px 0 8px;
-    top: -4px; left: 50%;
-    transform: translateX(-50%) rotate(-15deg);
+    width: 32px;
+    height: 32px;
 }
 </style>
