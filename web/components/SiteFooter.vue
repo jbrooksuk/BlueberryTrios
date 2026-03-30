@@ -2,6 +2,7 @@
     <footer>
         <div class="container">
             <p>&copy; 2026 Berroku. Made with berries by <a href="https://x.com/jbrooksuk">James Brooks</a>.</p>
+            <p style="margin-top: 4px;">Inspired by <a href="https://circle9puzzle.com/bbtrio/" target="_blank" rel="noopener">Blueberry Trio</a> by Circle Moon Puzzles.</p>
             <p class="legal-links">
                 <NuxtLink to="/privacy">Privacy Policy</NuxtLink>
                 <span>&middot;</span>
