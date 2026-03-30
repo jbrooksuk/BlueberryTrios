@@ -6,7 +6,7 @@
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.com.alt-three.Berroku</string>
+		<string>group.com.altthree.berroku</string>
 	</array>
 </dict>
 </plist>

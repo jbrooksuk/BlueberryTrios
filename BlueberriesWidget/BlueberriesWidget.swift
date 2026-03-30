@@ -28,7 +28,7 @@ struct DailyProgressProvider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<DailyProgressEntry>) -> Void) {
-        let defaults = UserDefaults(suiteName: "group.com.alt-three.Berroku") ?? .standard
+        let defaults = UserDefaults(suiteName: "group.com.altthree.berroku") ?? .standard
         let solved = defaults.integer(forKey: "widget.solvedCount")
         let streak = defaults.integer(forKey: "widget.currentStreak")
 
