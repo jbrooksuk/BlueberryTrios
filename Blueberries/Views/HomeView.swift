@@ -104,23 +104,24 @@ struct HomeView: View {
         VStack(spacing: 12) {
             PhaseAnimator([false, true]) { phase in
                 ZStack {
-                    // Three floating blueberries
-                    BlueberryView(size: 38)
-                        .offset(x: -45, y: phase ? -8 : 0)
-                        .rotationEffect(.degrees(phase ? -8 : -5))
+                    // Three kawaii blueberries matching app icon
+                    BlueberryView(size: 48, expression: .smile)
+                        .offset(x: -32, y: phase ? -6 : 2)
+                        .rotationEffect(.degrees(phase ? -6 : -3))
 
-                    BlueberryView(size: 52)
+                    BlueberryView(size: 44, expression: .wink)
+                        .offset(x: 32, y: phase ? -4 : 4)
+                        .rotationEffect(.degrees(phase ? 8 : 4))
+                        
+                    
+                    BlueberryView(size: 64, expression: .happy)
                         .offset(x: 0, y: phase ? 4 : -4)
                         .shadow(color: Theme.berryBlue.opacity(0.3), radius: 8, y: 4)
-
-                    BlueberryView(size: 34)
-                        .offset(x: 48, y: phase ? -4 : 4)
-                        .rotationEffect(.degrees(phase ? 10 : 6))
                 }
             } animation: { _ in
                 .easeInOut(duration: 1.5)
             }
-            .frame(height: 80)
+            .frame(height: 90)
 
             Text("Berroku")
                 .font(.largeTitle.bold())
