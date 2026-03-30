@@ -40,7 +40,6 @@
 		1A295E732F7A88AE00016082 /* BlueberriesWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BlueberriesWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A295E752F7A88AE00016082 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		1A295E772F7A88AE00016082 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		1A295E8D2F7A899F00016082 /* BlueberriesWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BlueberriesWidgetExtension.entitlements; sourceTree = "<group>"; };
 		1A72176A2F74765A00B7D285 /* Blueberries.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Blueberries.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -102,7 +101,6 @@
 		1A7217612F74765A00B7D285 = {
 			isa = PBXGroup;
 			children = (
-				1A295E8D2F7A899F00016082 /* BlueberriesWidgetExtension.entitlements */,
 				1A72176C2F74765A00B7D285 /* Blueberries */,
 				1A295E792F7A88AE00016082 /* BlueberriesWidget */,
 				1A295E742F7A88AE00016082 /* Frameworks */,
@@ -260,7 +258,7 @@
 				DEVELOPMENT_TEAM = G4ACBQ3J5M;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BlueberriesWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = BlueberriesWidget;
+				INFOPLIST_KEY_CFBundleDisplayName = Berroku;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -291,7 +289,7 @@
 				DEVELOPMENT_TEAM = G4ACBQ3J5M;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BlueberriesWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = BlueberriesWidget;
+				INFOPLIST_KEY_CFBundleDisplayName = Berroku;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -443,6 +441,7 @@
 				DEVELOPMENT_TEAM = G4ACBQ3J5M;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Berroku;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -476,6 +475,7 @@
 				DEVELOPMENT_TEAM = G4ACBQ3J5M;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Berroku;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
