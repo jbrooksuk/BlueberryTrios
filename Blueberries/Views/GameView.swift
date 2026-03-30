@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import StoreKit
+import WidgetKit
 
 struct GameView: View {
     @Environment(\.modelContext) private var modelContext
@@ -16,11 +17,14 @@ struct GameView: View {
     @State private var difficulty: Difficulty
     @State private var proSetNumber: Int = 0
     @State private var showSettings: Bool = false
-    @State private var autoCheck: Bool = true
-    @State private var showTimer: Bool = true
-    @State private var fillHints: Bool = false
-    @State private var hapticsEnabled: Bool = true
+    @AppStorage("autoCheck") private var autoCheck: Bool = true
+    @AppStorage("showTimer") private var showTimer: Bool = true
+    @AppStorage("fillHints") private var fillHints: Bool = false
+    @AppStorage("hapticsEnabled") private var hapticsEnabled: Bool = true
+    @AppStorage("soundEnabled") private var soundEnabled: Bool = true
     @State private var gameTimer = GameTimer()
+    @State private var soundService = SoundService()
+    @State private var notificationService = NotificationService()
     @State private var cachedPuzzleKey: String?
 
     init(
@@ -47,7 +51,7 @@ struct GameView: View {
             Spacer(minLength: 12)
 
             if let model {
-                PuzzleGridView(model: model, autoCheck: autoCheck, hapticsEnabled: hapticsEnabled, onStateChanged: saveCurrentState)
+                PuzzleGridView(model: model, autoCheck: autoCheck, hapticsEnabled: hapticsEnabled, soundService: soundService, onStateChanged: saveCurrentState)
                     .padding(.horizontal, 8)
 
                 Spacer(minLength: 0)
@@ -66,6 +70,10 @@ struct GameView: View {
                         Label("Undo", systemImage: "arrow.uturn.backward")
                     }
                     .disabled(!model.canUndo || solved)
+                    .onLongPressGesture {
+                        model.undoAll()
+                        saveCurrentState()
+                    }
 
                     Button { model.redo(); saveCurrentState() } label: {
                         Label("Redo", systemImage: "arrow.uturn.forward")
@@ -95,7 +103,9 @@ struct GameView: View {
         .gesture(DragGesture())
         .task {
             UIApplication.shared.isIdleTimerDisabled = true
+            soundService.isEnabled = soundEnabled
             loadPuzzle()
+            updateWidgetData()
         }
         .onDisappear {
             UIApplication.shared.isIdleTimerDisabled = false
@@ -111,11 +121,29 @@ struct GameView: View {
             settingsSheet
         }
         .overlay {
-            if model?.isSolved == true {
+            if model?.showSolvedOverlay == true {
                 solvedOverlay
             }
         }
-        .animation(.spring(duration: 0.4, bounce: 0.3), value: model?.isSolved)
+        .animation(.spring(duration: 0.4, bounce: 0.3), value: model?.showSolvedOverlay)
+        .onChange(of: soundEnabled) { soundService.isEnabled = soundEnabled }
+        .onChange(of: model?.isSolved) {
+            if let model, model.isSolved {
+                soundService.playSolved()
+                // Run celebration cascade, then show overlay
+                Task {
+                    let steps = 18
+                    for i in 1...steps {
+                        model.celebrationProgress = Double(i) / Double(steps)
+                        try? await Task.sleep(for: .milliseconds(50))
+                    }
+                    try? await Task.sleep(for: .milliseconds(300))
+                    withAnimation(.spring(duration: 0.4, bounce: 0.3)) {
+                        model.showSolvedOverlay = true
+                    }
+                }
+            }
+        }
     }
 
     // MARK: - Header
@@ -193,6 +221,8 @@ struct GameView: View {
                     Toggle("Show Timer", isOn: $showTimer)
                     Toggle("Fill Hints", isOn: $fillHints)
                     Toggle("Haptics", isOn: $hapticsEnabled)
+                    Toggle("Sound", isOn: $soundEnabled)
+                    Toggle("Daily Reminder", isOn: $notificationService.isEnabled)
                 }
                 Section("Pro Puzzles") {
                     if storeService.isProUnlocked {
@@ -243,14 +273,16 @@ struct GameView: View {
     // MARK: - Solved Overlay
 
     private var solvedOverlay: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 48))
-                .foregroundStyle(.green)
-                .symbolEffect(.bounce, value: model?.isSolved)
-            Text("Solved!")
-                .font(.title.bold())
-            TimerDisplayView(timer: gameTimer)
+        ZStack {
+            ConfettiView()
+            VStack(spacing: 12) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 48))
+                    .foregroundStyle(.green)
+                    .symbolEffect(.bounce, value: model?.isSolved)
+                Text("Solved!")
+                    .font(.title.bold())
+                TimerDisplayView(timer: gameTimer)
             if source == .pro && storeService.isProUnlocked {
                 HStack(spacing: 12) {
                     Button("New Puzzle") {
@@ -269,9 +301,10 @@ struct GameView: View {
                 .buttonStyle(.glassProminent)
             }
         }
-        .padding(32)
-        .glassEffect(in: .rect(cornerRadius: 16))
-        .shadow(radius: 10)
+            .padding(32)
+            .glassEffect(in: .rect(cornerRadius: 16))
+            .shadow(radius: 10)
+        }
         .transition(.scale.combined(with: .opacity))
     }
 
@@ -401,13 +434,7 @@ struct GameView: View {
             model.hintUsed = true
             if let (cell, state) = move.knowledge.first {
                 if fillHints {
-                    let oldState = model.cells[cell] ?? .undecided
-                    if oldState != state {
-                        model.undoStack.append([CellCommand(cell: cell, oldState: oldState, newState: state)])
-                        model.cells[cell] = state
-                        model.redoStack.removeAll()
-                        _ = model.checkSolved()
-                    }
+                    model.applyCell(cell, to: state)
                 } else {
                     model.hintedCell = cell
                 }
@@ -423,6 +450,27 @@ struct GameView: View {
             completionTime: time,
             streak: stats?.currentStreak ?? 0
         )
+        updateWidgetData()
+    }
+
+    private func updateWidgetData() {
+        let defaults = UserDefaults(suiteName: "group.com.alt-three.Blueberries")
+        // Count how many daily puzzles are solved today
+        var solvedCount = 0
+        for diff in Difficulty.allCases {
+            if let def = puzzleStore.dailyPuzzle(date: Date.now, difficulty: diff) {
+                let encoder = JSONEncoder()
+                encoder.outputFormatting = .sortedKeys
+                if let data = try? encoder.encode(def),
+                   let key = String(data: data, encoding: .utf8),
+                   savedStates.contains(where: { $0.puzzleJSON == key && $0.solved }) {
+                    solvedCount += 1
+                }
+            }
+        }
+        defaults?.set(solvedCount, forKey: "widget.solvedCount")
+        defaults?.set(stats?.currentStreak ?? 0, forKey: "widget.currentStreak")
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     private func currentDateString() -> String {
