@@ -15,7 +15,14 @@ struct HomeView: View {
     @State private var selectedSource: PuzzleSource = .daily
     @State private var selectedDifficulty: Difficulty = .standard
     @State private var showCalendar: Bool = false
+    @State private var showSettings: Bool = false
     @State private var selectedTab: HomeTab = .home
+
+    @AppStorage("autoCheck") private var autoCheck: Bool = true
+    @AppStorage("showTimer") private var showTimer: Bool = true
+    @AppStorage("fillHints") private var fillHints: Bool = false
+    @AppStorage("hapticsEnabled") private var hapticsEnabled: Bool = true
+    @AppStorage("soundEnabled") private var soundEnabled: Bool = true
 
     private enum HomeTab: Hashable {
         case home, achievements
@@ -40,6 +47,17 @@ struct HomeView: View {
                 Tab("Achievements", systemImage: "trophy.fill", value: HomeTab.achievements) {
                     achievementsTab
                 }
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Settings", systemImage: "gearshape") {
+                        showSettings = true
+                    }
+                    .labelStyle(.iconOnly)
+                }
+            }
+            .sheet(isPresented: $showSettings) {
+                homeSettingsSheet
             }
             .task {
                 ensureStats()
@@ -404,6 +422,58 @@ struct HomeView: View {
             }
         }
         .padding(.vertical, 8)
+    }
+
+    // MARK: - Settings Sheet
+
+    private var homeSettingsSheet: some View {
+        NavigationStack {
+            Form {
+                Section("Gameplay") {
+                    Toggle("Auto Check", isOn: $autoCheck)
+                    Toggle("Show Timer", isOn: $showTimer)
+                    Toggle("Fill Hints", isOn: $fillHints)
+                    Toggle("Haptics", isOn: $hapticsEnabled)
+                    Toggle("Sound", isOn: $soundEnabled)
+                    Toggle("Daily Reminder", isOn: .constant(false)) // TODO: wire up NotificationService
+                }
+                Section("Pro Puzzles") {
+                    if storeService.isProUnlocked {
+                        Label("Pro Unlocked", systemImage: "checkmark.seal.fill")
+                            .foregroundStyle(.green)
+                    } else {
+                        if let product = storeService.proProduct {
+                            Button {
+                                Task { try? await storeService.purchasePro() }
+                            } label: {
+                                HStack {
+                                    Text("Unlock Pro Puzzles")
+                                    Spacer()
+                                    Text(product.displayPrice)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                        Button("Restore Purchases") {
+                            Task { await storeService.restorePurchases() }
+                        }
+                    }
+                }
+                Section("Rules") {
+                    Text("Place 3 berries into each row, column, and block. Surround each number with the specified number of berries.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { showSettings = false }
+                }
+            }
+        }
+        .presentationDetents([.large])
     }
 
     // MARK: - Helpers

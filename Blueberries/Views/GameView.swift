@@ -138,9 +138,9 @@ struct GameView: View {
         .animation(.spring(duration: 0.4, bounce: 0.3), value: model?.showSolvedOverlay)
         .onChange(of: soundEnabled) { soundService.isEnabled = soundEnabled }
         .onChange(of: model?.isSolved) {
-            if let model, model.isSolved {
+            if let model, model.isSolved, !model.showSolvedOverlay {
+                // Fresh solve — play sound and animate
                 soundService.playSolved()
-                // Run celebration cascade, then show overlay
                 Task {
                     let steps = 18
                     for i in 1...steps {
@@ -305,10 +305,22 @@ struct GameView: View {
                     .buttonStyle(.glass)
                 }
             } else {
-                Button("Next Puzzle") {
-                    advanceToNextPuzzle()
+                VStack(spacing: 10) {
+                    Button("Next Puzzle") {
+                        advanceToNextPuzzle()
+                    }
+                    .buttonStyle(.glassProminent)
+
+                    if !storeService.isProUnlocked {
+                        Button {
+                            Task { try? await storeService.purchasePro() }
+                        } label: {
+                            Label("Want more? Unlock Pro", systemImage: "infinity")
+                                .font(.subheadline)
+                        }
+                        .buttonStyle(.glass)
+                    }
                 }
-                .buttonStyle(.glassProminent)
             }
         }
             .padding(32)
@@ -341,6 +353,12 @@ struct GameView: View {
             restoreState(saved, into: newModel)
         }
 
+        // If restoring an already-solved puzzle, show overlay immediately without animation
+        if newModel.isSolved {
+            newModel.celebrationProgress = 1
+            newModel.showSolvedOverlay = true
+        }
+
         self.model = newModel
         if !newModel.isSolved {
             gameTimer.start()
@@ -348,14 +366,14 @@ struct GameView: View {
     }
 
     private func newProPuzzle() {
-        // Skip over already-solved puzzle sets
+        // Skip over already-started or solved puzzle sets
         for _ in 0..<100 {
             proSetNumber += 1
             let date = Date.now
             guard let definition = puzzleStore.proPuzzle(date: date, difficulty: difficulty, setNumber: proSetNumber) else { break }
             let key = puzzleIdentifier(definition)
-            let alreadySolved = savedStates.contains { $0.puzzleJSON == key && $0.solved }
-            if !alreadySolved { break }
+            let alreadyStarted = savedStates.contains { $0.puzzleJSON == key }
+            if !alreadyStarted { break }
         }
         loadPuzzle()
     }
