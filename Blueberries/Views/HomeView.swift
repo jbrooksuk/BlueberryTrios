@@ -10,6 +10,7 @@ struct HomeView: View {
 
     @State private var storeService = StoreKitService()
     @State private var gameCenterService = GameCenterService()
+    @State private var notificationService = NotificationService()
     private let puzzleStore = PuzzleStore()
     @State private var navigateToGame = false
     @State private var selectedSource: PuzzleSource = .daily
@@ -63,6 +64,10 @@ struct HomeView: View {
                 ensureStats()
                 gameCenterService.authenticate()
                 updateWidgetData()
+                notificationService.refreshIfNeeded(allDailySolved: allDailySolved)
+            }
+            .onChange(of: savedStates.filter({ $0.solved }).count) {
+                notificationService.refreshIfNeeded(allDailySolved: allDailySolved)
             }
             .navigationDestination(isPresented: $navigateToGame) {
                 GameView(
@@ -435,7 +440,7 @@ struct HomeView: View {
                     Toggle("Fill Hints", isOn: $fillHints)
                     Toggle("Haptics", isOn: $hapticsEnabled)
                     Toggle("Sound", isOn: $soundEnabled)
-                    Toggle("Daily Reminder", isOn: .constant(false)) // TODO: wire up NotificationService
+                    Toggle("Daily Reminder", isOn: $notificationService.isEnabled)
                 }
                 Section("Pro Puzzles") {
                     if storeService.isProUnlocked {

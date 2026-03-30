@@ -5,8 +5,13 @@ import Observation
 @MainActor
 @Observable
 final class NotificationService {
-    var isEnabled: Bool = false {
+    private static let enabledKey = "dailyReminderEnabled"
+    private static let morningIdentifier = "daily-puzzle-morning"
+    private static let eveningIdentifier = "daily-puzzle-evening"
+
+    var isEnabled: Bool {
         didSet {
+            UserDefaults.standard.set(isEnabled, forKey: Self.enabledKey)
             if isEnabled {
                 requestAndSchedule()
             } else {
@@ -15,40 +20,71 @@ final class NotificationService {
         }
     }
 
+    init() {
+        self.isEnabled = UserDefaults.standard.bool(forKey: Self.enabledKey)
+    }
+
+    /// Re-evaluate notifications based on current solve state.
+    /// Call this when a puzzle is solved to cancel reminders if all dailies are done.
+    func refreshIfNeeded(allDailySolved: Bool) {
+        guard isEnabled else { return }
+
+        if allDailySolved {
+            cancelAll()
+        } else {
+            scheduleReminders()
+        }
+    }
+
     func requestAndSchedule() {
         Task {
             let center = UNUserNotificationCenter.current()
             let granted = try? await center.requestAuthorization(options: [.alert, .sound, .badge])
             if granted == true {
-                scheduleDailyReminder()
+                scheduleReminders()
             } else {
                 isEnabled = false
             }
         }
     }
 
-    private func scheduleDailyReminder() {
+    private func scheduleReminders() {
         let center = UNUserNotificationCenter.current()
         center.removeAllPendingNotificationRequests()
 
-        let content = UNMutableNotificationContent()
-        content.title = "Berroku"
-        content.body = "Today's puzzles are ready! Can you keep your streak going?"
-        content.sound = .default
+        // Morning reminder at 9:00 AM
+        let morningContent = UNMutableNotificationContent()
+        morningContent.title = "Berroku"
+        morningContent.body = "Good morning! Today's puzzles are ready. Can you keep your streak going?"
+        morningContent.sound = .default
 
-        // Schedule for 9:00 AM daily
-        var dateComponents = DateComponents()
-        dateComponents.hour = 9
-        dateComponents.minute = 0
-        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+        var morningComponents = DateComponents()
+        morningComponents.hour = 9
+        morningComponents.minute = 0
+        let morningTrigger = UNCalendarNotificationTrigger(dateMatching: morningComponents, repeats: true)
 
-        let request = UNNotificationRequest(
-            identifier: "daily-puzzle-reminder",
-            content: content,
-            trigger: trigger
-        )
+        center.add(UNNotificationRequest(
+            identifier: Self.morningIdentifier,
+            content: morningContent,
+            trigger: morningTrigger
+        ))
 
-        center.add(request)
+        // Evening reminder at 8:00 PM
+        let eveningContent = UNMutableNotificationContent()
+        eveningContent.title = "Berroku"
+        eveningContent.body = "You still have unsolved puzzles today. Don't lose your streak!"
+        eveningContent.sound = .default
+
+        var eveningComponents = DateComponents()
+        eveningComponents.hour = 20
+        eveningComponents.minute = 0
+        let eveningTrigger = UNCalendarNotificationTrigger(dateMatching: eveningComponents, repeats: true)
+
+        center.add(UNNotificationRequest(
+            identifier: Self.eveningIdentifier,
+            content: eveningContent,
+            trigger: eveningTrigger
+        ))
     }
 
     private func cancelAll() {
