@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Berroku — A Berry Puzzle Game</title>
+    <meta name="description" content="Place 3 berries in every row, column & block. A delightful logic puzzle game for iOS.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --berry: #3584E4;
+            --berry-deep: #1a5bb5;
+            --berry-glow: #5ca8ff;
+            --leaf: #2fce51;
+            --bg-dark: #0b1628;
+            --bg-card: rgba(255,255,255,0.06);
+            --text: #f0f4ff;
+            --text-muted: #8899bb;
+            --radius: 20px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ---- Atmospheric Background ---- */
+        .atmosphere {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .atmosphere::before {
+            content: '';
+            position: absolute;
+            width: 800px; height: 800px;
+            top: -200px; left: 50%;
+            transform: translateX(-50%);
+            background: radial-gradient(circle, rgba(53,132,228,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .atmosphere::after {
+            content: '';
+            position: absolute;
+            width: 600px; height: 600px;
+            bottom: 10%; right: -100px;
+            background: radial-gradient(circle, rgba(47,206,81,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        /* ---- Floating Berries (decorative) ---- */
+        .berry-float {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--berry);
+            opacity: 0.12;
+            animation: floatBerry 8s ease-in-out infinite;
+        }
+        .berry-float:nth-child(1) { width: 24px; height: 24px; top: 12%; left: 8%; animation-delay: 0s; animation-duration: 7s; }
+        .berry-float:nth-child(2) { width: 16px; height: 16px; top: 25%; right: 12%; animation-delay: 1.5s; animation-duration: 9s; }
+        .berry-float:nth-child(3) { width: 20px; height: 20px; top: 55%; left: 5%; animation-delay: 3s; animation-duration: 8s; }
+        .berry-float:nth-child(4) { width: 14px; height: 14px; top: 70%; right: 8%; animation-delay: 2s; animation-duration: 10s; }
+        .berry-float:nth-child(5) { width: 28px; height: 28px; top: 40%; left: 15%; animation-delay: 4s; animation-duration: 6s; opacity: 0.08; }
+        .berry-float:nth-child(6) { width: 18px; height: 18px; top: 85%; left: 25%; animation-delay: 1s; animation-duration: 8.5s; }
+
+        @keyframes floatBerry {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(5deg); }
+            66% { transform: translateY(10px) rotate(-3deg); }
+        }
+
+        /* ---- Layout ---- */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        section { padding: 80px 0; }
+
+        /* ---- Nav ---- */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 16px 24px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: rgba(11,22,40,0.7);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-brand {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.4rem;
+            color: var(--text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-berry {
+            width: 28px; height: 28px;
+            background: var(--berry);
+            border-radius: 50%;
+            position: relative;
+        }
+        .nav-berry::before {
+            content: '';
+            position: absolute;
+            width: 8px; height: 12px;
+            background: var(--leaf);
+            border-radius: 0 8px 0 8px;
+            top: -4px; left: 50%;
+            transform: translateX(-50%) rotate(-15deg);
+        }
+        .nav-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--berry);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .nav-cta:hover { background: var(--berry-glow); transform: translateY(-1px); }
+        .nav-cta svg { width: 18px; height: 18px; }
+
+        /* ---- Hero ---- */
+        .hero {
+            padding-top: 140px;
+            padding-bottom: 60px;
+            text-align: center;
+        }
+
+        .hero-berries {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+        .hero-berry {
+            width: 52px; height: 52px;
+            background: var(--berry);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 8px 30px rgba(53,132,228,0.3);
+            animation: heroFloat 3s ease-in-out infinite;
+        }
+        .hero-berry::before {
+            content: '';
+            position: absolute;
+            width: 12px; height: 18px;
+            background: var(--leaf);
+            border-radius: 0 12px 0 12px;
+            top: -6px; left: 50%;
+            transform: translateX(-50%) rotate(-15deg);
+        }
+        .hero-berry::after {
+            content: '';
+            position: absolute;
+            width: 14px; height: 14px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            top: 8px; left: 10px;
+        }
+        .hero-berry:nth-child(1) { animation-delay: 0s; transform: rotate(-8deg); }
+        .hero-berry:nth-child(2) { animation-delay: 0.3s; width: 60px; height: 60px; }
+        .hero-berry:nth-child(3) { animation-delay: 0.6s; transform: rotate(8deg); }
+
+        @keyframes heroFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(3.5rem, 8vw, 6rem);
+            line-height: 1;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+        .hero-tagline {
+            font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .hero-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 36px;
+            background: white;
+            color: var(--bg-dark);
+            text-decoration: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+        }
+        .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+        .hero-cta svg { width: 24px; height: 24px; }
+
+        /* ---- Phone Showcase ---- */
+        .showcase {
+            padding: 40px 0 80px;
+        }
+        .phone-row {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: clamp(16px, 4vw, 40px);
+            perspective: 1000px;
+        }
+        .phone-frame {
+            background: #1a1a2e;
+            border-radius: 32px;
+            padding: 8px;
+            box-shadow:
+                0 24px 80px rgba(0,0,0,0.4),
+                0 0 0 1px rgba(255,255,255,0.08),
+                inset 0 1px 0 rgba(255,255,255,0.06);
+            transition: transform 0.5s ease;
+        }
+        .phone-frame:hover { transform: translateY(-8px); }
+        .phone-frame img {
+            display: block;
+            width: clamp(140px, 22vw, 240px);
+            height: auto;
+            border-radius: 24px;
+        }
+        .phone-frame.hero-phone img {
+            width: clamp(170px, 26vw, 280px);
+        }
+        .phone-frame.side {
+            opacity: 0.7;
+            transform: scale(0.92);
+        }
+        .phone-frame.side:hover {
+            opacity: 1;
+            transform: scale(0.92) translateY(-8px);
+        }
+
+        /* ---- Features ---- */
+        .features { text-align: center; }
+        .features h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            margin-bottom: 16px;
+        }
+        .features-sub {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 60px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: var(--radius);
+            padding: 32px 28px;
+            text-align: left;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        .feature-card:hover {
+            background: rgba(255,255,255,0.09);
+            transform: translateY(-4px);
+            border-color: rgba(53,132,228,0.2);
+        }
+        .feature-icon {
+            width: 48px; height: 48px;
+            background: rgba(53,132,228,0.15);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+        .feature-card h3 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+        }
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* ---- How It Works ---- */
+        .how-it-works {
+            text-align: center;
+        }
+        .how-it-works h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            margin-bottom: 16px;
+        }
+        .how-sub {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 60px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .rules {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        .rule {
+            max-width: 260px;
+        }
+        .rule-number {
+            width: 56px; height: 56px;
+            background: var(--berry);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.5rem;
+            margin: 0 auto 16px;
+            box-shadow: 0 4px 20px rgba(53,132,228,0.3);
+        }
+        .rule h3 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.15rem;
+            margin-bottom: 8px;
+        }
+        .rule p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* ---- CTA Section ---- */
+        .cta-section {
+            text-align: center;
+            padding: 100px 0;
+        }
+        .cta-section h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            margin-bottom: 16px;
+        }
+        .cta-section p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 36px;
+        }
+
+        /* ---- Footer ---- */
+        footer {
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding: 32px 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        footer a {
+            color: var(--berry-glow);
+            text-decoration: none;
+        }
+
+        /* ---- Responsive ---- */
+        @media (max-width: 768px) {
+            section { padding: 60px 0; }
+            .hero { padding-top: 120px; }
+            .phone-frame.side { display: none; }
+            .phone-frame.hero-phone img { width: 240px; }
+            .features-grid { grid-template-columns: 1fr; }
+            .rules { flex-direction: column; align-items: center; }
+        }
+
+        /* ---- Scroll Animations ---- */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+<div class="atmosphere">
+    <div class="berry-float"></div>
+    <div class="berry-float"></div>
+    <div class="berry-float"></div>
+    <div class="berry-float"></div>
+    <div class="berry-float"></div>
+    <div class="berry-float"></div>
+</div>
+
+<nav>
+    <div class="container">
+        <a href="#" class="nav-brand">
+            <div class="nav-berry"></div>
+            Berroku
+        </a>
+        <a href="#download" class="nav-cta">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            Download
+        </a>
+    </div>
+</nav>
+
+<section class="hero">
+    <div class="container">
+        <div class="hero-berries">
+            <div class="hero-berry"></div>
+            <div class="hero-berry"></div>
+            <div class="hero-berry"></div>
+        </div>
+        <h1>Berroku</h1>
+        <p class="hero-tagline">Place 3 berries in every row, column &amp; block. A fresh logic puzzle that's delightfully addictive.</p>
+        <a href="#download" class="hero-cta">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            Download on the App Store
+        </a>
+    </div>
+</section>
+
+<section class="showcase">
+    <div class="container">
+        <div class="phone-row">
+            <div class="phone-frame side fade-up">
+                <img src="screenshots/home-dark.png" alt="Berroku dark mode" loading="lazy">
+            </div>
+            <div class="phone-frame hero-phone fade-up" style="transition-delay: 0.15s;">
+                <img src="screenshots/home-light.png" alt="Berroku home screen" loading="lazy">
+            </div>
+            <div class="phone-frame side fade-up" style="transition-delay: 0.3s;">
+                <img src="screenshots/puzzle-gameplay.png" alt="Berroku puzzle gameplay" loading="lazy">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="how-it-works">
+    <div class="container">
+        <h2 class="fade-up">Simple rules, deep logic</h2>
+        <p class="how-sub fade-up">Berroku is a berry-themed logic puzzle inspired by Sudoku. Easy to learn, endlessly satisfying.</p>
+        <div class="rules">
+            <div class="rule fade-up">
+                <div class="rule-number">3</div>
+                <h3>Three per row</h3>
+                <p>Place exactly 3 berries in every row of the 9&times;9 grid.</p>
+            </div>
+            <div class="rule fade-up" style="transition-delay: 0.15s;">
+                <div class="rule-number">3</div>
+                <h3>Three per column</h3>
+                <p>Every column must also contain exactly 3 berries.</p>
+            </div>
+            <div class="rule fade-up" style="transition-delay: 0.3s;">
+                <div class="rule-number">?</div>
+                <h3>Follow the clues</h3>
+                <p>Numbers tell you how many of the 8 surrounding cells contain berries.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="container">
+        <h2 class="fade-up">Everything you need</h2>
+        <p class="features-sub fade-up">Packed with features to keep you puzzling every day.</p>
+        <div class="features-grid">
+            <div class="feature-card fade-up">
+                <div class="feature-icon">&#x1F4C5;</div>
+                <h3>Daily Puzzles</h3>
+                <p>Three new puzzles every day. Come back tomorrow for a fresh challenge.</p>
+            </div>
+            <div class="feature-card fade-up" style="transition-delay: 0.1s;">
+                <div class="feature-icon">&#x1F3AF;</div>
+                <h3>3 Difficulties</h3>
+                <p>Standard, Advanced, and Expert. Work your way up as your skills sharpen.</p>
+            </div>
+            <div class="feature-card fade-up" style="transition-delay: 0.2s;">
+                <div class="feature-icon">&#x267E;&#xFE0F;</div>
+                <h3>Pro Mode</h3>
+                <p>Unlock unlimited puzzle sets beyond the daily rotation. Never run out.</p>
+            </div>
+            <div class="feature-card fade-up" style="transition-delay: 0.1s;">
+                <div class="feature-icon">&#x1F3C6;</div>
+                <h3>Achievements</h3>
+                <p>Game Center integration with 12 achievements and a fastest-time leaderboard.</p>
+            </div>
+            <div class="feature-card fade-up" style="transition-delay: 0.2s;">
+                <div class="feature-icon">&#x1F525;</div>
+                <h3>Streak Tracking</h3>
+                <p>Build your daily streak. How many consecutive days can you solve?</p>
+            </div>
+            <div class="feature-card fade-up" style="transition-delay: 0.3s;">
+                <div class="feature-icon">&#x1F4F1;</div>
+                <h3>Home Screen Widget</h3>
+                <p>Track your daily progress and streak right from your home screen.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section" id="download">
+    <div class="container">
+        <h2 class="fade-up">Ready to pick some berries?</h2>
+        <p class="fade-up">Free to play. New puzzles every day.</p>
+        <a href="#" class="hero-cta fade-up" style="transition-delay: 0.15s;">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            Download on the App Store
+        </a>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <p>&copy; 2026 Berroku. Made with berries by <a href="https://github.com/jbrooksuk">James Brooks</a>.</p>
+    </div>
+</footer>
+
+<script>
+    // Scroll-triggered fade-in animations
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
