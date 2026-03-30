@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import StoreKit
+import WidgetKit
 
 struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
@@ -37,6 +38,7 @@ struct HomeView: View {
                             dailyPuzzleCard
                             proPuzzlesCard
                             statsCard
+                            calendarCard
                             achievementsCard
                         }
                     }
@@ -55,6 +57,7 @@ struct HomeView: View {
             .task {
                 ensureStats()
                 gameCenterService.authenticate()
+                updateWidgetData()
             }
             .navigationDestination(isPresented: $navigateToGame) {
                 GameView(
@@ -285,6 +288,19 @@ struct HomeView: View {
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
+    // MARK: - Calendar Card
+
+    private var calendarCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Label("Activity", systemImage: "calendar")
+                .font(.headline)
+
+            PuzzleCalendarView(savedStates: savedStates)
+        }
+        .padding(20)
+        .glassEffect(in: .rect(cornerRadius: 16))
+    }
+
     // MARK: - Achievements Card
 
     private var achievementsCard: some View {
@@ -370,6 +386,14 @@ struct HomeView: View {
         guard let data = try? encoder.encode(definition),
               let key = String(data: data, encoding: .utf8) else { return false }
         return savedStates.contains { $0.puzzleJSON == key && $0.solved }
+    }
+
+    private func updateWidgetData() {
+        let defaults = UserDefaults(suiteName: "group.com.alt-three.Blueberries")
+        let solvedCount = Difficulty.allCases.filter { isDailySolved($0) }.count
+        defaults?.set(solvedCount, forKey: "widget.solvedCount")
+        defaults?.set(stats?.currentStreak ?? 0, forKey: "widget.currentStreak")
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
 }
