@@ -75,9 +75,11 @@ struct HomeView: View {
                         statsAndCalendarCard
                     }
                 }
+                .frame(maxWidth: 600)
                 .padding(.horizontal, 16)
                 .padding(.bottom, 24)
             }
+            .frame(maxWidth: .infinity)
         }
         .background(
             LinearGradient(
@@ -92,8 +94,10 @@ struct HomeView: View {
         ScrollView {
             VStack(spacing: 0) {
                 achievementsCard
+                    .frame(maxWidth: 600)
                     .padding(16)
             }
+            .frame(maxWidth: .infinity)
         }
         .background(Color(.systemGroupedBackground))
     }

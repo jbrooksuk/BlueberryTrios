@@ -45,14 +45,23 @@ struct GameView: View {
         statsRecords.first
     }
 
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
     var body: some View {
         VStack(spacing: 0) {
             headerView
+                .frame(maxWidth: 600)
             Spacer(minLength: 12)
 
             if let model {
-                PuzzleGridView(model: model, autoCheck: autoCheck, hapticsEnabled: hapticsEnabled, soundService: soundService, onStateChanged: saveCurrentState)
-                    .padding(.horizontal, 8)
+                if horizontalSizeClass == .regular {
+                    // iPad landscape: grid centered with more padding
+                    PuzzleGridView(model: model, autoCheck: autoCheck, hapticsEnabled: hapticsEnabled, soundService: soundService, onStateChanged: saveCurrentState)
+                        .padding(.horizontal, 40)
+                } else {
+                    PuzzleGridView(model: model, autoCheck: autoCheck, hapticsEnabled: hapticsEnabled, soundService: soundService, onStateChanged: saveCurrentState)
+                        .padding(.horizontal, 8)
+                }
 
                 Spacer(minLength: 0)
             } else {
@@ -62,6 +71,7 @@ struct GameView: View {
                 Spacer()
             }
         }
+        .frame(maxWidth: .infinity)
         .toolbar {
             ToolbarItemGroup(placement: .bottomBar) {
                 if let model {

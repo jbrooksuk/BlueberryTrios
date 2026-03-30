@@ -24,6 +24,7 @@ struct PuzzleGridView: View {
             drawGrid(context: context, cellSize: cs, canvasSize: size)
         }
         .aspectRatio(1, contentMode: .fit)
+        .frame(maxWidth: 500)
         .clipShape(.rect(cornerRadius: 6))
         .shadow(color: .black.opacity(0.08), radius: 8, y: 2)
         .onGeometryChange(for: Double.self) { proxy in
