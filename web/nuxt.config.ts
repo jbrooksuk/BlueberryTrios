@@ -1,0 +1,18 @@
+export default defineNuxtConfig({
+  compatibilityDate: '2025-05-15',
+  app: {
+    head: {
+      title: 'Berroku — A Berry Puzzle Game',
+      meta: [
+        { name: 'description', content: 'Place 3 berries in every row, column & block. A delightful logic puzzle game for iOS.' },
+        { name: 'theme-color', content: '#0b1628' },
+      ],
+      link: [
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,300..700&display=swap' },
+      ],
+    },
+  },
+  css: ['~/assets/css/main.css'],
+})
