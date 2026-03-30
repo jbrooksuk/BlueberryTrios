@@ -92,7 +92,8 @@ struct GameView: View {
         .toolbarRole(.automatic)
         .background(Color(.systemBackground))
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
+        .gesture(DragGesture())
+        .task {
             UIApplication.shared.isIdleTimerDisabled = true
             loadPuzzle()
         }
@@ -131,12 +132,11 @@ struct GameView: View {
                     TimerDisplayView(timer: gameTimer)
                 }
 
-                Button {
+                Button("Settings", systemImage: "gearshape") {
                     showSettings = true
-                } label: {
-                    Image(systemName: "gearshape")
-                        .font(.title3)
                 }
+                .labelStyle(.iconOnly)
+                .font(.title3)
             }
 
             HStack(spacing: 8) {
@@ -149,16 +149,13 @@ struct GameView: View {
                 .disabled(!storeService.isProUnlocked && source == .daily)
 
                 if source == .pro && storeService.isProUnlocked {
-                    Button {
-                        newProPuzzle()
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.subheadline.bold())
-                            .padding(6)
-                            .background(Color.accentColor)
-                            .foregroundStyle(.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                    }
+                    Button("New Puzzle", systemImage: "plus", action: newProPuzzle)
+                        .labelStyle(.iconOnly)
+                        .font(.subheadline.bold())
+                        .padding(6)
+                        .background(Color.accentColor)
+                        .foregroundStyle(.white)
+                        .clipShape(.rect(cornerRadius: 6))
                 }
 
                 Spacer()
@@ -254,10 +251,23 @@ struct GameView: View {
             Text("Solved!")
                 .font(.title.bold())
             TimerDisplayView(timer: gameTimer)
-            Button("Next Puzzle") {
-                advanceToNextPuzzle()
+            if source == .pro && storeService.isProUnlocked {
+                HStack(spacing: 12) {
+                    Button("New Puzzle") {
+                        newProPuzzle()
+                    }
+                    .buttonStyle(.glassProminent)
+                    Button("Next Difficulty") {
+                        advanceToNextPuzzle()
+                    }
+                    .buttonStyle(.glass)
+                }
+            } else {
+                Button("Next Puzzle") {
+                    advanceToNextPuzzle()
+                }
+                .buttonStyle(.glassProminent)
             }
-            .buttonStyle(.glassProminent)
         }
         .padding(32)
         .glassEffect(in: .rect(cornerRadius: 16))
@@ -269,7 +279,7 @@ struct GameView: View {
 
     private func loadPuzzle() {
         gameTimer.reset()
-        let date = Date()
+        let date = Date.now
         let definition: PuzzleDefinition?
         switch source {
         case .daily:
@@ -298,7 +308,7 @@ struct GameView: View {
         // Skip over already-solved puzzle sets
         for _ in 0..<100 {
             proSetNumber += 1
-            let date = Date()
+            let date = Date.now
             guard let definition = puzzleStore.proPuzzle(date: date, difficulty: difficulty, setNumber: proSetNumber) else { break }
             let key = puzzleIdentifier(definition)
             let alreadySolved = savedStates.contains { $0.puzzleJSON == key && $0.solved }
@@ -347,7 +357,7 @@ struct GameView: View {
             existing.hintUsed = model.hintUsed
             existing.solved = model.isSolved
             if model.isSolved && existing.completionDate == nil {
-                existing.completionDate = Date()
+                existing.completionDate = Date.now
                 recordCompletion(time: elapsed)
             }
         } else {
@@ -357,7 +367,7 @@ struct GameView: View {
                 elapsedTime: elapsed,
                 hintUsed: model.hintUsed,
                 solved: model.isSolved,
-                completionDate: model.isSolved ? Date() : nil,
+                completionDate: model.isSolved ? Date.now : nil,
                 source: source.rawValue,
                 difficulty: difficulty.rawValue,
                 dateString: currentDateString(),
@@ -407,7 +417,7 @@ struct GameView: View {
     }
 
     private func recordCompletion(time: TimeInterval) {
-        stats?.recordCompletion(time: time, date: Date())
+        stats?.recordCompletion(time: time, date: Date.now)
         gameCenterService.reportPuzzleCompleted(
             totalCompleted: stats?.totalPuzzlesCompleted ?? 0,
             completionTime: time,
@@ -417,7 +427,7 @@ struct GameView: View {
 
     private func currentDateString() -> String {
         let cal = Calendar.current
-        let d = Date()
+        let d = Date.now
         return "\(cal.component(.day, from: d)) \(cal.component(.month, from: d)) \(cal.component(.year, from: d))"
     }
 
@@ -429,7 +439,7 @@ private struct TimerDisplayView: View {
     @Bindable var timer: GameTimer
 
     var body: some View {
-        Text(formatTime(timer.elapsedTime))
+        Text(timer.elapsedTime.formattedAsTimer)
             .font(.system(.body, design: .monospaced))
             .foregroundStyle(.secondary)
             .contentTransition(.numericText())

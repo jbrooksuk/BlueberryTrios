@@ -27,11 +27,12 @@ struct PuzzleStore {
     private let puzzlesByDifficulty: [String: [PuzzleDefinition]]
 
     init() {
-        guard let url = Bundle.main.url(forResource: "puzzles", withExtension: "json"),
-              let data = try? Data(contentsOf: url),
+        guard let url = Bundle.main.url(forResource: "puzzles", withExtension: "json") else {
+            fatalError("puzzles.json not found in bundle")
+        }
+        guard let data = try? Data(contentsOf: url),
               let decoded = try? JSONDecoder().decode([String: [PuzzleDefinition]].self, from: data) else {
-            puzzlesByDifficulty = [:]
-            return
+            fatalError("Failed to decode puzzles.json")
         }
         puzzlesByDifficulty = decoded
     }

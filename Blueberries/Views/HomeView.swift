@@ -52,7 +52,7 @@ struct HomeView: View {
                 )
             )
             .navigationBarTitleDisplayMode(.inline)
-            .onAppear {
+            .task {
                 ensureStats()
                 gameCenterService.authenticate()
             }
@@ -258,7 +258,7 @@ struct HomeView: View {
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                 statItem(value: "\(stats?.totalPuzzlesCompleted ?? 0)", label: "Puzzles Solved", icon: "puzzlepiece.fill")
-                statItem(value: stats?.fastestCompletionTime.map { formatTime($0) } ?? "--:--", label: "Fastest Time", icon: "bolt.fill")
+                statItem(value: stats?.fastestCompletionTime?.formattedAsTimer ?? "--:--", label: "Fastest Time", icon: "bolt.fill")
                 statItem(value: "\(stats?.currentStreak ?? 0)", label: "Current Streak", icon: "flame.fill")
                 statItem(value: "\(stats?.longestStreak ?? 0)", label: "Best Streak", icon: "trophy.fill")
             }
@@ -275,7 +275,7 @@ struct HomeView: View {
             Text(value)
                 .font(.title2.bold().monospacedDigit())
             Text(label)
-                .font(.caption2)
+                .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         }
@@ -331,7 +331,7 @@ struct HomeView: View {
                 Text(title)
                     .font(.subheadline.weight(completed ? .semibold : .regular))
                 Text(subtitle)
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
@@ -363,7 +363,7 @@ struct HomeView: View {
     }
 
     private func isDailySolved(_ difficulty: Difficulty) -> Bool {
-        let date = Date()
+        let date = Date.now
         guard let definition = puzzleStore.dailyPuzzle(date: date, difficulty: difficulty) else { return false }
         let encoder = JSONEncoder()
         encoder.outputFormatting = .sortedKeys

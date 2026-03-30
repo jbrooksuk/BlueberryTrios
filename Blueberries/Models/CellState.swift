@@ -7,9 +7,9 @@ enum CellState: String, Codable {
 
     var next: CellState {
         switch self {
-        case .undecided: return .empty
-        case .empty: return .berry
-        case .berry: return .undecided
+        case .undecided: .empty
+        case .empty: .berry
+        case .berry: .undecided
         }
     }
 }

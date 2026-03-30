@@ -72,14 +72,13 @@ final class GameCenterService {
         speedAchievement.showsCompletionBanner = true
         achievements.append(speedAchievement)
 
-        GKAchievement.report(achievements) { error in
-            if let error {
+        Task {
+            do {
+                try await GKAchievement.report(achievements)
+            } catch {
                 print("Failed to report achievements: \(error)")
             }
-        }
 
-        // Report to fastest time leaderboard (in seconds)
-        Task {
             try? await GKLeaderboard.submitScore(
                 Int(completionTime),
                 context: 0,

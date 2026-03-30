@@ -62,11 +62,11 @@ final class StoreKitService {
     }
 
     private func listenForTransactions() -> Task<Void, Never> {
-        Task.detached {
+        Task {
             for await result in Transaction.updates {
                 if case .verified(let transaction) = result {
                     await transaction.finish()
-                    await self.updatePurchaseStatus()
+                    await updatePurchaseStatus()
                 }
             }
         }
