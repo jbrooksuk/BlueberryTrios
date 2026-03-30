@@ -5,7 +5,7 @@ import Observation
 @MainActor
 @Observable
 final class StoreKitService {
-    static let proProductID = "com.altthree.berroku.pro"
+    static let proProductID = "com.altthree.Berroku.pro"
 
     private(set) var proProduct: Product?
     private(set) var isProUnlocked: Bool = false

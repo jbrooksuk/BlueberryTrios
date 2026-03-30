@@ -23,7 +23,7 @@
       "locale_prices" : {
         "en_GB" : "1.99"
       },
-      "productID" : "com.altthree.berroku.pro",
+      "productID" : "com.altthree.Berroku.pro",
       "referenceName" : "Pro Puzzles",
       "type" : "NonConsumable"
     }
