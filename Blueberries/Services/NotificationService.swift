@@ -32,8 +32,8 @@ final class NotificationService {
         center.removeAllPendingNotificationRequests()
 
         let content = UNMutableNotificationContent()
-        content.title = "Berroku"
-        content.body = "Today's puzzles are ready! Can you keep your streak going?"
+        content.title = String(localized: "Berroku")
+        content.body = String(localized: "Today's puzzles are ready! Can you keep your streak going?")
         content.sound = .default
 
         // Schedule for 9:00 AM daily

@@ -120,15 +120,15 @@ struct PuzzleGridView: View {
         let col = cell.column + 1
 
         if let clue = model.clueForCell[cell] {
-            return "Row \(row), column \(col), clue \(clue)"
+            return String(localized: "Row \(row), column \(col), clue \(clue)")
         }
 
         let stateDesc: String = switch state {
-        case .undecided: "empty"
-        case .empty: "crossed"
-        case .berry: "berry"
+        case .undecided: String(localized: "empty")
+        case .empty: String(localized: "crossed")
+        case .berry: String(localized: "berry")
         }
-        return "Row \(row), column \(col), \(stateDesc)"
+        return String(localized: "Row \(row), column \(col), \(stateDesc)")
     }
 
     // MARK: - Hit Testing

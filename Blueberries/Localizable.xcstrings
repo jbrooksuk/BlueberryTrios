@@ -1,0 +1,252 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Berroku" : {
+      "comment" : "App name, shown in headers"
+    },
+    "Place 3 berries in every row, column & block" : {
+      "comment" : "Home screen subtitle"
+    },
+    "All daily puzzles complete!" : {
+      "comment" : "Shown when all 3 daily puzzles are solved"
+    },
+    "Today's Puzzles" : {
+      "comment" : "Daily puzzle card title"
+    },
+    "%lld/3" : {
+      "comment" : "Daily puzzle progress counter"
+    },
+    "Standard" : {
+      "comment" : "Difficulty level name"
+    },
+    "Advanced" : {
+      "comment" : "Difficulty level name"
+    },
+    "Expert" : {
+      "comment" : "Difficulty level name"
+    },
+    "Pro Puzzles" : {
+      "comment" : "Pro mode card/section title"
+    },
+    "Unlimited puzzle sets unlocked." : {
+      "comment" : "Shown when Pro is purchased"
+    },
+    "Play Pro" : {
+      "comment" : "Button to start a Pro puzzle"
+    },
+    "Unlock unlimited additional puzzle sets beyond the daily puzzles." : {
+      "comment" : "Pro mode description"
+    },
+    "Unlock Pro %@" : {
+      "comment" : "Button to purchase Pro, %@ is the price"
+    },
+    "Loading..." : {
+      "comment" : "Shown while loading IAP products"
+    },
+    "Loading products..." : {
+      "comment" : "Shown while loading IAP products in settings"
+    },
+    "Restore" : {
+      "comment" : "Button to restore purchases"
+    },
+    "Restore Purchases" : {
+      "comment" : "Button to restore purchases in settings"
+    },
+    "Statistics" : {
+      "comment" : "Stats card title"
+    },
+    "Activity" : {
+      "comment" : "Calendar card title"
+    },
+    "Puzzles Solved" : {
+      "comment" : "Stats label"
+    },
+    "Fastest Time" : {
+      "comment" : "Stats label"
+    },
+    "Current Streak" : {
+      "comment" : "Stats label"
+    },
+    "Best Streak" : {
+      "comment" : "Stats label"
+    },
+    "Achievements" : {
+      "comment" : "Achievements tab/card title"
+    },
+    "First Puzzle" : {
+      "comment" : "Achievement name"
+    },
+    "Complete your first puzzle" : {
+      "comment" : "Achievement description"
+    },
+    "Dedicated" : {
+      "comment" : "Achievement name - 10 puzzles"
+    },
+    "Complete 10 puzzles" : {
+      "comment" : "Achievement description"
+    },
+    "Centurion" : {
+      "comment" : "Achievement name - 100 puzzles"
+    },
+    "Complete 100 puzzles" : {
+      "comment" : "Achievement description"
+    },
+    "Master" : {
+      "comment" : "Achievement name - 500 puzzles"
+    },
+    "Complete 500 puzzles" : {
+      "comment" : "Achievement description"
+    },
+    "On a Roll" : {
+      "comment" : "Achievement name - 3 day streak"
+    },
+    "3-day streak" : {
+      "comment" : "Achievement description"
+    },
+    "Week Warrior" : {
+      "comment" : "Achievement name - 7 day streak"
+    },
+    "7-day streak" : {
+      "comment" : "Achievement description"
+    },
+    "Berry Committed" : {
+      "comment" : "Achievement name - 30 day streak"
+    },
+    "30-day streak" : {
+      "comment" : "Achievement description"
+    },
+    "Speed Demon" : {
+      "comment" : "Achievement name - solve under 1 minute"
+    },
+    "Solve a puzzle in under 1 minute" : {
+      "comment" : "Achievement description"
+    },
+    "Standard Solver" : {
+      "comment" : "Achievement name"
+    },
+    "Complete a Standard puzzle" : {
+      "comment" : "Achievement description"
+    },
+    "Advanced Solver" : {
+      "comment" : "Achievement name"
+    },
+    "Complete an Advanced puzzle" : {
+      "comment" : "Achievement description"
+    },
+    "Expert Solver" : {
+      "comment" : "Achievement name"
+    },
+    "Complete an Expert puzzle" : {
+      "comment" : "Achievement description"
+    },
+    "Daily Sweep" : {
+      "comment" : "Achievement name - all 3 daily puzzles"
+    },
+    "Complete all 3 daily puzzles" : {
+      "comment" : "Achievement description"
+    },
+    "Home" : {
+      "comment" : "Home tab label"
+    },
+    "Settings" : {
+      "comment" : "Settings screen title/button"
+    },
+    "Done" : {
+      "comment" : "Dismiss button"
+    },
+    "Gameplay" : {
+      "comment" : "Settings section header"
+    },
+    "Auto Check" : {
+      "comment" : "Settings toggle - auto error checking"
+    },
+    "Show Timer" : {
+      "comment" : "Settings toggle - show timer"
+    },
+    "Fill Hints" : {
+      "comment" : "Settings toggle - auto-fill hints"
+    },
+    "Haptics" : {
+      "comment" : "Settings toggle - haptic feedback"
+    },
+    "Sound" : {
+      "comment" : "Settings toggle - sound effects"
+    },
+    "Daily Reminder" : {
+      "comment" : "Settings toggle - daily notification"
+    },
+    "Rules" : {
+      "comment" : "Settings section header"
+    },
+    "Place 3 berries into each row, column, and block. Surround each number with the specified number of berries." : {
+      "comment" : "Game rules description"
+    },
+    "Pro Unlocked" : {
+      "comment" : "Label showing Pro is purchased"
+    },
+    "Unlock Pro Puzzles" : {
+      "comment" : "Button to purchase Pro in settings"
+    },
+    "No puzzle available" : {
+      "comment" : "Shown when no puzzle can be loaded"
+    },
+    "Undo" : {
+      "comment" : "Toolbar button"
+    },
+    "Redo" : {
+      "comment" : "Toolbar button"
+    },
+    "Erase" : {
+      "comment" : "Toolbar button"
+    },
+    "Hint" : {
+      "comment" : "Toolbar button"
+    },
+    "Check" : {
+      "comment" : "Toolbar button"
+    },
+    "Source" : {
+      "comment" : "Picker label for Daily/Pro"
+    },
+    "Daily" : {
+      "comment" : "Daily puzzle mode"
+    },
+    "Pro" : {
+      "comment" : "Pro puzzle mode"
+    },
+    "New Puzzle" : {
+      "comment" : "Button to generate new Pro puzzle"
+    },
+    "Solved!" : {
+      "comment" : "Celebration message when puzzle is completed"
+    },
+    "Next Puzzle" : {
+      "comment" : "Button to advance to next puzzle"
+    },
+    "Next Difficulty" : {
+      "comment" : "Button to advance to next difficulty"
+    },
+    "Want more? Unlock Pro" : {
+      "comment" : "Button to purchase Pro from solved overlay"
+    },
+    "Row %lld, column %lld, clue %lld" : {
+      "comment" : "VoiceOver label for a cell with a number clue"
+    },
+    "Row %lld, column %lld, %@" : {
+      "comment" : "VoiceOver label for a cell, %@ is the state (empty/crossed/berry)"
+    },
+    "empty" : {
+      "comment" : "Cell state for VoiceOver - undecided"
+    },
+    "crossed" : {
+      "comment" : "Cell state for VoiceOver - marked empty"
+    },
+    "berry" : {
+      "comment" : "Cell state for VoiceOver - berry placed"
+    },
+    "Today's puzzles are ready! Can you keep your streak going?" : {
+      "comment" : "Daily reminder notification body"
+    }
+  },
+  "version" : "1.0"
+}
