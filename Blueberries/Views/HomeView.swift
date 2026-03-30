@@ -422,7 +422,7 @@ struct HomeView: View {
     }
 
     private func updateWidgetData() {
-        let defaults = UserDefaults(suiteName: "group.com.alt-three.Blueberries")
+        let defaults = UserDefaults(suiteName: "group.com.alt-three.Berroku")
         let solvedCount = Difficulty.allCases.filter { isDailySolved($0) }.count
         defaults?.set(solvedCount, forKey: "widget.solvedCount")
         defaults?.set(stats?.currentStreak ?? 0, forKey: "widget.currentStreak")

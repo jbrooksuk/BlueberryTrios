@@ -467,7 +467,7 @@ struct GameView: View {
     }
 
     private func updateWidgetData() {
-        let defaults = UserDefaults(suiteName: "group.com.alt-three.Blueberries")
+        let defaults = UserDefaults(suiteName: "group.com.alt-three.Berroku")
         // Count how many daily puzzles are solved today
         var solvedCount = 0
         for diff in Difficulty.allCases {

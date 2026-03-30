@@ -9,22 +9,22 @@ final class GameCenterService {
 
     // Achievement identifiers
     enum Achievement: String, CaseIterable {
-        case firstPuzzle = "com.alt-three.Blueberries.first_puzzle"
-        case dedicated = "com.alt-three.Blueberries.dedicated"
-        case centurion = "com.alt-three.Blueberries.centurion"
-        case master = "com.alt-three.Blueberries.master"
-        case onARoll = "com.alt-three.Blueberries.streak_3"
-        case weekWarrior = "com.alt-three.Blueberries.streak_7"
-        case berryCommitted = "com.alt-three.Blueberries.streak_30"
-        case speedDemon = "com.alt-three.Blueberries.speed_demon"
-        case standardComplete = "com.alt-three.Blueberries.standard_complete"
-        case advancedComplete = "com.alt-three.Blueberries.advanced_complete"
-        case expertComplete = "com.alt-three.Blueberries.expert_complete"
-        case dailySweep = "com.alt-three.Blueberries.daily_sweep"
+        case firstPuzzle = "com.alt-three.Berroku.first_puzzle"
+        case dedicated = "com.alt-three.Berroku.dedicated"
+        case centurion = "com.alt-three.Berroku.centurion"
+        case master = "com.alt-three.Berroku.master"
+        case onARoll = "com.alt-three.Berroku.streak_3"
+        case weekWarrior = "com.alt-three.Berroku.streak_7"
+        case berryCommitted = "com.alt-three.Berroku.streak_30"
+        case speedDemon = "com.alt-three.Berroku.speed_demon"
+        case standardComplete = "com.alt-three.Berroku.standard_complete"
+        case advancedComplete = "com.alt-three.Berroku.advanced_complete"
+        case expertComplete = "com.alt-three.Berroku.expert_complete"
+        case dailySweep = "com.alt-three.Berroku.daily_sweep"
     }
 
     // Leaderboard identifier
-    static let fastestTimeLeaderboard = "com.alt-three.Blueberries.fastest_time"
+    static let fastestTimeLeaderboard = "com.alt-three.Berroku.fastest_time"
 
     func authenticate() {
         GKLocalPlayer.local.authenticateHandler = { [weak self] viewController, error in

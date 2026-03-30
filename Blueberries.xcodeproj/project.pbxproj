@@ -51,6 +51,13 @@
 			);
 			target = 1A295E722F7A88AE00016082 /* BlueberriesWidgetExtension */;
 		};
+		1A295F0B2F7ABCBD00016082 /* Exceptions for "Blueberries" folder in "Blueberries" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 1A7217692F74765A00B7D285 /* Blueberries */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -64,6 +71,9 @@
 		};
 		1A72176C2F74765A00B7D285 /* Blueberries */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				1A295F0B2F7ABCBD00016082 /* Exceptions for "Blueberries" folder in "Blueberries" target */,
+			);
 			path = Blueberries;
 			sourceTree = "<group>";
 		};
@@ -266,7 +276,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.alt-three.Blueberries.BlueberriesWidget";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.alt-three.Berroku.BlueberriesWidget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -297,7 +307,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.alt-three.Blueberries.BlueberriesWidget";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.alt-three.Berroku.BlueberriesWidget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -441,6 +451,7 @@
 				DEVELOPMENT_TEAM = G4ACBQ3J5M;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Blueberries/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Berroku;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -452,7 +463,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.alt-three.Blueberries";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.alt-three.Berroku";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -475,6 +486,7 @@
 				DEVELOPMENT_TEAM = G4ACBQ3J5M;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Blueberries/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Berroku;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -486,7 +498,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.alt-three.Blueberries";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.alt-three.Berroku";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
