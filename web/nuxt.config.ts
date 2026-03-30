@@ -12,6 +12,9 @@ export default defineNuxtConfig({
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,300..700&display=swap' },
       ],
+      script: [
+        { src: 'https://cdn.usefathom.com/script.js', 'data-site': 'HFPTJKUX', defer: true },
+      ],
     },
   },
   css: ['~/assets/css/main.css'],
