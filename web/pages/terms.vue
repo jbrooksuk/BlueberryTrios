@@ -43,5 +43,16 @@
 </template>
 
 <script setup>
-useHead({ title: 'Terms of Use — Berroku' })
+useHead({
+    title: 'Terms of Use — Berroku',
+    meta: [
+        { name: 'description', content: 'Berroku terms of use. By downloading, installing, or using Berroku, you agree to these terms.' },
+        { property: 'og:title', content: 'Terms of Use — Berroku' },
+        { property: 'og:description', content: 'Berroku terms of use. By downloading, installing, or using Berroku, you agree to these terms.' },
+        { name: 'robots', content: 'index, follow' },
+    ],
+    link: [
+        { rel: 'canonical', href: 'https://berroku.com/terms' },
+    ],
+})
 </script>
