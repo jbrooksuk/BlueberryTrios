@@ -16,7 +16,9 @@ struct HomeView: View {
     @State private var selectedDifficulty: Difficulty = .standard
     @State private var showCalendar: Bool = false
     @State private var showSettings: Bool = false
+    @State private var showWalkthrough: Bool = false
     @State private var selectedTab: HomeTab = .home
+    @AppStorage("hasSeenWalkthrough") private var hasSeenWalkthrough: Bool = false
 
     @AppStorage("autoCheck") private var autoCheck: Bool = true
     @AppStorage("showTimer") private var showTimer: Bool = true
@@ -59,10 +61,17 @@ struct HomeView: View {
             .sheet(isPresented: $showSettings) {
                 homeSettingsSheet
             }
+            .fullScreenCover(isPresented: $showWalkthrough) {
+                WalkthroughView(isPresented: $showWalkthrough)
+                    .onDisappear { hasSeenWalkthrough = true }
+            }
             .task {
                 ensureStats()
                 gameCenterService.authenticate()
                 updateWidgetData()
+                if !hasSeenWalkthrough {
+                    showWalkthrough = true
+                }
             }
             .navigationDestination(isPresented: $navigateToGame) {
                 GameView(
@@ -457,6 +466,16 @@ struct HomeView: View {
                         Button("Restore Purchases") {
                             Task { await storeService.restorePurchases() }
                         }
+                    }
+                }
+                Section("Help") {
+                    Button {
+                        showSettings = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            showWalkthrough = true
+                        }
+                    } label: {
+                        Label(String(localized: "Show Walkthrough", comment: "Settings button to replay tutorial"), systemImage: "questionmark.circle")
                     }
                 }
                 Section("Rules") {

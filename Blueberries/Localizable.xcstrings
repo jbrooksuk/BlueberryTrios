@@ -246,6 +246,69 @@
     },
     "Today's puzzles are ready! Can you keep your streak going?" : {
       "comment" : "Daily reminder notification body"
+    },
+    "Welcome to Berroku" : {
+      "comment" : "Walkthrough page 1 title"
+    },
+    "A berry logic puzzle inspired by Sudoku" : {
+      "comment" : "Walkthrough page 1 subtitle"
+    },
+    "Each day brings three new puzzles across Standard, Advanced, and Expert difficulties." : {
+      "comment" : "Walkthrough page 1 description"
+    },
+    "Place 3 Berries" : {
+      "comment" : "Walkthrough page 2 title"
+    },
+    "In every row, column, and block" : {
+      "comment" : "Walkthrough page 2 subtitle"
+    },
+    "The 9×9 grid is divided into blocks. Each row, column, and block must contain exactly 3 berries." : {
+      "comment" : "Walkthrough page 2 description"
+    },
+    "Follow the Clues" : {
+      "comment" : "Walkthrough page 3 title"
+    },
+    "Numbers guide your way" : {
+      "comment" : "Walkthrough page 3 subtitle"
+    },
+    "A number tells you how many of the 8 surrounding cells contain a berry. Use logic to work out where each berry goes." : {
+      "comment" : "Walkthrough page 3 description"
+    },
+    "Tap & Drag" : {
+      "comment" : "Walkthrough page 4 title"
+    },
+    "Quick and intuitive controls" : {
+      "comment" : "Walkthrough page 4 subtitle"
+    },
+    "Tap a cell to cycle through states: empty, crossed, or berry. Drag to paint multiple cells at once." : {
+      "comment" : "Walkthrough page 4 description"
+    },
+    "Build Your Streak" : {
+      "comment" : "Walkthrough page 5 title"
+    },
+    "Come back every day" : {
+      "comment" : "Walkthrough page 5 subtitle"
+    },
+    "Solve puzzles daily to build your streak. Earn achievements and compete on the leaderboard." : {
+      "comment" : "Walkthrough page 5 description"
+    },
+    "Back" : {
+      "comment" : "Walkthrough back button"
+    },
+    "Next" : {
+      "comment" : "Walkthrough next button"
+    },
+    "Let's Play!" : {
+      "comment" : "Walkthrough final button"
+    },
+    "Show Walkthrough" : {
+      "comment" : "Settings button to replay tutorial"
+    },
+    "Help" : {
+      "comment" : "Settings section header for help/tutorial"
+    },
+    "Tap" : {
+      "comment" : "Walkthrough tap label on interaction demo"
     }
   },
   "version" : "1.0"
