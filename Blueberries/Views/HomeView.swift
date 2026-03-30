@@ -73,41 +73,27 @@ struct HomeView: View {
 
     // MARK: - Hero Header
 
-    private static let berryDecorations: [(opacity: Double, size: CGFloat, x: CGFloat, y: CGFloat)] = [
-        (0.20, 16, -50, -20),
-        (0.30, 20, 60, 10),
-        (0.18, 14, -30, 25),
-        (0.35, 22, 70, -15),
-        (0.25, 18, -60, 20),
-    ]
-
     private var heroHeader: some View {
         VStack(spacing: 12) {
             PhaseAnimator([false, true]) { phase in
                 ZStack {
-                    ForEach(0..<5, id: \.self) { i in
-                        let d = Self.berryDecorations[i]
-                        Circle()
-                            .fill(Theme.berryBlue.opacity(d.opacity))
-                            .frame(width: d.size)
-                            .offset(x: d.x, y: d.y + (phase ? 4 : -4))
-                    }
+                    // Three floating blueberries
+                    BlueberryView(size: 38)
+                        .offset(x: -45, y: phase ? -8 : 0)
+                        .rotationEffect(.degrees(phase ? -8 : -5))
 
-                    Circle()
-                        .fill(Theme.berryBlue)
-                        .frame(width: 72, height: 72)
-                        .shadow(color: Theme.berryBlue.opacity(0.4), radius: 12, y: 4)
-                        .overlay {
-                            Image(systemName: "circle.grid.3x3.fill")
-                                .font(.system(size: 30))
-                                .foregroundStyle(.white)
-                        }
-                        .scaleEffect(phase ? 1.02 : 0.98)
+                    BlueberryView(size: 52)
+                        .offset(x: 0, y: phase ? 4 : -4)
+                        .shadow(color: Theme.berryBlue.opacity(0.3), radius: 8, y: 4)
+
+                    BlueberryView(size: 34)
+                        .offset(x: 48, y: phase ? -4 : 4)
+                        .rotationEffect(.degrees(phase ? 10 : 6))
                 }
             } animation: { _ in
-                .easeInOut(duration: 1.2)
+                .easeInOut(duration: 1.5)
             }
-            .frame(height: 100)
+            .frame(height: 80)
 
             Text("Berroku")
                 .font(.largeTitle.bold())
