@@ -1,7 +1,7 @@
 <template>
     <footer>
         <div class="container">
-            <p>&copy; 2026 Berroku. Made with berries by <a href="https://github.com/jbrooksuk">James Brooks</a>.</p>
+            <p>&copy; 2026 Berroku. Made with berries by <a href="https://x.com/jbrooksuk">James Brooks</a>.</p>
             <p class="legal-links">
                 <NuxtLink to="/privacy">Privacy Policy</NuxtLink>
                 <span>&middot;</span>
