@@ -14,6 +14,12 @@ struct HomeView: View {
     @State private var navigateToGame = false
     @State private var selectedSource: PuzzleSource = .daily
     @State private var selectedDifficulty: Difficulty = .standard
+    @State private var showCalendar: Bool = false
+    @State private var selectedTab: HomeTab = .home
+
+    private enum HomeTab: Hashable {
+        case home, achievements
+    }
 
     private var stats: PlayerStats? {
         statsRecords.first
@@ -27,33 +33,14 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 0) {
-                    // Hero header
-                    heroHeader
-                        .padding(.bottom, 24)
-
-                    GlassEffectContainer(spacing: 20) {
-                        VStack(spacing: 20) {
-                            dailyPuzzleCard
-                            proPuzzlesCard
-                            statsCard
-                            calendarCard
-                            achievementsCard
-                        }
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 24)
+            TabView(selection: $selectedTab) {
+                Tab("Home", systemImage: "house.fill", value: HomeTab.home) {
+                    homeTab
+                }
+                Tab("Achievements", systemImage: "trophy.fill", value: HomeTab.achievements) {
+                    achievementsTab
                 }
             }
-            .background(
-                LinearGradient(
-                    colors: [Theme.berryBlue.opacity(0.08), Color(.systemGroupedBackground)],
-                    startPoint: .top,
-                    endPoint: .center
-                )
-            )
-            .navigationBarTitleDisplayMode(.inline)
             .task {
                 ensureStats()
                 gameCenterService.authenticate()
@@ -69,6 +56,46 @@ struct HomeView: View {
                 )
             }
         }
+    }
+
+    // MARK: - Hero Header
+
+    // MARK: - Tabs
+
+    private var homeTab: some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                heroHeader
+                    .padding(.bottom, 24)
+
+                GlassEffectContainer(spacing: 20) {
+                    VStack(spacing: 20) {
+                        dailyPuzzleCard
+                        proPuzzlesCard
+                        statsAndCalendarCard
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 24)
+            }
+        }
+        .background(
+            LinearGradient(
+                colors: [Theme.berryBlue.opacity(0.08), Color(.systemGroupedBackground)],
+                startPoint: .top,
+                endPoint: .center
+            )
+        )
+    }
+
+    private var achievementsTab: some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                achievementsCard
+                    .padding(16)
+            }
+        }
+        .background(Color(.systemGroupedBackground))
     }
 
     // MARK: - Hero Header
@@ -240,16 +267,35 @@ struct HomeView: View {
 
     // MARK: - Stats Card
 
-    private var statsCard: some View {
+    private var statsAndCalendarCard: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Label("Statistics", systemImage: "chart.bar.fill")
-                .font(.headline)
+            HStack {
+                Label(showCalendar ? "Activity" : "Statistics",
+                      systemImage: showCalendar ? "calendar" : "chart.bar.fill")
+                    .font(.headline)
 
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                statItem(value: "\(stats?.totalPuzzlesCompleted ?? 0)", label: "Puzzles Solved", icon: "puzzlepiece.fill")
-                statItem(value: stats?.fastestCompletionTime?.formattedAsTimer ?? "--:--", label: "Fastest Time", icon: "bolt.fill")
-                statItem(value: "\(stats?.currentStreak ?? 0)", label: "Current Streak", icon: "flame.fill")
-                statItem(value: "\(stats?.longestStreak ?? 0)", label: "Best Streak", icon: "trophy.fill")
+                Spacer()
+
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        showCalendar.toggle()
+                    }
+                } label: {
+                    Image(systemName: showCalendar ? "number.square" : "calendar")
+                        .font(.body)
+                        .foregroundStyle(Theme.berryBlue)
+                }
+            }
+
+            if showCalendar {
+                PuzzleCalendarView(savedStates: savedStates)
+            } else {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    statItem(value: "\(stats?.totalPuzzlesCompleted ?? 0)", label: "Puzzles Solved", icon: "puzzlepiece.fill")
+                    statItem(value: stats?.fastestCompletionTime?.formattedAsTimer ?? "--:--", label: "Fastest Time", icon: "bolt.fill")
+                    statItem(value: "\(stats?.currentStreak ?? 0)", label: "Current Streak", icon: "flame.fill")
+                    statItem(value: "\(stats?.longestStreak ?? 0)", label: "Best Streak", icon: "trophy.fill")
+                }
             }
         }
         .padding(20)
@@ -272,19 +318,6 @@ struct HomeView: View {
         .padding(.vertical, 12)
         .background(Theme.berryBlue.opacity(0.06))
         .clipShape(RoundedRectangle(cornerRadius: 10))
-    }
-
-    // MARK: - Calendar Card
-
-    private var calendarCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Label("Activity", systemImage: "calendar")
-                .font(.headline)
-
-            PuzzleCalendarView(savedStates: savedStates)
-        }
-        .padding(20)
-        .glassEffect(in: .rect(cornerRadius: 16))
     }
 
     // MARK: - Achievements Card
