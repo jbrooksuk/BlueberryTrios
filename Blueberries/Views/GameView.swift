@@ -48,6 +48,7 @@ struct GameView: View {
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.requestReview) private var requestReview
 
     var body: some View {
         VStack(spacing: 0) {
@@ -148,6 +149,7 @@ struct GameView: View {
                 if reduceMotion {
                     model.celebrationProgress = 1
                     model.showSolvedOverlay = true
+                    promptReviewIfNeeded()
                 } else {
                     Task {
                         let steps = 18
@@ -159,6 +161,8 @@ struct GameView: View {
                         withAnimation(.spring(duration: 0.4, bounce: 0.3)) {
                             model.showSolvedOverlay = true
                         }
+                        try? await Task.sleep(for: .seconds(1))
+                        promptReviewIfNeeded()
                     }
                 }
             }
@@ -343,6 +347,15 @@ struct GameView: View {
                     }
                 }
             }
+
+                Button {
+                    withAnimation { model?.showSolvedOverlay = false }
+                } label: {
+                    Text("View grid")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.top, 4)
         }
             .padding(32)
             .adaptiveGlass(in: 16)
@@ -513,6 +526,13 @@ struct GameView: View {
             allDailySolved: allDailySolved
         )
         updateWidgetData()
+    }
+
+    private func promptReviewIfNeeded() {
+        let total = stats?.totalPuzzlesCompleted ?? 0
+        if total == 3 {
+            requestReview()
+        }
     }
 
     private func updateWidgetData() {
