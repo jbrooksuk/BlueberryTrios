@@ -1,0 +1,11 @@
+# Xcode
+build/
+*.xcuserstate
+xcuserdata/
+
+# Claude
+.claude/worktrees/
+.claude/settings.local.json
+
+# macOS
+.DS_Store
