@@ -1,7 +1,7 @@
 const siteUrl = 'https://berroku.com'
 const siteTitle = 'Berroku — A Berry Puzzle Game'
 const siteDescription = 'Place 3 berries in every row, column & block. A delightful logic puzzle game for iOS with daily puzzles, 3 difficulty levels, and Game Center integration.'
-const siteImage = `${siteUrl}/screenshots/home-light.png`
+const siteImage = `${siteUrl}/og.png`
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
