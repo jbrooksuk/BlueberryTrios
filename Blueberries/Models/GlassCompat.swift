@@ -8,7 +8,7 @@ extension View {
         if #available(iOS 26, *) {
             self.glassEffect(in: .rect(cornerRadius: cornerRadius))
         } else {
-            self.background(.regularMaterial)
+            self.background(Color(.secondarySystemGroupedBackground))
                 .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
         }
     }
