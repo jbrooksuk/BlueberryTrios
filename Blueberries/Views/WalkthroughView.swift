@@ -172,38 +172,36 @@ private struct WalkthroughPageView: View {
         } animation: { _ in .easeInOut(duration: 1.5) }
     }
 
-    // Berry layouts from real puzzles, animated between two states
-    private static let layoutA: [(Int, Int)] = [
-        (0,2), (0,5), (0,7),
-        (1,0), (1,3), (1,8),
-        (2,1), (2,4), (2,6),
-        (3,0), (3,5), (3,7),
-        (4,2), (4,3), (4,8),
-        (5,1), (5,4), (5,6),
-        (6,3), (6,6), (6,8),
-        (7,0), (7,2), (7,5),
-        (8,1), (8,4), (8,7),
+    // Real puzzle solve animation — berries placed in groups like someone solving
+    // From Standard puzzle #0: clues and solution positions
+    private static let solveClues: [(Int, Int, Int)] = [
+        (0,1,1),(0,2,1),(0,6,3),(0,8,3),(1,1,3),(1,5,3),
+        (2,3,4),(2,5,2),(3,6,3),(5,0,3),(5,2,2),(5,4,3),
+        (6,7,2),(8,5,0),
     ]
 
-    private static let layoutB: [(Int, Int)] = [
-        (0,0), (0,4), (0,8),
-        (1,2), (1,5), (1,7),
-        (2,1), (2,3), (2,6),
-        (3,2), (3,4), (3,8),
-        (4,0), (4,6), (4,7),
-        (5,1), (5,3), (5,5),
-        (6,4), (6,7), (6,8),
-        (7,0), (7,2), (7,6),
-        (8,1), (8,3), (8,5),
+    // Berry positions in solve order (grouped into steps)
+    private static let solveSteps: [[(Int, Int)]] = [
+        [(0,4), (0,5), (0,7)],           // Row 0
+        [(1,2), (1,7), (1,8)],           // Row 1
+        [(2,1), (2,2), (2,4)],           // Row 2
+        [(3,2), (3,5), (3,8)],           // Row 3
+        [(4,0), (4,5), (4,6)],           // Row 4
+        [(5,1), (5,3), (5,6)],           // Row 5
+        [(6,0), (6,4), (6,6)],           // Row 6
+        [(7,0), (7,1), (7,3)],           // Row 7
+        [(8,3), (8,7), (8,8)],           // Row 8
     ]
 
     private var gridIllustration: some View {
-        PhaseAnimator([false, true]) { phase in
+        // Phases 0-9: step through solve, then 10 = pause, loops to 0
+        PhaseAnimator(Array(0...10)) { phase in
             Canvas { context, size in
                 let gridSize = min(size.width, size.height) * 0.85
                 let cellSize = gridSize / 9
                 let offsetX = (size.width - gridSize) / 2
                 let offsetY = (size.height - gridSize) / 2
+                let stepsShown = min(phase, 9)
 
                 // Cell backgrounds
                 for r in 0..<9 {
@@ -230,17 +228,37 @@ private struct WalkthroughPageView: View {
                     context.stroke(vLine, with: .color(Theme.gridLineThick), lineWidth: 2)
                 }
 
-                // Animated berries
-                let layout = phase ? Self.layoutB : Self.layoutA
-                for (r, c) in layout {
+                // Clue numbers
+                for (r, c, n) in Self.solveClues {
                     let cx = offsetX + Double(c) * cellSize + cellSize / 2
                     let cy = offsetY + Double(r) * cellSize + cellSize / 2
-                    let br = cellSize * 0.3
-                    context.fill(Path(ellipseIn: CGRect(x: cx - br, y: cy - br, width: br * 2, height: br * 2)),
-                                 with: .color(Theme.berryBlue))
+                    let text = Text("\(n)")
+                        .font(.system(size: cellSize * 0.5, weight: .medium, design: .rounded))
+                        .foregroundStyle(Theme.clueText.opacity(0.6))
+                    context.draw(text, at: CGPoint(x: cx, y: cy))
+                }
+
+                // Berries appearing step by step
+                for step in 0..<stepsShown {
+                    guard step < Self.solveSteps.count else { break }
+                    for (r, c) in Self.solveSteps[step] {
+                        let cx = offsetX + Double(c) * cellSize + cellSize / 2
+                        let cy = offsetY + Double(r) * cellSize + cellSize / 2
+                        let br = cellSize * 0.3
+                        context.fill(
+                            Path(ellipseIn: CGRect(x: cx - br, y: cy - br, width: br * 2, height: br * 2)),
+                            with: .color(Theme.berryBlue)
+                        )
+                    }
                 }
             }
-        } animation: { _ in .easeInOut(duration: 1.8) }
+        } animation: { phase in
+            if phase == 0 {
+                .easeInOut(duration: 0.3)
+            } else {
+                .easeInOut(duration: 0.6)
+            }
+        }
     }
 
     // Animated clue demonstration: berries appear one-by-one around a "3" clue
