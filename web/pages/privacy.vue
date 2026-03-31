@@ -35,5 +35,16 @@
 </template>
 
 <script setup>
-useHead({ title: 'Privacy Policy — Berroku' })
+useHead({
+    title: 'Privacy Policy — Berroku',
+    meta: [
+        { name: 'description', content: 'Berroku privacy policy. We do not collect, store, or transmit any personal data. All gameplay data is stored locally on your device.' },
+        { property: 'og:title', content: 'Privacy Policy — Berroku' },
+        { property: 'og:description', content: 'Berroku privacy policy. We do not collect, store, or transmit any personal data.' },
+        { name: 'robots', content: 'index, follow' },
+    ],
+    link: [
+        { rel: 'canonical', href: 'https://berroku.com/privacy' },
+    ],
+})
 </script>
