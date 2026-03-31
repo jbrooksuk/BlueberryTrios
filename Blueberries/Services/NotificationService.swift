@@ -54,8 +54,8 @@ final class NotificationService {
 
         // Morning reminder at 9:00 AM
         let morningContent = UNMutableNotificationContent()
-        morningContent.title = "Berroku"
-        morningContent.body = "Good morning! Today's puzzles are ready. Can you keep your streak going?"
+        morningContent.title = String(localized: "Berroku")
+        morningContent.body = String(localized: "Today's puzzles are ready! Can you keep your streak going?")
         morningContent.sound = .default
 
         var morningComponents = DateComponents()
@@ -71,8 +71,8 @@ final class NotificationService {
 
         // Evening reminder at 8:00 PM
         let eveningContent = UNMutableNotificationContent()
-        eveningContent.title = "Berroku"
-        eveningContent.body = "You still have unsolved puzzles today. Don't lose your streak!"
+        eveningContent.title = String(localized: "Berroku")
+        eveningContent.body = String(localized: "You still have unsolved puzzles today. Don't lose your streak!")
         eveningContent.sound = .default
 
         var eveningComponents = DateComponents()

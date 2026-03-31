@@ -17,6 +17,7 @@ struct GameView: View {
     @State private var difficulty: Difficulty
     @State private var proSetNumber: Int = 0
     @State private var showSettings: Bool = false
+    @State private var showWalkthrough: Bool = false
     @AppStorage("autoCheck") private var autoCheck: Bool = true
     @AppStorage("showTimer") private var showTimer: Bool = true
     @AppStorage("fillHints") private var fillHints: Bool = false
@@ -129,6 +130,9 @@ struct GameView: View {
         }
         .sheet(isPresented: $showSettings) {
             settingsSheet
+        }
+        .fullScreenCover(isPresented: $showWalkthrough) {
+            WalkthroughView(isPresented: $showWalkthrough)
         }
         .overlay {
             if model?.showSolvedOverlay == true {
@@ -261,6 +265,16 @@ struct GameView: View {
                         Button("Restore Purchases") {
                             Task { await storeService.restorePurchases() }
                         }
+                    }
+                }
+                Section("Help") {
+                    Button {
+                        showSettings = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            showWalkthrough = true
+                        }
+                    } label: {
+                        Label(String(localized: "Show Walkthrough", comment: "Settings button to replay tutorial"), systemImage: "questionmark.circle")
                     }
                 }
                 Section("Rules") {
