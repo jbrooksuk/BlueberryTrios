@@ -178,25 +178,32 @@ private struct WalkthroughPageView: View {
         } animation: { _ in .easeInOut(duration: 1.5) }
     }
 
-    // Real puzzle solve animation — berries placed in groups like someone solving
-    // From Standard puzzle #0: clues and solution positions
+    // Real puzzle solve animation with berries AND crosses
     private static let solveClues: [(Int, Int, Int)] = [
         (0,1,1),(0,2,1),(0,6,3),(0,8,3),(1,1,3),(1,5,3),
         (2,3,4),(2,5,2),(3,6,3),(5,0,3),(5,2,2),(5,4,3),
         (6,7,2),(8,5,0),
     ]
 
-    // Berry positions in solve order (grouped into steps)
-    private static let solveSteps: [[(Int, Int)]] = [
-        [(0,4), (0,5), (0,7)],           // Row 0
-        [(1,2), (1,7), (1,8)],           // Row 1
-        [(2,1), (2,2), (2,4)],           // Row 2
-        [(3,2), (3,5), (3,8)],           // Row 3
-        [(4,0), (4,5), (4,6)],           // Row 4
-        [(5,1), (5,3), (5,6)],           // Row 5
-        [(6,0), (6,4), (6,6)],           // Row 6
-        [(7,0), (7,1), (7,3)],           // Row 7
-        [(8,3), (8,7), (8,8)],           // Row 8
+    private struct SolveStep {
+        let berries: [(Int, Int)]
+        let crosses: [(Int, Int)]
+    }
+
+    private static let solveSteps: [SolveStep] = [
+        SolveStep(berries: [], crosses: [(7,4),(7,5),(7,6),(8,4),(8,6)]),
+        SolveStep(berries: [(0,5),(0,7)], crosses: [(0,0),(0,3)]),
+        SolveStep(berries: [(0,4)], crosses: [(0,8)]),
+        SolveStep(berries: [(1,2)], crosses: [(1,0),(1,3),(1,4)]),
+        SolveStep(berries: [(1,7),(1,8)], crosses: [(1,6)]),
+        SolveStep(berries: [(2,1),(2,2),(2,4)], crosses: [(2,0),(2,6),(2,7),(2,8)]),
+        SolveStep(berries: [(3,2),(3,5)], crosses: [(3,0),(3,1),(3,3),(3,4)]),
+        SolveStep(berries: [(3,8),(4,0)], crosses: [(3,7),(4,1),(4,2)]),
+        SolveStep(berries: [(4,5),(4,6)], crosses: [(4,3),(4,4),(4,7),(4,8)]),
+        SolveStep(berries: [(5,1),(5,3),(5,6)], crosses: [(5,2),(5,5),(5,7),(5,8)]),
+        SolveStep(berries: [(6,0),(6,4),(6,6)], crosses: [(6,1),(6,2),(6,3),(6,5)]),
+        SolveStep(berries: [(7,0),(7,1),(7,3)], crosses: [(7,2),(7,7),(7,8)]),
+        SolveStep(berries: [(8,3),(8,7),(8,8)], crosses: [(8,0),(8,1),(8,2)]),
     ]
 
     private static let solveBlocks: [Int] = [
@@ -213,7 +220,16 @@ private struct WalkthroughPageView: View {
 
     private func isBerryVisible(row: Int, col: Int, stepsShown: Int) -> Bool {
         for step in 0..<min(stepsShown, Self.solveSteps.count) {
-            if Self.solveSteps[step].contains(where: { $0.0 == row && $0.1 == col }) {
+            if Self.solveSteps[step].berries.contains(where: { $0.0 == row && $0.1 == col }) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private func isCrossVisible(row: Int, col: Int, stepsShown: Int) -> Bool {
+        for step in 0..<min(stepsShown, Self.solveSteps.count) {
+            if Self.solveSteps[step].crosses.contains(where: { $0.0 == row && $0.1 == col }) {
                 return true
             }
         }
@@ -234,14 +250,15 @@ private struct WalkthroughPageView: View {
     }
 
     private var gridIllustration: some View {
-        PhaseAnimator(Array(0...10)) { phase in
-            let stepsShown = min(phase, 9)
+        PhaseAnimator(Array(0...14)) { phase in
+            let stepsShown = min(phase, 13)
 
             Grid(horizontalSpacing: 0, verticalSpacing: 0) {
                 ForEach(0..<9, id: \.self) { row in
                     GridRow {
                         ForEach(0..<9, id: \.self) { col in
                             let hasBerry = isBerryVisible(row: row, col: col, stepsShown: stepsShown)
+                            let hasCross = isCrossVisible(row: row, col: col, stepsShown: stepsShown)
                             let clue = clueValue(row: row, col: col)
 
                             ZStack {
@@ -281,6 +298,20 @@ private struct WalkthroughPageView: View {
                                         .fill(Theme.berryBlue)
                                         .padding(3)
                                         .transition(.scale.combined(with: .opacity))
+                                } else if hasCross {
+                                    // X mark
+                                    Canvas { context, size in
+                                        let mid = CGPoint(x: size.width / 2, y: size.height / 2)
+                                        let s = min(size.width, size.height) * 0.2
+                                        var xPath = Path()
+                                        xPath.move(to: CGPoint(x: mid.x - s, y: mid.y - s))
+                                        xPath.addLine(to: CGPoint(x: mid.x + s, y: mid.y + s))
+                                        xPath.move(to: CGPoint(x: mid.x + s, y: mid.y - s))
+                                        xPath.addLine(to: CGPoint(x: mid.x - s, y: mid.y + s))
+                                        context.stroke(xPath, with: .color(Theme.emptyDot),
+                                                       style: StrokeStyle(lineWidth: 1, lineCap: .round))
+                                    }
+                                    .transition(.opacity)
                                 }
                             }
                             .aspectRatio(1, contentMode: .fit)
