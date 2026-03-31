@@ -243,38 +243,63 @@ private struct WalkthroughPageView: View {
         } animation: { _ in .easeInOut(duration: 1.8) }
     }
 
+    // Animated clue demonstration: berries appear one-by-one around a "3" clue
+    // Phases: 0=empty grid with clue, 1=first berry, 2=second berry, 3=third berry + crossed empties, 4=pause then reset
     private var clueIllustration: some View {
-        VStack(spacing: 4) {
-            // 3x3 grid: clue "3" surrounded by exactly 3 berries
-            let cells: [[CellContent]] = [
-                [.berry, .empty, .berry],
-                [.empty, .clue(3), .empty],
-                [.empty, .empty, .berry],
-            ]
+        PhaseAnimator([0, 1, 2, 3, 4]) { phase in
+            // Grid positions: (row, col) -> content
+            // Center is the clue "3", berries appear at (0,0), (0,2), (2,2)
+            let berryPositions: [(Int, Int)] = [(0, 0), (0, 2), (2, 2)]
+            let crossedPositions: [(Int, Int)] = [(0, 1), (1, 0), (1, 2), (2, 0), (2, 1)]
+            let berriesShown = min(phase, 3)
 
-            ForEach(0..<3, id: \.self) { row in
-                HStack(spacing: 4) {
-                    ForEach(0..<3, id: \.self) { col in
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(Theme.cellBackground)
-                                .frame(width: 52, height: 52)
+            VStack(spacing: 4) {
+                ForEach(0..<3, id: \.self) { row in
+                    HStack(spacing: 4) {
+                        ForEach(0..<3, id: \.self) { col in
+                            let isBerry = berryPositions.prefix(berriesShown).contains { $0.0 == row && $0.1 == col }
+                            let isCrossed = phase >= 3 && crossedPositions.contains { $0.0 == row && $0.1 == col }
+                            let isClue = row == 1 && col == 1
+                            let isHinted = phase < 3 && berryPositions.dropFirst(berriesShown).prefix(1).contains { $0.0 == row && $0.1 == col }
 
-                            switch cells[row][col] {
-                            case .berry:
-                                Circle()
-                                    .fill(Theme.berryBlue)
-                                    .frame(width: 28, height: 28)
-                            case .clue(let n):
-                                Text("\(n)")
-                                    .font(.system(.title2, design: .rounded, weight: .bold))
-                                    .foregroundStyle(Theme.clueText)
-                            case .empty:
-                                EmptyView()
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(isHinted ? Theme.hintHighlight : Theme.cellBackground)
+                                    .frame(width: 52, height: 52)
+
+                                if isClue {
+                                    Text("3")
+                                        .font(.system(.title2, design: .rounded, weight: .bold))
+                                        .foregroundStyle(phase >= 3 ? Theme.clueText.opacity(0.25) : Theme.clueText)
+                                } else if isBerry {
+                                    Circle()
+                                        .fill(Theme.berryBlue)
+                                        .frame(width: 28, height: 28)
+                                        .transition(.scale)
+                                } else if isCrossed {
+                                    Canvas { context, size in
+                                        let mid = CGPoint(x: size.width / 2, y: size.height / 2)
+                                        let s = 8.0
+                                        var xPath = Path()
+                                        xPath.move(to: CGPoint(x: mid.x - s, y: mid.y - s))
+                                        xPath.addLine(to: CGPoint(x: mid.x + s, y: mid.y + s))
+                                        xPath.move(to: CGPoint(x: mid.x + s, y: mid.y - s))
+                                        xPath.addLine(to: CGPoint(x: mid.x - s, y: mid.y + s))
+                                        context.stroke(xPath, with: .color(Theme.emptyDot),
+                                                       style: StrokeStyle(lineWidth: 1.5, lineCap: .round))
+                                    }
+                                    .frame(width: 52, height: 52)
+                                }
                             }
                         }
                     }
                 }
+            }
+        } animation: { phase in
+            if phase == 0 {
+                .easeInOut(duration: 0.3)
+            } else {
+                .spring(duration: 0.5, bounce: 0.2)
             }
         }
     }
