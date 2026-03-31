@@ -47,6 +47,7 @@ struct GameView: View {
     }
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: 0) {
@@ -139,21 +140,25 @@ struct GameView: View {
                 solvedOverlay
             }
         }
-        .animation(.spring(duration: 0.4, bounce: 0.3), value: model?.showSolvedOverlay)
+        .animation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3), value: model?.showSolvedOverlay)
         .onChange(of: soundEnabled) { soundService.isEnabled = soundEnabled }
         .onChange(of: model?.isSolved) {
             if let model, model.isSolved, !model.showSolvedOverlay {
-                // Fresh solve — play sound and animate
                 soundService.playSolved()
-                Task {
-                    let steps = 18
-                    for i in 1...steps {
-                        model.celebrationProgress = Double(i) / Double(steps)
-                        try? await Task.sleep(for: .milliseconds(50))
-                    }
-                    try? await Task.sleep(for: .milliseconds(300))
-                    withAnimation(.spring(duration: 0.4, bounce: 0.3)) {
-                        model.showSolvedOverlay = true
+                if reduceMotion {
+                    model.celebrationProgress = 1
+                    model.showSolvedOverlay = true
+                } else {
+                    Task {
+                        let steps = 18
+                        for i in 1...steps {
+                            model.celebrationProgress = Double(i) / Double(steps)
+                            try? await Task.sleep(for: .milliseconds(50))
+                        }
+                        try? await Task.sleep(for: .milliseconds(300))
+                        withAnimation(.spring(duration: 0.4, bounce: 0.3)) {
+                            model.showSolvedOverlay = true
+                        }
                     }
                 }
             }
@@ -298,12 +303,14 @@ struct GameView: View {
 
     private var solvedOverlay: some View {
         ZStack {
-            ConfettiView()
+            if !reduceMotion {
+                ConfettiView()
+            }
             VStack(spacing: 12) {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 48))
                     .foregroundStyle(.green)
-                    .symbolEffect(.bounce, value: model?.isSolved)
+                    .symbolEffect(.bounce, isActive: !reduceMotion && model?.isSolved == true)
                 Text("Solved!")
                     .font(.title.bold())
                 TimerDisplayView(timer: gameTimer)
@@ -341,7 +348,7 @@ struct GameView: View {
             .glassEffect(in: .rect(cornerRadius: 16))
             .shadow(radius: 10)
         }
-        .transition(.scale.combined(with: .opacity))
+        .transition(reduceMotion ? .identity : .scale.combined(with: .opacity))
     }
 
     // MARK: - Puzzle Loading
@@ -540,13 +547,14 @@ struct GameView: View {
 
 private struct TimerDisplayView: View {
     @Bindable var timer: GameTimer
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Text(timer.elapsedTime.formattedAsTimer)
             .font(.system(.body, design: .monospaced))
             .foregroundStyle(.secondary)
-            .contentTransition(.numericText())
-            .animation(.default, value: timer.elapsedTime)
+            .contentTransition(reduceMotion ? .identity : .numericText())
+            .animation(reduceMotion ? nil : .default, value: timer.elapsedTime)
     }
 
 }

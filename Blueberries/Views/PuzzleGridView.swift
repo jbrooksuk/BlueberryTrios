@@ -7,6 +7,8 @@ struct PuzzleGridView: View {
     var soundService: SoundService?
     var onStateChanged: (() -> Void)?
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     @State private var dragState: DragState?
     @State private var cellSize: Double = 0
     @State private var hapticTrigger: Int = 0
@@ -21,7 +23,7 @@ struct PuzzleGridView: View {
     var body: some View {
         Canvas { context, size in
             let cs = min(size.width, size.height) / Double(model.numColumns)
-            drawGrid(context: context, cellSize: cs, canvasSize: size)
+            drawGrid(context: context, cellSize: cs, canvasSize: size, reduceMotion: reduceMotion)
         }
         .aspectRatio(1, contentMode: .fit)
         .frame(maxWidth: 500)
@@ -145,12 +147,12 @@ struct PuzzleGridView: View {
 
     // MARK: - Drawing
 
-    private func drawGrid(context: GraphicsContext, cellSize: Double, canvasSize: CGSize) {
+    private func drawGrid(context: GraphicsContext, cellSize: Double, canvasSize: CGSize, reduceMotion: Bool) {
         let check = autoCheck ? model.lastCheck : nil
         let berryRadius = cellSize * 0.3
         let dotRadius = cellSize * 0.06
         let shouldShowErrors = model.showErrors && autoCheck
-        let celebrating = model.celebrationProgress > 0
+        let celebrating = !reduceMotion && model.celebrationProgress > 0
 
         // Cell backgrounds with subtle rounded rects
         let cellInset = 1.0
@@ -207,7 +209,7 @@ struct PuzzleGridView: View {
                     .foregroundStyle(textColor)
                 textContext.draw(text, at: center)
             } else if state == .berry {
-                let isNew = model.recentlyPlacedBerries.contains(cell)
+                let isNew = !reduceMotion && model.recentlyPlacedBerries.contains(cell)
                 let scale = isNew ? 1.15 : 1.0
                 let r = berryRadius * scale
 

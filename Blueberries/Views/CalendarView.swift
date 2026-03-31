@@ -3,6 +3,7 @@ import SwiftData
 
 struct PuzzleCalendarView: View {
     let savedStates: [GameState]
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var displayedMonth: Date = .now
 
     private let calendar = Calendar.current
@@ -133,8 +134,12 @@ struct PuzzleCalendarView: View {
 
     private func shiftMonth(_ delta: Int) {
         if let newMonth = calendar.date(byAdding: .month, value: delta, to: displayedMonth) {
-            withAnimation(.easeInOut(duration: 0.2)) {
+            if reduceMotion {
                 displayedMonth = newMonth
+            } else {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    displayedMonth = newMonth
+                }
             }
         }
     }

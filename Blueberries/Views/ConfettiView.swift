@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ConfettiView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var particles: [Particle] = Self.makeParticles()
     @State private var isAnimating = false
 
@@ -15,6 +16,7 @@ struct ConfettiView: View {
     }
 
     var body: some View {
+        if !reduceMotion {
         ZStack {
             ForEach(particles) { particle in
                 Circle()
@@ -35,6 +37,7 @@ struct ConfettiView: View {
         .allowsHitTesting(false)
         .task {
             isAnimating = true
+        }
         }
     }
 

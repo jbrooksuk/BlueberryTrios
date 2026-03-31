@@ -5,6 +5,7 @@ import WidgetKit
 
 struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Query private var savedStates: [GameState]
     @Query private var statsRecords: [PlayerStats]
 
@@ -124,24 +125,33 @@ struct HomeView: View {
 
     private var heroHeader: some View {
         VStack(spacing: 12) {
-            PhaseAnimator([false, true]) { phase in
-                ZStack {
-                    // Three kawaii blueberries matching app icon
-                    BlueberryView(size: 48, expression: .smile)
-                        .offset(x: -32, y: phase ? -6 : 2)
-                        .rotationEffect(.degrees(phase ? -6 : -3))
-
-                    BlueberryView(size: 44, expression: .wink)
-                        .offset(x: 32, y: phase ? -4 : 4)
-                        .rotationEffect(.degrees(phase ? 8 : 4))
-                        
-                    
-                    BlueberryView(size: 64, expression: .happy)
-                        .offset(x: 0, y: phase ? 4 : -4)
-                        .shadow(color: Theme.berryBlue.opacity(0.3), radius: 8, y: 4)
+            Group {
+                if reduceMotion {
+                    ZStack {
+                        BlueberryView(size: 48, expression: .smile)
+                            .offset(x: -32, y: 0)
+                            .rotationEffect(.degrees(-4))
+                        BlueberryView(size: 44, expression: .wink)
+                            .offset(x: 32, y: 0)
+                            .rotationEffect(.degrees(6))
+                        BlueberryView(size: 64, expression: .happy)
+                            .shadow(color: Theme.berryBlue.opacity(0.3), radius: 8, y: 4)
+                    }
+                } else {
+                    PhaseAnimator([false, true]) { phase in
+                        ZStack {
+                            BlueberryView(size: 48, expression: .smile)
+                                .offset(x: -32, y: phase ? -6 : 2)
+                                .rotationEffect(.degrees(phase ? -6 : -3))
+                            BlueberryView(size: 44, expression: .wink)
+                                .offset(x: 32, y: phase ? -4 : 4)
+                                .rotationEffect(.degrees(phase ? 8 : 4))
+                            BlueberryView(size: 64, expression: .happy)
+                                .offset(x: 0, y: phase ? 4 : -4)
+                                .shadow(color: Theme.berryBlue.opacity(0.3), radius: 8, y: 4)
+                        }
+                    } animation: { _ in .easeInOut(duration: 1.5) }
                 }
-            } animation: { _ in
-                .easeInOut(duration: 1.5)
             }
             .frame(height: 90)
 
@@ -300,8 +310,12 @@ struct HomeView: View {
                 Spacer()
 
                 Button {
-                    withAnimation(.easeInOut(duration: 0.2)) {
+                    if reduceMotion {
                         showCalendar.toggle()
+                    } else {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            showCalendar.toggle()
+                        }
                     }
                 } label: {
                     Image(systemName: showCalendar ? "number.square" : "calendar")
