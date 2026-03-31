@@ -43,15 +43,15 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             TabView(selection: $selectedTab) {
-                Tab("Home", systemImage: "house.fill", value: HomeTab.home) {
-                    homeTab
-                }
-                Tab("Achievements", systemImage: "trophy.fill", value: HomeTab.achievements) {
-                    achievementsTab
-                }
-                Tab("Settings", systemImage: "gearshape", value: HomeTab.settings) {
-                    settingsTab
-                }
+                homeTab
+                    .tabItem { Label("Home", systemImage: "house.fill") }
+                    .tag(HomeTab.home)
+                achievementsTab
+                    .tabItem { Label("Achievements", systemImage: "trophy.fill") }
+                    .tag(HomeTab.achievements)
+                settingsTab
+                    .tabItem { Label("Settings", systemImage: "gearshape") }
+                    .tag(HomeTab.settings)
             }
             .fullScreenCover(isPresented: $showWalkthrough) {
                 WalkthroughView(isPresented: $showWalkthrough)
@@ -87,7 +87,7 @@ struct HomeView: View {
                 heroHeader
                     .padding(.bottom, 24)
 
-                GlassEffectContainer(spacing: 20) {
+                AdaptiveGlassContainer(spacing: 20) {
                     VStack(spacing: 20) {
                         dailyPuzzleCard
                         proPuzzlesCard
@@ -230,7 +230,7 @@ struct HomeView: View {
             }
         }
         .padding(20)
-        .glassEffect(in: .rect(cornerRadius: 16))
+        .adaptiveGlass(in: 16)
     }
 
     // MARK: - Pro Puzzles Card
@@ -261,7 +261,7 @@ struct HomeView: View {
                         .font(.subheadline.weight(.semibold))
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.glassProminent)
+                .adaptiveProminentButton()
                 .controlSize(.large)
             } else {
                 Text("Unlock unlimited additional puzzle sets beyond the daily puzzles.")
@@ -276,7 +276,7 @@ struct HomeView: View {
                             Text("Unlock Pro \(product.displayPrice)")
                                 .font(.subheadline.weight(.semibold))
                         }
-                        .buttonStyle(.glassProminent)
+                        .adaptiveProminentButton()
                     } else {
                         ProgressView()
                             .controlSize(.small)
@@ -288,14 +288,14 @@ struct HomeView: View {
                     Button("Restore") {
                         Task { await storeService.restorePurchases() }
                     }
-                    .buttonStyle(.glass)
+                    .adaptiveSecondaryButton()
                     .font(.subheadline)
                 }
             }
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .glassEffect(in: .rect(cornerRadius: 16))
+        .adaptiveGlass(in: 16)
     }
 
     // MARK: - Stats Card
@@ -336,7 +336,7 @@ struct HomeView: View {
             }
         }
         .padding(20)
-        .glassEffect(in: .rect(cornerRadius: 16))
+        .adaptiveGlass(in: 16)
     }
 
     private func statItem(value: String, label: String, icon: String) -> some View {
@@ -397,7 +397,7 @@ struct HomeView: View {
             }
         }
         .padding(20)
-        .glassEffect(in: .rect(cornerRadius: 16))
+        .adaptiveGlass(in: 16)
     }
 
     private func achievementRow(icon: String, title: String, subtitle: String, progress: Int, target: Int) -> some View {

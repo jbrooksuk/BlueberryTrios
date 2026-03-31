@@ -66,7 +66,7 @@ struct WalkthroughView: View {
                         Button(String(localized: "Back", comment: "Walkthrough back button")) {
                             withAnimation { currentPage -= 1 }
                         }
-                        .buttonStyle(.glass)
+                        .adaptiveSecondaryButton()
                     }
 
                     Spacer()
@@ -75,12 +75,12 @@ struct WalkthroughView: View {
                         Button(String(localized: "Next", comment: "Walkthrough next button")) {
                             withAnimation { currentPage += 1 }
                         }
-                        .buttonStyle(.glassProminent)
+                        .adaptiveProminentButton()
                     } else {
                         Button(String(localized: "Let's play!", comment: "Walkthrough final button")) {
                             isPresented = false
                         }
-                        .buttonStyle(.glassProminent)
+                        .adaptiveProminentButton()
                     }
                 }
                 .padding(.horizontal, 24)

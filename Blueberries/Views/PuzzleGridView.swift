@@ -29,9 +29,13 @@ struct PuzzleGridView: View {
         .frame(maxWidth: 500)
         .clipShape(.rect(cornerRadius: 6))
         .shadow(color: .black.opacity(0.08), radius: 8, y: 2)
-        .onGeometryChange(for: Double.self) { proxy in
-            min(proxy.size.width, proxy.size.height) / Double(model.numColumns)
-        } action: { newValue in
+        .background(
+            GeometryReader { geo in
+                Color.clear.preference(key: CellSizePreferenceKey.self,
+                    value: min(geo.size.width, geo.size.height) / Double(model.numColumns))
+            }
+        )
+        .onPreferenceChange(CellSizePreferenceKey.self) { newValue in
             cellSize = newValue
         }
         .contentShape(Rectangle())
@@ -313,5 +317,12 @@ struct PuzzleGridView: View {
             width: cellSize,
             height: cellSize
         )
+    }
+}
+
+private struct CellSizePreferenceKey: PreferenceKey {
+    static let defaultValue: Double = 0
+    static func reduce(value: inout Double, nextValue: () -> Double) {
+        value = nextValue()
     }
 }

@@ -319,18 +319,18 @@ struct GameView: View {
                     Button("New Puzzle") {
                         newProPuzzle()
                     }
-                    .buttonStyle(.glassProminent)
+                    .adaptiveProminentButton()
                     Button("Next Difficulty") {
                         advanceToNextPuzzle()
                     }
-                    .buttonStyle(.glass)
+                    .adaptiveSecondaryButton()
                 }
             } else {
                 VStack(spacing: 10) {
                     Button("Next Puzzle") {
                         advanceToNextPuzzle()
                     }
-                    .buttonStyle(.glassProminent)
+                    .adaptiveProminentButton()
 
                     if !storeService.isProUnlocked {
                         Button {
@@ -339,13 +339,13 @@ struct GameView: View {
                             Label("Want more? Unlock Pro", systemImage: "infinity")
                                 .font(.subheadline)
                         }
-                        .buttonStyle(.glass)
+                        .adaptiveSecondaryButton()
                     }
                 }
             }
         }
             .padding(32)
-            .glassEffect(in: .rect(cornerRadius: 16))
+            .adaptiveGlass(in: 16)
             .shadow(radius: 10)
         }
         .transition(reduceMotion ? .identity : .scale.combined(with: .opacity))
