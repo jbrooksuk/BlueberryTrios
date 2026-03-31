@@ -3,6 +3,7 @@ import SwiftUI
 struct WalkthroughView: View {
     @Binding var isPresented: Bool
     @State private var currentPage = 0
+    @State private var sessionID = UUID()
 
     private let pages: [WalkthroughPage] = [
         WalkthroughPage(
@@ -47,6 +48,7 @@ struct WalkthroughView: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .animation(.easeInOut(duration: 0.3), value: currentPage)
+            .id(sessionID)
 
             VStack(spacing: 16) {
                 HStack(spacing: 8) {
@@ -87,6 +89,10 @@ struct WalkthroughView: View {
         }
         .background(Color(.systemBackground))
         .interactiveDismissDisabled()
+        .onAppear {
+            currentPage = 0
+            sessionID = UUID()
+        }
     }
 }
 
