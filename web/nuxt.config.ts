@@ -26,6 +26,8 @@ export default defineNuxtConfig({
 
         // Twitter Card
         { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:site', content: '@jbrooksuk' },
+        { name: 'twitter:creator', content: '@jbrooksuk' },
         { name: 'twitter:title', content: siteTitle },
         { name: 'twitter:description', content: siteDescription },
         { name: 'twitter:image', content: siteImage },
