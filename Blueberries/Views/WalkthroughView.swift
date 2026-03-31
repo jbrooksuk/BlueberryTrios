@@ -199,70 +199,102 @@ private struct WalkthroughPageView: View {
         [(8,3), (8,7), (8,8)],           // Row 8
     ]
 
+    private static let solveBlocks: [Int] = [
+        0,0,0,1,1,1,2,2,2,
+        0,0,0,1,1,1,2,2,2,
+        0,0,0,1,1,1,2,2,2,
+        3,3,3,4,4,4,5,5,5,
+        3,3,3,4,4,4,5,5,5,
+        3,3,3,4,4,4,5,5,5,
+        6,6,6,7,7,7,8,8,8,
+        6,6,6,7,7,7,8,8,8,
+        6,6,6,7,7,7,8,8,8,
+    ]
+
+    private func isBerryVisible(row: Int, col: Int, stepsShown: Int) -> Bool {
+        for step in 0..<min(stepsShown, Self.solveSteps.count) {
+            if Self.solveSteps[step].contains(where: { $0.0 == row && $0.1 == col }) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private func clueValue(row: Int, col: Int) -> Int? {
+        Self.solveClues.first { $0.0 == row && $0.1 == col }?.2
+    }
+
+    private func isBlockBorder(r: Int, c: Int, dr: Int, dc: Int) -> Bool {
+        let idx1 = r * 9 + c
+        let nr = r + dr
+        let nc = c + dc
+        guard nr >= 0, nr < 9, nc >= 0, nc < 9 else { return true }
+        let idx2 = nr * 9 + nc
+        return Self.solveBlocks[idx1] != Self.solveBlocks[idx2]
+    }
+
     private var gridIllustration: some View {
-        // Phases 0-9: step through solve, then 10 = pause, loops to 0
         PhaseAnimator(Array(0...10)) { phase in
-            Canvas { context, size in
-                let gridSize = min(size.width, size.height) * 0.85
-                let cellSize = gridSize / 9
-                let offsetX = (size.width - gridSize) / 2
-                let offsetY = (size.height - gridSize) / 2
-                let stepsShown = min(phase, 9)
+            let stepsShown = min(phase, 9)
 
-                // Cell backgrounds
-                for r in 0..<9 {
-                    for c in 0..<9 {
-                        let rect = CGRect(x: offsetX + Double(c) * cellSize + 0.5,
-                                          y: offsetY + Double(r) * cellSize + 0.5,
-                                          width: cellSize - 1, height: cellSize - 1)
-                        context.fill(Path(roundedRect: rect, cornerRadius: 1),
-                                     with: .color(Theme.cellBackground))
-                    }
-                }
+            Grid(horizontalSpacing: 0, verticalSpacing: 0) {
+                ForEach(0..<9, id: \.self) { row in
+                    GridRow {
+                        ForEach(0..<9, id: \.self) { col in
+                            let hasBerry = isBerryVisible(row: row, col: col, stepsShown: stepsShown)
+                            let clue = clueValue(row: row, col: col)
 
-                // Block lines
-                for i in 0...3 {
-                    let pos = Double(i) * cellSize * 3
-                    var hLine = Path()
-                    hLine.move(to: CGPoint(x: offsetX, y: offsetY + pos))
-                    hLine.addLine(to: CGPoint(x: offsetX + gridSize, y: offsetY + pos))
-                    context.stroke(hLine, with: .color(Theme.gridLineThick), lineWidth: 2)
+                            ZStack {
+                                Rectangle()
+                                    .fill(Theme.cellBackground)
 
-                    var vLine = Path()
-                    vLine.move(to: CGPoint(x: offsetX + pos, y: offsetY))
-                    vLine.addLine(to: CGPoint(x: offsetX + pos, y: offsetY + gridSize))
-                    context.stroke(vLine, with: .color(Theme.gridLineThick), lineWidth: 2)
-                }
+                                // Block borders
+                                Rectangle()
+                                    .fill(.clear)
+                                    .overlay(alignment: .leading) {
+                                        if isBlockBorder(r: row, c: col, dr: 0, dc: -1) {
+                                            Rectangle().fill(Theme.gridLineThick).frame(width: 1.5)
+                                        }
+                                    }
+                                    .overlay(alignment: .top) {
+                                        if isBlockBorder(r: row, c: col, dr: -1, dc: 0) {
+                                            Rectangle().fill(Theme.gridLineThick).frame(height: 1.5)
+                                        }
+                                    }
+                                    .overlay(alignment: .trailing) {
+                                        if isBlockBorder(r: row, c: col, dr: 0, dc: 1) {
+                                            Rectangle().fill(Theme.gridLineThick).frame(width: 1.5)
+                                        }
+                                    }
+                                    .overlay(alignment: .bottom) {
+                                        if isBlockBorder(r: row, c: col, dr: 1, dc: 0) {
+                                            Rectangle().fill(Theme.gridLineThick).frame(height: 1.5)
+                                        }
+                                    }
 
-                // Clue numbers
-                for (r, c, n) in Self.solveClues {
-                    let cx = offsetX + Double(c) * cellSize + cellSize / 2
-                    let cy = offsetY + Double(r) * cellSize + cellSize / 2
-                    let text = Text("\(n)")
-                        .font(.system(size: cellSize * 0.5, weight: .medium, design: .rounded))
-                        .foregroundStyle(Theme.clueText.opacity(0.6))
-                    context.draw(text, at: CGPoint(x: cx, y: cy))
-                }
-
-                // Berries appearing step by step
-                for step in 0..<stepsShown {
-                    guard step < Self.solveSteps.count else { break }
-                    for (r, c) in Self.solveSteps[step] {
-                        let cx = offsetX + Double(c) * cellSize + cellSize / 2
-                        let cy = offsetY + Double(r) * cellSize + cellSize / 2
-                        let br = cellSize * 0.3
-                        context.fill(
-                            Path(ellipseIn: CGRect(x: cx - br, y: cy - br, width: br * 2, height: br * 2)),
-                            with: .color(Theme.berryBlue)
-                        )
+                                if let clue {
+                                    Text("\(clue)")
+                                        .font(.system(size: 10, weight: .medium, design: .rounded))
+                                        .foregroundStyle(Theme.clueText.opacity(0.6))
+                                } else if hasBerry {
+                                    Circle()
+                                        .fill(Theme.berryBlue)
+                                        .padding(3)
+                                        .transition(.scale.combined(with: .opacity))
+                                }
+                            }
+                            .aspectRatio(1, contentMode: .fit)
+                        }
                     }
                 }
             }
+            .clipShape(.rect(cornerRadius: 4))
+            .frame(maxWidth: 200, maxHeight: 200)
         } animation: { phase in
             if phase == 0 {
-                .easeInOut(duration: 0.3)
+                .easeInOut(duration: 0.4)
             } else {
-                .easeInOut(duration: 0.6)
+                .spring(duration: 0.5, bounce: 0.15)
             }
         }
     }
