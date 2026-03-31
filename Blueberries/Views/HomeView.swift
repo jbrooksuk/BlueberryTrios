@@ -15,7 +15,6 @@ struct HomeView: View {
     @State private var selectedSource: PuzzleSource = .daily
     @State private var selectedDifficulty: Difficulty = .standard
     @State private var showCalendar: Bool = false
-    @State private var showSettings: Bool = false
     @State private var showWalkthrough: Bool = false
     @State private var selectedTab: HomeTab = .home
     @AppStorage("hasSeenWalkthrough") private var hasSeenWalkthrough: Bool = false
@@ -27,7 +26,7 @@ struct HomeView: View {
     @AppStorage("soundEnabled") private var soundEnabled: Bool = true
 
     private enum HomeTab: Hashable {
-        case home, achievements
+        case home, achievements, settings
     }
 
     private var stats: PlayerStats? {
@@ -49,17 +48,9 @@ struct HomeView: View {
                 Tab("Achievements", systemImage: "trophy.fill", value: HomeTab.achievements) {
                     achievementsTab
                 }
-            }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Settings", systemImage: "gearshape") {
-                        showSettings = true
-                    }
-                    .labelStyle(.iconOnly)
+                Tab("Settings", systemImage: "gearshape", value: HomeTab.settings) {
+                    settingsTab
                 }
-            }
-            .sheet(isPresented: $showSettings) {
-                homeSettingsSheet
             }
             .fullScreenCover(isPresented: $showWalkthrough) {
                 WalkthroughView(isPresented: $showWalkthrough)
@@ -435,64 +426,50 @@ struct HomeView: View {
 
     // MARK: - Settings Sheet
 
-    private var homeSettingsSheet: some View {
-        NavigationStack {
-            Form {
-                Section("Gameplay") {
-                    Toggle("Auto Check", isOn: $autoCheck)
-                    Toggle("Show Timer", isOn: $showTimer)
-                    Toggle("Fill Hints", isOn: $fillHints)
-                    Toggle("Haptics", isOn: $hapticsEnabled)
-                    Toggle("Sound", isOn: $soundEnabled)
-                    Toggle("Daily Reminder", isOn: .constant(false)) // TODO: wire up NotificationService
-                }
-                Section("Pro Puzzles") {
-                    if storeService.isProUnlocked {
-                        Label("Pro Unlocked", systemImage: "checkmark.seal.fill")
-                            .foregroundStyle(.green)
-                    } else {
-                        if let product = storeService.proProduct {
-                            Button {
-                                Task { try? await storeService.purchasePro() }
-                            } label: {
-                                HStack {
-                                    Text("Unlock Pro Puzzles")
-                                    Spacer()
-                                    Text(product.displayPrice)
-                                        .foregroundStyle(.secondary)
-                                }
+    private var settingsTab: some View {
+        Form {
+            Section("Gameplay") {
+                Toggle("Auto Check", isOn: $autoCheck)
+                Toggle("Show Timer", isOn: $showTimer)
+                Toggle("Fill Hints", isOn: $fillHints)
+                Toggle("Haptics", isOn: $hapticsEnabled)
+                Toggle("Sound", isOn: $soundEnabled)
+            }
+            Section("Pro Puzzles") {
+                if storeService.isProUnlocked {
+                    Label("Pro Unlocked", systemImage: "checkmark.seal.fill")
+                        .foregroundStyle(.green)
+                } else {
+                    if let product = storeService.proProduct {
+                        Button {
+                            Task { try? await storeService.purchasePro() }
+                        } label: {
+                            HStack {
+                                Text("Unlock Pro Puzzles")
+                                Spacer()
+                                Text(product.displayPrice)
+                                    .foregroundStyle(.secondary)
                             }
                         }
-                        Button("Restore Purchases") {
-                            Task { await storeService.restorePurchases() }
-                        }
                     }
-                }
-                Section("Help") {
-                    Button {
-                        showSettings = false
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            showWalkthrough = true
-                        }
-                    } label: {
-                        Label(String(localized: "Show Walkthrough", comment: "Settings button to replay tutorial"), systemImage: "questionmark.circle")
+                    Button("Restore Purchases") {
+                        Task { await storeService.restorePurchases() }
                     }
-                }
-                Section("Rules") {
-                    Text("Place 3 berries into each row, column, and block. Surround each number with the specified number of berries.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
                 }
             }
-            .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { showSettings = false }
+            Section("Help") {
+                Button {
+                    showWalkthrough = true
+                } label: {
+                    Label(String(localized: "Show Walkthrough", comment: "Settings button to replay tutorial"), systemImage: "questionmark.circle")
                 }
+            }
+            Section("Rules") {
+                Text("Place 3 berries into each row, column, and block. Surround each number with the specified number of berries.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
         }
-        .presentationDetents([.large])
     }
 
     // MARK: - Helpers
