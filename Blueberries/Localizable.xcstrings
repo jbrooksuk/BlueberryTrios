@@ -256,7 +256,7 @@
     "Each day brings three new puzzles across Standard, Advanced, and Expert difficulties." : {
       "comment" : "Walkthrough page 1 description"
     },
-    "Place 3 Berries" : {
+    "Place 3 berries" : {
       "comment" : "Walkthrough page 2 title"
     },
     "In every row, column, and block" : {
@@ -265,7 +265,7 @@
     "The 9×9 grid is divided into blocks. Each row, column, and block must contain exactly 3 berries." : {
       "comment" : "Walkthrough page 2 description"
     },
-    "Follow the Clues" : {
+    "Follow the clues" : {
       "comment" : "Walkthrough page 3 title"
     },
     "Numbers guide your way" : {
@@ -274,16 +274,28 @@
     "A number tells you how many of the 8 surrounding cells contain a berry. Use logic to work out where each berry goes." : {
       "comment" : "Walkthrough page 3 description"
     },
-    "Tap & Drag" : {
+    "Tap and drag" : {
       "comment" : "Walkthrough page 4 title"
     },
     "Quick and intuitive controls" : {
       "comment" : "Walkthrough page 4 subtitle"
     },
     "Tap a cell to cycle through states: empty, crossed, or berry. Drag to paint multiple cells at once." : {
+      "comment" : "Walkthrough page 4 description (old)"
+    },
+    "Tap a cell to cycle: empty, crossed out, or berry. Use crossed to mark cells you've ruled out. Drag to paint multiple cells at once." : {
       "comment" : "Walkthrough page 4 description"
     },
-    "Build Your Streak" : {
+    "Empty" : {
+      "comment" : "Walkthrough cell state label"
+    },
+    "Ruled out" : {
+      "comment" : "Walkthrough crossed state label"
+    },
+    "Berry" : {
+      "comment" : "Walkthrough berry state label"
+    },
+    "Build your streak" : {
       "comment" : "Walkthrough page 5 title"
     },
     "Come back every day" : {
@@ -298,10 +310,10 @@
     "Next" : {
       "comment" : "Walkthrough next button"
     },
-    "Let's Play!" : {
+    "Let's play!" : {
       "comment" : "Walkthrough final button"
     },
-    "Show Walkthrough" : {
+    "Show walkthrough" : {
       "comment" : "Settings button to replay tutorial"
     },
     "Help" : {

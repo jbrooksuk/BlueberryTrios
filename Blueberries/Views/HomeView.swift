@@ -461,7 +461,7 @@ struct HomeView: View {
                 Button {
                     showWalkthrough = true
                 } label: {
-                    Label(String(localized: "Show Walkthrough", comment: "Settings button to replay tutorial"), systemImage: "questionmark.circle")
+                    Label(String(localized: "Show walkthrough", comment: "Settings button to replay tutorial"), systemImage: "questionmark.circle")
                 }
             }
             Section("Rules") {
