@@ -12,4 +12,10 @@ enum Theme {
     static let hintHighlight = Color("HintHighlight")
     static let satisfiedClueOpacity: Double = 0.25
     static let errorAnimationDelay: TimeInterval = 1.0
+
+    static let backgroundGradient = LinearGradient(
+        colors: [berryBlue.opacity(0.08), Color(.systemGroupedBackground)],
+        startPoint: .top,
+        endPoint: .center
+    )
 }

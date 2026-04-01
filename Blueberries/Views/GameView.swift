@@ -111,7 +111,7 @@ struct GameView: View {
             }
         }
         .toolbarRole(.automatic)
-        .background(Color(.systemBackground))
+        .background(Theme.backgroundGradient)
         .navigationBarTitleDisplayMode(.inline)
         .gesture(DragGesture())
         .task {

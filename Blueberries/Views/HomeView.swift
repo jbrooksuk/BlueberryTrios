@@ -100,13 +100,7 @@ struct HomeView: View {
             }
             .frame(maxWidth: .infinity)
         }
-        .background(
-            LinearGradient(
-                colors: [Theme.berryBlue.opacity(0.08), Color(.systemGroupedBackground)],
-                startPoint: .top,
-                endPoint: .center
-            )
-        )
+        .background(Theme.backgroundGradient)
     }
 
     private var achievementsTab: some View {
@@ -118,7 +112,7 @@ struct HomeView: View {
             }
             .frame(maxWidth: .infinity)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(Theme.backgroundGradient)
     }
 
     // MARK: - Hero Header
