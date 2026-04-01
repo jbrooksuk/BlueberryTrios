@@ -103,10 +103,12 @@ struct GameView: View {
                     }
                     .disabled(solved)
 
-                    Button { _ = model.checkSolved() } label: {
-                        Label("Check", systemImage: "checkmark.circle")
+                    if !autoCheck {
+                        Button { model.updateCheck() } label: {
+                            Label("Check", systemImage: "checkmark.circle")
+                        }
+                        .disabled(solved)
                     }
-                    .disabled(solved)
                 }
             }
         }
@@ -493,7 +495,7 @@ struct GameView: View {
         if !saved.undoHistory.isEmpty && !model.isSolved {
             model.undoStack = decodeUndoStack(saved.undoHistory)
         }
-        _ = model.checkSolved()
+        model.updateCheck()
     }
 
     // MARK: - Undo Stack Encoding

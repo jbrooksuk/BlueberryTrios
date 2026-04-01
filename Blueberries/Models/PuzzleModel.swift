@@ -340,7 +340,7 @@ final class PuzzleModel {
         )
     }
 
-    private func updateCheck() {
+    func updateCheck() {
         let result = checkSolved()
         lastCheck = result
         if result.status == .solved && !isSolved {
