@@ -206,19 +206,24 @@ struct HomeView: View {
                                         .foregroundStyle(.green)
                                 } else if inProgress {
                                     Circle()
-                                        .fill(Theme.berryBlue)
+                                        .fill(Theme.berryBlue.opacity(0.5))
                                         .frame(width: 56, height: 56)
                                         .overlay {
                                             Text("\(diff.displayIndex)")
                                                 .font(.title2.bold())
+                                                .foregroundStyle(.white.opacity(0.8))
+                                        }
+                                        .overlay(alignment: .bottomTrailing) {
+                                            Image(systemName: "clock.fill")
+                                                .font(.system(size: 16))
                                                 .foregroundStyle(.white)
+                                                .background(
+                                                    Circle()
+                                                        .fill(Theme.berryBlue)
+                                                        .frame(width: 22, height: 22)
+                                                )
+                                                .offset(x: 2, y: 2)
                                         }
-                                        .overlay {
-                                            Circle()
-                                                .strokeBorder(Color.orange, lineWidth: 3)
-                                                .frame(width: 56, height: 56)
-                                        }
-                                        .shadow(color: Color.orange.opacity(0.3), radius: 4, y: 2)
                                 } else {
                                     Circle()
                                         .fill(Theme.berryBlue)
@@ -234,7 +239,7 @@ struct HomeView: View {
 
                             Text(diff.rawValue)
                                 .font(.caption.weight(.medium))
-                                .foregroundStyle(solved ? .green : inProgress ? .orange : .primary)
+                                .foregroundStyle(solved ? .green : inProgress ? .secondary : .primary)
                         }
                         .frame(maxWidth: .infinity)
                     }
