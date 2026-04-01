@@ -20,21 +20,20 @@ struct TutorialView: View {
 
     // MARK: - Tutorial Puzzle
 
-    // Hand-crafted easy 9×9 puzzle with 23 clues.
-    // All four corners have clue "1" with two clue-cell neighbors,
-    // making the first deductions trivially forced.
+    // Valid 9×9 with 0 clues at (5,0) and (6,8) for teaching crosses.
+    // Shift pattern ensures 3 per row/col/block. Many clues for easy solving.
     //
     // Solution:
-    //   x x o | x o x | o x x
-    //   o x x | o x x | x o x
-    //   x o x | x x o | x x o
+    //   o x x | o x x | o x x
+    //   x o x | x o x | x o x
+    //   x x o | x x o | x x o
     //   ------+-------+------
-    //   x o x | x x o | x o x
-    //   x x o | o x x | o x x
-    //   o x x | x o x | x x o
+    //   x o x | x o x | x o x
+    //   x x o | x x o | x x o
+    //   o x x | o x x | o x x
     //   ------+-------+------
-    //   o x x | o x x | x x o
-    //   x x o | x x o | o x x
+    //   x x o | x x o | x x o
+    //   o x x | o x x | o x x
     //   x o x | x o x | x o x
 
     static let tutorialPuzzle = PuzzleDefinition(
@@ -54,17 +53,17 @@ struct TutorialView: View {
             6, 6, 6, 7, 7, 7, 8, 8, 8,
         ],
         cellClues: [
-              1,   2, nil, nil, nil,   2, nil,   2,   1,
-            nil,   3, nil, nil,   3, nil, nil, nil,   2,
-            nil, nil, nil,   1, nil, nil, nil, nil, nil,
-            nil, nil, nil,   2, nil, nil, nil, nil,   2,
-            nil, nil, nil, nil,   3, nil, nil, nil, nil,
-            nil, nil, nil, nil, nil, nil,   1, nil, nil,
-            nil,   3, nil, nil, nil,   3, nil, nil, nil,
-              2,   3, nil,   3, nil, nil, nil,   3,   2,
-              1, nil, nil,   2, nil, nil, nil, nil,   1,
+            nil,   2,   2, nil,   2, nil,   1,   2,   1,
+              2, nil,   3, nil, nil, nil,   3,   2, nil,
+            nil,   3, nil,   3, nil, nil, nil,   3, nil,
+              1, nil,   3, nil, nil,   3, nil,   2, nil,
+            nil,   3, nil, nil,   3, nil, nil,   3, nil,
+              0, nil, nil, nil, nil, nil, nil, nil,   2,
+            nil,   3, nil, nil,   3, nil,   3, nil,   0,
+              1, nil, nil, nil,   3, nil, nil,   3, nil,
+            nil,   1, nil, nil, nil, nil,   2,   1,   1,
         ],
-        solution: "xxoxoxoxxoxxoxxxoxxoxxxoxxoxoxxxoxoxxxooxxoxxoxxxoxxxooxxoxxxxoxxoxxooxxxoxxoxxox"
+        solution: "oxxoxxoxxxoxxoxxoxxxoxxoxxoxoxxoxxoxxxoxxoxxooxxoxxoxxxxoxxoxxooxxoxxoxxxoxxoxxox"
     )
 
     init(isPresented: Binding<Bool>, gameCenterService: GameCenterService) {
@@ -77,10 +76,11 @@ struct TutorialView: View {
 
     enum TutorialStep: Int, CaseIterable, Comparable {
         case welcome
-        case explainClues
-        case firstBerry
-        case crossingOut
-        case freePlay
+        case explainZero       // Teach the 0 clue — all neighbors are empty
+        case crossNeighbors    // Player crosses out cells around the 0
+        case explainBerry      // Now teach placing a berry
+        case firstBerry        // Player places their first berry
+        case freePlay          // Finish the puzzle
         case solved
 
         static func < (lhs: TutorialStep, rhs: TutorialStep) -> Bool {
@@ -107,11 +107,11 @@ struct TutorialView: View {
                 highlightedCells: currentHighlights
             )
             .padding(.horizontal, 8)
-            .allowsHitTesting(step >= .firstBerry && step < .solved)
+            .allowsHitTesting(step >= .crossNeighbors && step < .solved)
 
             Spacer(minLength: 8)
 
-            if step >= .firstBerry && step < .solved {
+            if step >= .crossNeighbors && step < .solved {
                 actionButtons
                     .padding(.horizontal, 24)
                     .padding(.bottom, 16)
@@ -173,26 +173,26 @@ struct TutorialView: View {
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                     Button("Let's go!") {
-                        withAnimation { step = .explainClues }
+                        withAnimation { step = .explainZero }
                     }
                     .adaptiveProminentButton()
                     .padding(.top, 4)
                 }
 
-            case .explainClues:
+            case .explainZero:
                 VStack(spacing: 8) {
-                    Text("See the numbers?")
+                    Text("Start with the **0**")
                         .font(.title3.bold())
-                    Text("The **1** in the top-left corner means exactly 1 of its neighbors has a berry. Its other two neighbors are number clues \u{2014} they never contain berries.")
+                    Text("See the **0** on the left? It means **none** of its neighbors have a berry. We can **cross them all out** with an ✕!")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                    Text("That means the remaining cell **must** be a berry!")
+                    Text("Tap each highlighted cell to mark it")
                         .font(.subheadline.weight(.medium))
                         .multilineTextAlignment(.center)
-                    Button("Show me") {
+                    Button("Got it") {
                         withAnimation {
-                            step = .firstBerry
+                            step = .crossNeighbors
                             gameTimer.start()
                         }
                     }
@@ -200,26 +200,36 @@ struct TutorialView: View {
                     .padding(.top, 4)
                 }
 
-            case .firstBerry:
-                HStack(spacing: 8) {
-                    Image(systemName: "hand.tap.fill")
-                        .foregroundStyle(Theme.berryBlue)
-                    Text("Tap the highlighted cell to place a berry")
-                        .font(.subheadline.weight(.medium))
-                }
-
-            case .crossingOut:
+            case .crossNeighbors:
                 VStack(spacing: 4) {
                     HStack(spacing: 8) {
                         Image(systemName: "xmark.circle")
                             .foregroundStyle(Theme.berryBlue)
-                        Text("Nice! Now try the other corners")
+                        Text("Cross out the highlighted cells")
                             .font(.subheadline.weight(.medium))
                     }
-                    Text("Each corner '1' works the same way. You can also tap empty cells to cross them out with an X.")
+                    Text("Tap once for ✕ (ruled out). These cells can't have berries.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
+                }
+
+            case .explainBerry:
+                VStack(spacing: 8) {
+                    Text("Now place a berry!")
+                        .font(.title3.bold())
+                    Text("The **1** in the top-left corner has only one empty neighbor. That cell **must** be a berry! Tap it **twice** to place one.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+
+            case .firstBerry:
+                HStack(spacing: 8) {
+                    Image(systemName: "hand.tap.fill")
+                        .foregroundStyle(Theme.berryBlue)
+                    Text("Tap the highlighted cell twice for a berry")
+                        .font(.subheadline.weight(.medium))
                 }
 
             case .freePlay:
@@ -230,7 +240,7 @@ struct TutorialView: View {
                         Text("You've got the hang of it!")
                             .font(.subheadline.weight(.medium))
                     }
-                    Text("Finish the puzzle using the same logic. Tap \(Image(systemName: "lightbulb")) for a hint if you get stuck.")
+                    Text("Finish the puzzle. Use ✕ to rule out cells and berries to fill them in. Tap \(Image(systemName: "lightbulb")) for a hint.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -247,21 +257,34 @@ struct TutorialView: View {
 
     // MARK: - Highlights
 
+    // The 0 clue at (5,0) — its neighbors that are interactive (not clue cells)
+    private var zeroInteractiveNeighbors: Set<CellID> {
+        // Neighbors of (5,0): (4,0), (4,1), (6,0), (6,1)
+        // Filter to only interactive ones
+        let neighbors: [CellID] = [
+            CellID(row: 4, column: 0),
+            CellID(row: 4, column: 1),
+            CellID(row: 6, column: 0),
+            CellID(row: 6, column: 1),
+        ]
+        return Set(neighbors.filter { model.isInteractive($0) })
+    }
+
+    // First berry target — (0,0) which is a berry in the solution and easy to deduce
+    private let firstBerryCell = CellID(row: 0, column: 0)
+
     private var currentHighlights: Set<CellID> {
         switch step {
-        case .explainClues:
-            // Highlight the top-left corner clue and its only interactive neighbor
-            return [CellID(row: 0, column: 0), CellID(row: 1, column: 0)]
-        case .firstBerry:
-            // Highlight the cell the player should tap
-            return [CellID(row: 1, column: 0)]
-        case .crossingOut:
-            // Highlight the other three corner berry cells
-            return [
-                CellID(row: 1, column: 7),  // top-right corner deduction
-                CellID(row: 8, column: 1),  // bottom-left corner deduction
-                CellID(row: 8, column: 7),  // bottom-right corner deduction
-            ]
+        case .explainZero:
+            // Highlight the 0 clue and its crossable neighbors
+            var cells: Set<CellID> = [CellID(row: 0, column: 0)]
+            cells.formUnion(zeroInteractiveNeighbors)
+            return cells
+        case .crossNeighbors:
+            // Highlight only the uncrossed neighbors
+            return zeroInteractiveNeighbors.filter { model.cells[$0] == .undecided }
+        case .explainBerry, .firstBerry:
+            return [firstBerryCell]
         default:
             return []
         }
@@ -271,15 +294,18 @@ struct TutorialView: View {
 
     private func checkProgress() {
         switch step {
-        case .firstBerry:
-            if model.cells[CellID(row: 1, column: 0)] == .berry {
-                withAnimation { step = .crossingOut }
+        case .crossNeighbors:
+            // Advance when all interactive neighbors of 0 are crossed
+            let allCrossed = zeroInteractiveNeighbors.allSatisfy { model.cells[$0] == .empty }
+            if allCrossed {
+                withAnimation { step = .explainBerry }
             }
-        case .crossingOut:
-            // Advance once they've placed at least 3 more berries (the other corners + any)
-            let berryCount = model.allCells.filter { model.cells[$0] == .berry }.count
-            if berryCount >= 4 {
+        case .explainBerry, .firstBerry:
+            if model.cells[firstBerryCell] == .berry {
                 withAnimation { step = .freePlay }
+            } else if step == .explainBerry {
+                // Auto-advance to firstBerry once they start interacting
+                withAnimation { step = .firstBerry }
             }
         default:
             break
