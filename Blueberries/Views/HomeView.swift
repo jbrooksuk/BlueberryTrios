@@ -17,6 +17,7 @@ struct HomeView: View {
     @State private var selectedDifficulty: Difficulty = .standard
     @State private var showCalendar: Bool = false
     @State private var showWalkthrough: Bool = false
+    @State private var showOfferCode: Bool = false
     @State private var selectedTab: HomeTab = .home
     @AppStorage("hasSeenWalkthrough") private var hasSeenWalkthrough: Bool = false
 
@@ -445,6 +446,9 @@ struct HomeView: View {
                     Button("Restore Purchases") {
                         Task { await storeService.restorePurchases() }
                     }
+                    Button("Redeem Code") {
+                        showOfferCode = true
+                    }
                 }
             }
             Section("Help") {
@@ -462,6 +466,7 @@ struct HomeView: View {
         }
         .scrollContentBackground(.hidden)
         .background(Theme.backgroundGradient)
+        .offerCodeRedemption(isPresented: $showOfferCode)
     }
 
     // MARK: - Helpers
