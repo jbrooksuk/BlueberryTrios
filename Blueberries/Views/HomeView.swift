@@ -487,6 +487,8 @@ struct HomeView: View {
                     .foregroundStyle(.secondary)
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(Theme.backgroundGradient)
     }
 
     // MARK: - Helpers
