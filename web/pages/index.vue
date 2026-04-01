@@ -13,8 +13,8 @@
                     <img src="/berry-happy.svg" alt="" class="hero-berry berry-center" />
                     <img src="/berry-wink.svg" alt="" class="hero-berry berry-right" />
                 </div>
-                <h1>🫐 Berroku</h1>
-                <p class="hero-tagline">Place 3 berries in every row, column &amp; block. A fresh logic puzzle that's delightfully addictive. 🫐</p>
+                <h1>Berroku</h1>
+                <p class="hero-tagline">Place 3 berries in every row, column &amp; block. A fresh logic puzzle that's delightfully addictive.</p>
                 <a href="https://apps.apple.com/us/app/berroku/id6761375301" class="btn-primary">
                     <AppleIcon />
                     Download on the App Store
@@ -105,8 +105,8 @@
 
 <script setup>
 const rules = [
-    { number: '🫐', title: 'Three per row', desc: 'Place exactly 3 berries in every row of the 9×9 grid.' },
-    { number: '🫐', title: 'Three per column', desc: 'Every column must also contain exactly 3 berries.' },
+    { number: '3', title: 'Three per row', desc: 'Place exactly 3 berries in every row of the 9×9 grid.' },
+    { number: '3', title: 'Three per column', desc: 'Every column must also contain exactly 3 berries.' },
     { number: '?', title: 'Follow the clues', desc: 'Numbers tell you how many of the 8 surrounding cells contain berries.' },
 ]
 
@@ -117,7 +117,7 @@ const proPerks = [
 ]
 
 const features = [
-    { icon: '🫐', title: 'Daily Puzzles', desc: 'Three new puzzles every day. Come back tomorrow for a fresh challenge.' },
+    { icon: '📅', title: 'Daily Puzzles', desc: 'Three new puzzles every day. Come back tomorrow for a fresh challenge.' },
     { icon: '🎯', title: '3 Difficulties', desc: 'Standard, Advanced, and Expert. Work your way up as your skills sharpen.' },
     { icon: '♾️', title: 'Pro Mode', desc: 'Unlock unlimited puzzle sets beyond the daily rotation. Never run out.' },
     { icon: '🏆', title: 'Achievements', desc: 'Game Center integration with 12 achievements and a fastest-time leaderboard.' },
