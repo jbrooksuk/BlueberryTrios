@@ -223,6 +223,12 @@
     "Unlock unlimited additional puzzle sets beyond the daily puzzles." : {
       "comment" : "Pro mode description"
     },
+    "View grid" : {
+
+    },
+    "Redeem Code" : {
+      "comment" : "Button to redeem an offer code for Pro"
+    },
     "Want more? Unlock Pro" : {
       "comment" : "Button to purchase Pro from solved overlay"
     },
