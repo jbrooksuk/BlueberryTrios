@@ -92,7 +92,7 @@
         <!-- CTA -->
         <section id="download" class="cta-section">
             <div class="container" style="text-align: center;">
-                <h2>Ready to pick some berries?</h2>
+                <h2>Ready to pick some 🫐?</h2>
                 <p>Free to play. New puzzles every day.</p>
                 <a href="https://apps.apple.com/us/app/berroku/id6761375301" class="btn-primary">
                     <AppleIcon />
@@ -123,6 +123,7 @@ const features = [
     { icon: '🏆', title: 'Achievements', desc: 'Game Center integration with 12 achievements and a fastest-time leaderboard.' },
     { icon: '🔥', title: 'Streak Tracking', desc: 'Build your daily streak. How many consecutive days can you solve?' },
     { icon: '📱', title: 'Home Screen Widget', desc: 'Track your daily progress and streak right from your home screen.' },
+    { icon: '✈️', title: 'Play Offline', desc: 'No internet required. All puzzles are bundled in the app so you can play anywhere, anytime.' },
 ]
 </script>
 
