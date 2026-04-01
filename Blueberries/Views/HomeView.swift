@@ -20,6 +20,8 @@ struct HomeView: View {
     @State private var showOfferCode: Bool = false
     @State private var selectedTab: HomeTab = .home
     @AppStorage("hasSeenWalkthrough") private var hasSeenWalkthrough: Bool = false
+    @AppStorage("hasCompletedTutorial") private var hasCompletedTutorial: Bool = false
+    @State private var showTutorial: Bool = false
 
     @AppStorage("autoCheck") private var autoCheck: Bool = true
     @AppStorage("showTimer") private var showTimer: Bool = true
@@ -56,12 +58,31 @@ struct HomeView: View {
             }
             .fullScreenCover(isPresented: $showWalkthrough) {
                 WalkthroughView(isPresented: $showWalkthrough)
-                    .onDisappear { hasSeenWalkthrough = true }
+            }
+            .fullScreenCover(isPresented: $showTutorial) {
+                TutorialView(isPresented: $showTutorial, gameCenterService: gameCenterService)
+                    .onDisappear { hasCompletedTutorial = true }
+            }
+            .onChange(of: showWalkthrough) {
+                if !showWalkthrough && !hasSeenWalkthrough {
+                    hasSeenWalkthrough = true
+                    if !hasCompletedTutorial {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            showTutorial = true
+                        }
+                    }
+                }
             }
             .task {
                 ensureStats()
                 gameCenterService.authenticate()
                 updateWidgetData()
+
+                // Existing users who already saw the walkthrough skip the tutorial
+                if hasSeenWalkthrough && !hasCompletedTutorial {
+                    hasCompletedTutorial = true
+                }
+
                 if !hasSeenWalkthrough {
                     showWalkthrough = true
                 }
