@@ -303,10 +303,14 @@ struct PuzzleGridView: View {
 
         context.stroke(path, with: .color(Theme.gridLineThick), style: StrokeStyle(lineWidth: 2, lineCap: .round))
 
-        // Outer border — slightly thicker, rounded corners handled by clipShape
+        // Outer border — inset by half line width so it doesn't get clipped at corners
         let totalWidth = cellSize * Double(model.numColumns)
         let totalHeight = cellSize * Double(model.numRows)
-        let borderPath = Path(CGRect(x: 0, y: 0, width: totalWidth, height: totalHeight))
+        let borderInset = 1.25 // half of 2.5pt line width
+        let borderRect = CGRect(x: borderInset, y: borderInset,
+                                width: totalWidth - borderInset * 2,
+                                height: totalHeight - borderInset * 2)
+        let borderPath = Path(roundedRect: borderRect, cornerRadius: 4.75) // match clipShape minus inset
         context.stroke(borderPath, with: .color(Theme.gridLineThick), lineWidth: 2.5)
     }
 
