@@ -199,32 +199,14 @@ struct HomeView: View {
                             ZStack {
                                 if solved {
                                     Circle()
-                                        .fill(Color.green.opacity(0.15))
-                                        .frame(width: 56, height: 56)
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .font(.title2)
-                                        .foregroundStyle(.green)
-                                } else if inProgress {
-                                    Circle()
-                                        .fill(Theme.berryBlue.opacity(0.5))
+                                        .fill(Color.green)
                                         .frame(width: 56, height: 56)
                                         .overlay {
-                                            Text("\(diff.displayIndex)")
-                                                .font(.title2.bold())
-                                                .foregroundStyle(.white.opacity(0.8))
-                                        }
-                                        .overlay(alignment: .bottomTrailing) {
-                                            Image(systemName: "clock.fill")
-                                                .font(.system(size: 16))
+                                            Image(systemName: "checkmark")
+                                                .font(.title3.bold())
                                                 .foregroundStyle(.white)
-                                                .background(
-                                                    Circle()
-                                                        .fill(Theme.berryBlue)
-                                                        .frame(width: 22, height: 22)
-                                                )
-                                                .offset(x: 2, y: 2)
                                         }
-                                } else {
+                                } else if inProgress {
                                     Circle()
                                         .fill(Theme.berryBlue)
                                         .frame(width: 56, height: 56)
@@ -234,12 +216,21 @@ struct HomeView: View {
                                                 .foregroundStyle(.white)
                                         }
                                         .shadow(color: Theme.berryBlue.opacity(0.3), radius: 4, y: 2)
+                                } else {
+                                    Circle()
+                                        .strokeBorder(Theme.berryBlue.opacity(0.4), lineWidth: 2)
+                                        .frame(width: 56, height: 56)
+                                        .overlay {
+                                            Text("\(diff.displayIndex)")
+                                                .font(.title2.bold())
+                                                .foregroundStyle(Theme.berryBlue.opacity(0.6))
+                                        }
                                 }
                             }
 
                             Text(diff.rawValue)
                                 .font(.caption.weight(.medium))
-                                .foregroundStyle(solved ? .green : inProgress ? .secondary : .primary)
+                                .foregroundStyle(solved ? .green : inProgress ? .primary : .secondary)
                         }
                         .frame(maxWidth: .infinity)
                     }
