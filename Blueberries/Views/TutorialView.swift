@@ -20,21 +20,21 @@ struct TutorialView: View {
 
     // MARK: - Tutorial Puzzle
 
-    // Valid 9×9 with 0 clues at (5,0) and (6,8) for teaching crosses.
-    // Shift pattern ensures 3 per row/col/block. Many clues for easy solving.
+    // Easy 9×9 with 0 clues at (0,0) and (1,0) for teaching crosses first.
+    // 34 clues for easy solving. All solutions verified.
     //
     // Solution:
-    //   o x x | o x x | o x x
-    //   x o x | x o x | x o x
-    //   x x o | x x o | x x o
+    //   x x o | x o x | x o x
+    //   x x o | x x o | o x x
+    //   x x o | o x x | x x o
     //   ------+-------+------
-    //   x o x | x o x | x o x
-    //   x x o | x x o | x x o
-    //   o x x | o x x | o x x
+    //   o x x | x o x | o x x
+    //   x o x | o x x | x x o
+    //   o x x | x x o | x o x
     //   ------+-------+------
-    //   x x o | x x o | x x o
-    //   o x x | o x x | o x x
-    //   x o x | x o x | x o x
+    //   x o x | x x o | x x o
+    //   o x x | o x x | x o x
+    //   x o x | x o x | o x x
 
     static let tutorialPuzzle = PuzzleDefinition(
         size: PuzzleSize(rows: 9, columns: 9),
@@ -53,17 +53,17 @@ struct TutorialView: View {
             6, 6, 6, 7, 7, 7, 8, 8, 8,
         ],
         cellClues: [
-            nil,   2,   2, nil,   2, nil,   1,   2,   1,
-              2, nil,   3, nil, nil, nil,   3,   2, nil,
-            nil,   3, nil,   3, nil, nil, nil,   3, nil,
-              1, nil,   3, nil, nil,   3, nil,   2, nil,
-            nil,   3, nil, nil,   3, nil, nil,   3, nil,
-              0, nil, nil, nil, nil, nil, nil, nil,   2,
-            nil,   3, nil, nil,   3, nil,   3, nil,   0,
-              1, nil, nil, nil,   3, nil, nil,   3, nil,
-            nil,   1, nil, nil, nil, nil,   2,   1,   1,
+              0, nil, nil, nil, nil, nil,   3, nil,   1,
+              0, nil, nil, nil, nil, nil, nil,   3,   2,
+              1, nil, nil, nil,   3, nil,   3, nil, nil,
+            nil,   3, nil, nil, nil,   2, nil,   3,   2,
+              3, nil,   2, nil,   3, nil,   3, nil, nil,
+            nil,   3, nil,   1, nil, nil, nil, nil, nil,
+              3, nil,   2,   1,   3, nil, nil, nil, nil,
+            nil,   3, nil, nil, nil,   3, nil, nil,   2,
+              2, nil,   2,   2, nil,   2, nil,   2,   1,
         ],
-        solution: "oxxoxxoxxxoxxoxxoxxxoxxoxxoxoxxoxxoxxxoxxoxxooxxoxxoxxxxoxxoxxooxxoxxoxxxoxxoxxox"
+        solution: "xxoxoxxoxxxoxxooxxxxooxxxxooxxxoxoxxxoxoxxxxooxxxxoxoxxoxxxoxxooxxoxxxoxxoxxoxoxx"
     )
 
     init(isPresented: Binding<Bool>, gameCenterService: GameCenterService) {
@@ -218,7 +218,7 @@ struct TutorialView: View {
                 VStack(spacing: 8) {
                     Text("Now place a berry!")
                         .font(.title3.bold())
-                    Text("The **1** in the top-left corner has only one empty neighbor. That cell **must** be a berry! Tap it **twice** to place one.")
+                    Text("Look at the top-left block — it still needs 3 berries. The highlighted cell is forced! Tap it **twice** to cycle to a berry.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -257,21 +257,19 @@ struct TutorialView: View {
 
     // MARK: - Highlights
 
-    // The 0 clue at (5,0) — its neighbors that are interactive (not clue cells)
+    // The 0 clue at (0,0) — its interactive neighbors (not clue cells) should be crossed
     private var zeroInteractiveNeighbors: Set<CellID> {
-        // Neighbors of (5,0): (4,0), (4,1), (6,0), (6,1)
-        // Filter to only interactive ones
+        // Neighbors of (0,0): (0,1) and (1,1) are now interactive (clues removed)
+        // (1,0) is still a clue cell (also 0)
         let neighbors: [CellID] = [
-            CellID(row: 4, column: 0),
-            CellID(row: 4, column: 1),
-            CellID(row: 6, column: 0),
-            CellID(row: 6, column: 1),
+            CellID(row: 0, column: 1),
+            CellID(row: 1, column: 1),
         ]
         return Set(neighbors.filter { model.isInteractive($0) })
     }
 
-    // First berry target — (0,0) which is a berry in the solution and easy to deduce
-    private let firstBerryCell = CellID(row: 0, column: 0)
+    // First berry target — (0,2) which is a berry forced by the block constraint
+    private let firstBerryCell = CellID(row: 0, column: 2)
 
     private var currentHighlights: Set<CellID> {
         switch step {
