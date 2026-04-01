@@ -15,10 +15,10 @@
                 </div>
                 <h1>Berroku</h1>
                 <p class="hero-tagline">Place 3 berries in every row, column &amp; block. A fresh logic puzzle that's delightfully addictive.</p>
-                <NuxtLink to="#download" class="btn-primary">
+                <a href="https://apps.apple.com/us/app/berroku/id6761375301" class="btn-primary">
                     <AppleIcon />
                     Download on the App Store
-                </NuxtLink>
+                </a>
             </div>
         </section>
 
@@ -94,10 +94,10 @@
             <div class="container" style="text-align: center;">
                 <h2>Ready to pick some berries?</h2>
                 <p>Free to play. New puzzles every day.</p>
-                <NuxtLink to="#" class="btn-primary">
+                <a href="https://apps.apple.com/us/app/berroku/id6761375301" class="btn-primary">
                     <AppleIcon />
                     Download on the App Store
-                </NuxtLink>
+                </a>
             </div>
         </section>
     </div>

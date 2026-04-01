@@ -33,7 +33,7 @@ export default defineNuxtConfig({
         { name: 'twitter:image', content: siteImage },
 
         // App meta
-        { name: 'apple-itunes-app', content: 'app-id=6744870276' },
+        { name: 'apple-itunes-app', content: 'app-id=6761375301' },
         { name: 'application-name', content: 'Berroku' },
       ],
       link: [
