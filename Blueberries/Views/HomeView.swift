@@ -189,6 +189,7 @@ struct HomeView: View {
             HStack(spacing: 0) {
                 ForEach(Difficulty.allCases) { diff in
                     let solved = isDailySolved(diff)
+                    let inProgress = isDailyInProgress(diff)
                     Button {
                         selectedSource = .daily
                         selectedDifficulty = diff
@@ -196,16 +197,28 @@ struct HomeView: View {
                     } label: {
                         VStack(spacing: 8) {
                             ZStack {
-                                Circle()
-                                    .fill(solved
-                                          ? Color.green.opacity(0.15)
-                                          : Theme.berryBlue.opacity(0.1))
-                                    .frame(width: 56, height: 56)
-
                                 if solved {
+                                    Circle()
+                                        .fill(Color.green.opacity(0.15))
+                                        .frame(width: 56, height: 56)
                                     Image(systemName: "checkmark.circle.fill")
                                         .font(.title2)
                                         .foregroundStyle(.green)
+                                } else if inProgress {
+                                    Circle()
+                                        .fill(Theme.berryBlue)
+                                        .frame(width: 56, height: 56)
+                                        .overlay {
+                                            Text("\(diff.displayIndex)")
+                                                .font(.title2.bold())
+                                                .foregroundStyle(.white)
+                                        }
+                                        .overlay {
+                                            Circle()
+                                                .strokeBorder(Color.orange, lineWidth: 3)
+                                                .frame(width: 56, height: 56)
+                                        }
+                                        .shadow(color: Color.orange.opacity(0.3), radius: 4, y: 2)
                                 } else {
                                     Circle()
                                         .fill(Theme.berryBlue)
@@ -221,7 +234,7 @@ struct HomeView: View {
 
                             Text(diff.rawValue)
                                 .font(.caption.weight(.medium))
-                                .foregroundStyle(solved ? .green : .primary)
+                                .foregroundStyle(solved ? .green : inProgress ? .orange : .primary)
                         }
                         .frame(maxWidth: .infinity)
                     }
@@ -496,14 +509,24 @@ struct HomeView: View {
         savedStates.contains { $0.difficulty == difficulty.rawValue && $0.solved }
     }
 
-    private func isDailySolved(_ difficulty: Difficulty) -> Bool {
+    private func dailyPuzzleKey(_ difficulty: Difficulty) -> String? {
         let date = Date.now
-        guard let definition = puzzleStore.dailyPuzzle(date: date, difficulty: difficulty) else { return false }
+        guard let definition = puzzleStore.dailyPuzzle(date: date, difficulty: difficulty) else { return nil }
         let encoder = JSONEncoder()
         encoder.outputFormatting = .sortedKeys
         guard let data = try? encoder.encode(definition),
-              let key = String(data: data, encoding: .utf8) else { return false }
+              let key = String(data: data, encoding: .utf8) else { return nil }
+        return key
+    }
+
+    private func isDailySolved(_ difficulty: Difficulty) -> Bool {
+        guard let key = dailyPuzzleKey(difficulty) else { return false }
         return savedStates.contains { $0.puzzleJSON == key && $0.solved }
+    }
+
+    private func isDailyInProgress(_ difficulty: Difficulty) -> Bool {
+        guard let key = dailyPuzzleKey(difficulty) else { return false }
+        return savedStates.contains { $0.puzzleJSON == key && !$0.solved }
     }
 
     private func updateWidgetData() {

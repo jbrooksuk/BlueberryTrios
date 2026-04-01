@@ -441,6 +441,7 @@ struct GameView: View {
         guard let model, let puzzleKey = cachedPuzzleKey else { return }
         let cellString = model.allCells.map { (model.cells[$0] ?? .undecided).rawValue }.joined()
         let elapsed = gameTimer.elapsedTime
+        let undoString = model.isSolved ? "" : encodeUndoStack(model.undoStack)
 
         if model.isSolved {
             gameTimer.stop()
@@ -448,6 +449,7 @@ struct GameView: View {
 
         if let existing = savedStates.first(where: { $0.puzzleJSON == puzzleKey }) {
             existing.cellStates = cellString
+            existing.undoHistory = undoString
             existing.elapsedTime = elapsed
             existing.hintUsed = model.hintUsed
             existing.solved = model.isSolved
@@ -459,6 +461,7 @@ struct GameView: View {
             let state = GameState(
                 puzzleJSON: puzzleKey,
                 cellStates: cellString,
+                undoHistory: undoString,
                 elapsedTime: elapsed,
                 hintUsed: model.hintUsed,
                 solved: model.isSolved,
@@ -487,7 +490,31 @@ struct GameView: View {
         gameTimer.elapsedTime = saved.elapsedTime
         model.hintUsed = saved.hintUsed
         model.isSolved = saved.solved
+        if !saved.undoHistory.isEmpty && !model.isSolved {
+            model.undoStack = decodeUndoStack(saved.undoHistory)
+        }
         _ = model.checkSolved()
+    }
+
+    // MARK: - Undo Stack Encoding
+
+    private func encodeUndoStack(_ stack: [CellCommand]) -> String {
+        stack.map { "\($0.cell.row),\($0.cell.column),\($0.oldState.rawValue),\($0.newState.rawValue)" }
+            .joined(separator: ";")
+    }
+
+    private func decodeUndoStack(_ string: String) -> [CellCommand] {
+        string.split(separator: ";").compactMap { entry in
+            let parts = entry.split(separator: ",")
+            guard parts.count == 4,
+                  let row = Int(parts[0]),
+                  let col = Int(parts[1]),
+                  let oldState = CellState(rawValue: String(parts[2])),
+                  let newState = CellState(rawValue: String(parts[3])) else {
+                return nil
+            }
+            return CellCommand(cell: CellID(row: row, column: col), oldState: oldState, newState: newState)
+        }
     }
 
     private func useHint(model: PuzzleModel) {
