@@ -23,8 +23,14 @@ final class GameCenterService {
         case dailySweep = "com.altthree.berroku.daily_sweep"
     }
 
-    // Leaderboard identifier
-    static let fastestTimeLeaderboard = "com.altthree.berroku.fastest_time"
+    // Daily leaderboard identifiers (recurring, one per difficulty)
+    static func dailyLeaderboard(for difficulty: Difficulty) -> String {
+        switch difficulty {
+        case .standard: "com.altthree.berroku.daily_standard"
+        case .advanced: "com.altthree.berroku.daily_advanced"
+        case .expert: "com.altthree.berroku.daily_expert"
+        }
+    }
 
     func authenticate() {
         GKLocalPlayer.local.authenticateHandler = { [weak self] viewController, error in
@@ -36,7 +42,7 @@ final class GameCenterService {
         }
     }
 
-    func reportPuzzleCompleted(totalCompleted: Int, completionTime: TimeInterval, streak: Int, difficulty: Difficulty? = nil, allDailySolved: Bool = false) {
+    func reportPuzzleCompleted(totalCompleted: Int, completionTime: TimeInterval, streak: Int, difficulty: Difficulty? = nil, isDaily: Bool = false, allDailySolved: Bool = false) {
         guard isAuthenticated else { return }
 
         var achievements: [GKAchievement] = []
@@ -108,12 +114,14 @@ final class GameCenterService {
                 #endif
             }
 
-            try? await GKLeaderboard.submitScore(
-                Int(completionTime),
-                context: 0,
-                player: GKLocalPlayer.local,
-                leaderboardIDs: [Self.fastestTimeLeaderboard]
-            )
+            if isDaily, let difficulty {
+                try? await GKLeaderboard.submitScore(
+                    Int(completionTime * 100),
+                    context: 0,
+                    player: GKLocalPlayer.local,
+                    leaderboardIDs: [Self.dailyLeaderboard(for: difficulty)]
+                )
+            }
         }
     }
 }

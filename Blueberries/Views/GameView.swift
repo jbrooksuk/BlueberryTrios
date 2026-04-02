@@ -504,6 +504,7 @@ struct GameView: View {
             completionTime: time,
             streak: stats?.currentStreak ?? 0,
             difficulty: difficulty,
+            isDaily: source == .daily,
             allDailySolved: allDailySolved
         )
         updateWidgetData()
