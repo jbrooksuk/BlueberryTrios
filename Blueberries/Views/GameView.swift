@@ -113,6 +113,7 @@ struct GameView: View {
         }
         .toolbarRole(.automatic)
         .background(Theme.backgroundGradient)
+        .navigationTitle("Berroku")
         .navigationBarTitleDisplayMode(.inline)
         .gesture(DragGesture())
         .task {
@@ -175,9 +176,6 @@ struct GameView: View {
     private var headerView: some View {
         VStack(spacing: 8) {
             HStack {
-                Text("Berroku")
-                    .font(.title2.bold())
-
                 Spacer()
 
                 if showTimer {

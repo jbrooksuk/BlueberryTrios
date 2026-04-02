@@ -1,340 +1,349 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "%lld" : {
-      "comment" : "Generic number format"
+  "sourceLanguage": "en",
+  "strings": {
+    "%lld": {
+      "comment": "Generic number format"
     },
-    "%lld/3" : {
-      "comment" : "Daily puzzle progress counter"
+    "%lld/3": {
+      "comment": "Daily puzzle progress counter"
     },
-    "3" : {
-      "comment" : "Number displayed in walkthrough"
+    "3": {
+      "comment": "Number displayed in walkthrough"
     },
-    "A **0** means none of its neighbors are berries. Cross them out with ✕!" : {
-      "comment" : "Tutorial: explain zero step",
-      "localizations" : {
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A **0** means none of its neighbours are berries. Cross them out with ✕!"
+    "A **0** means none of its neighbors are berries. Cross them out with ✕!": {
+      "comment": "Tutorial: explain zero step",
+      "localizations": {
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A **0** means none of its neighbours are berries. Cross them out with ✕!"
           }
         }
       }
     },
-    "A berry logic puzzle inspired by Sudoku" : {
-      "comment" : "Walkthrough page 1 subtitle"
+    "A berry logic puzzle inspired by Sudoku": {
+      "comment": "Walkthrough page 1 subtitle"
     },
-    "A number tells you how many of the 8 surrounding cells contain a berry. Use logic to work out where each berry goes." : {
-      "comment" : "Walkthrough page 3 description"
+    "A number tells you how many of the 8 surrounding cells contain a berry. Use logic to work out where each berry goes.": {
+      "comment": "Walkthrough page 3 description"
     },
-    "Achievements" : {
-      "comment" : "Achievements tab/card title"
+    "About": {
+      "comment": "Settings section header for about/links"
     },
-    "Activity" : {
-      "comment" : "Calendar card title"
+    "Achievements": {
+      "comment": "Achievements tab/card title"
     },
-    "All daily puzzles complete!" : {
-      "comment" : "Shown when all 3 daily puzzles are solved"
+    "Activity": {
+      "comment": "Calendar card title"
     },
-    "Auto Check" : {
-      "comment" : "Settings toggle - auto error checking"
+    "All daily puzzles complete!": {
+      "comment": "Shown when all 3 daily puzzles are solved"
     },
-    "Back" : {
-      "comment" : "Walkthrough back button"
+    "Auto Check": {
+      "comment": "Settings toggle - auto error checking"
     },
-    "Berroku" : {
-      "comment" : "App name, shown in headers"
+    "Back": {
+      "comment": "Walkthrough back button"
     },
-    "berry" : {
-      "comment" : "Cell state for VoiceOver - berry placed"
+    "Berroku": {
+      "comment": "App name, shown in headers"
     },
-    "Berry" : {
-      "comment" : "Walkthrough berry state label"
+    "berry": {
+      "comment": "Cell state for VoiceOver - berry placed"
     },
-    "Build your streak" : {
-      "comment" : "Walkthrough page 5 title"
+    "Berry": {
+      "comment": "Walkthrough berry state label"
     },
-    "Check" : {
-      "comment" : "Toolbar button"
+    "Build your streak": {
+      "comment": "Walkthrough page 5 title"
     },
-    "Come back every day" : {
-      "comment" : "Walkthrough page 5 subtitle"
+    "Check": {
+      "comment": "Toolbar button"
     },
-    "Complete row 4" : {
-      "comment" : "Tutorial: row completion step title"
+    "Come back every day": {
+      "comment": "Walkthrough page 5 subtitle"
     },
-    "Complete the column" : {
-      "comment" : "Tutorial: column berry step title"
+    "Complete row 4": {
+      "comment": "Tutorial: row completion step title"
     },
-    "crossed" : {
-      "comment" : "Cell state for VoiceOver - marked empty"
+    "Complete the column": {
+      "comment": "Tutorial: column berry step title"
     },
-    "Daily" : {
-      "comment" : "Daily puzzle mode"
+    "crossed": {
+      "comment": "Cell state for VoiceOver - marked empty"
     },
-    "Daily Reminder" : {
-      "comment" : "Settings toggle - daily notification"
+    "Daily": {
+      "comment": "Daily puzzle mode"
     },
-    "Done" : {
-      "comment" : "Dismiss button"
+    "Daily Reminder": {
+      "comment": "Settings toggle - daily notification"
     },
-    "Each **row**, **column**, and **3×3 block** needs exactly 3 berries. Numbers tell you how many of the 8 surrounding cells have berries." : {
-      "comment" : "Tutorial: grid explanation"
+    "Done": {
+      "comment": "Dismiss button"
     },
-    "Each day brings three new puzzles across Standard, Advanced, and Expert difficulties." : {
-      "comment" : "Walkthrough page 1 description"
+    "Each **row**, **column**, and **3×3 block** needs exactly 3 berries. Numbers tell you how many of the 8 surrounding cells have berries.": {
+      "comment": "Tutorial: grid explanation"
     },
-    "empty" : {
-      "comment" : "Cell state for VoiceOver - undecided"
+    "Each day brings three new puzzles across Standard, Advanced, and Expert difficulties.": {
+      "comment": "Walkthrough page 1 description"
     },
-    "Empty" : {
-      "comment" : "Walkthrough cell state label"
+    "empty": {
+      "comment": "Cell state for VoiceOver - undecided"
     },
-    "Erase" : {
-      "comment" : "Toolbar button"
+    "Empty": {
+      "comment": "Walkthrough cell state label"
     },
-    "Fill Hints" : {
-      "comment" : "Settings toggle - auto-fill hints"
+    "Erase": {
+      "comment": "Toolbar button"
     },
-    "Fill the block!" : {
-      "comment" : "Tutorial: fill block step title"
+    "Fill Hints": {
+      "comment": "Settings toggle - auto-fill hints"
     },
-    "Follow the clues" : {
-      "comment" : "Walkthrough page 3 title"
+    "Fill the block!": {
+      "comment": "Tutorial: fill block step title"
     },
-    "Gameplay" : {
-      "comment" : "Settings section header"
+    "Follow @jbrooksuk": {
+      "comment": "Settings About section: link to X profile"
     },
-    "Got it" : {
-      "comment" : "Tutorial: acknowledge button"
+    "Follow the clues": {
+      "comment": "Walkthrough page 3 title"
     },
-    "Haptics" : {
-      "comment" : "Settings toggle - haptic feedback"
+    "Gameplay": {
+      "comment": "Settings section header"
     },
-    "Help" : {
-      "comment" : "Settings section header for help/tutorial"
+    "Got it": {
+      "comment": "Tutorial: acknowledge button"
     },
-    "Hint" : {
-      "comment" : "Toolbar button"
+    "Haptics": {
+      "comment": "Settings toggle - haptic feedback"
     },
-    "Home" : {
-      "comment" : "Home tab label"
+    "Help": {
+      "comment": "Settings section header for help/tutorial"
     },
-    "In every row, column, and block" : {
-      "comment" : "Walkthrough page 2 subtitle"
+    "Hint": {
+      "comment": "Toolbar button"
     },
-    "It has only one empty neighbor — that cell must be a berry! Tap it **twice**." : {
-      "comment" : "Tutorial: corner berry explanation",
-      "localizations" : {
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "It has only one empty neighbour — that cell must be a berry! Tap it **twice**."
+    "Home": {
+      "comment": "Home tab label"
+    },
+    "In every row, column, and block": {
+      "comment": "Walkthrough page 2 subtitle"
+    },
+    "It has only one empty neighbor — that cell must be a berry! Tap it **twice**.": {
+      "comment": "Tutorial: corner berry explanation",
+      "localizations": {
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It has only one empty neighbour — that cell must be a berry! Tap it **twice**."
           }
         }
       }
     },
-    "Keep going! If a cell turns **red**, it means there's an error — undo and try again. Tap %@ for a hint." : {
-      "comment" : "Tutorial: free play with error explanation"
+    "Keep going! If a cell turns **red**, it means there's an error — undo and try again. Tap %@ for a hint.": {
+      "comment": "Tutorial: free play with error explanation"
     },
-    "Let's go!" : {
-      "comment" : "Tutorial: welcome button"
+    "Let's go!": {
+      "comment": "Tutorial: welcome button"
     },
-    "Let's play!" : {
-      "comment" : "Walkthrough final button"
+    "Let's play!": {
+      "comment": "Walkthrough final button"
     },
-    "Let's solve your first puzzle!" : {
-      "comment" : "Tutorial: welcome title"
+    "Let's solve your first puzzle!": {
+      "comment": "Tutorial: welcome title"
     },
-    "Loading products..." : {
-      "comment" : "Shown while loading IAP products in settings"
+    "Loading products...": {
+      "comment": "Shown while loading IAP products in settings"
     },
-    "Loading..." : {
-      "comment" : "Shown while loading IAP products"
+    "Loading...": {
+      "comment": "Shown while loading IAP products"
     },
-    "Look at the **1** in the corner" : {
-      "comment" : "Tutorial: corner berry step title"
+    "Look at the **1** in the corner": {
+      "comment": "Tutorial: corner berry step title"
     },
-    "New Puzzle" : {
-      "comment" : "Button to generate new Pro puzzle"
+    "Made with berries 🫐": {
+      "comment": "Settings footer text"
     },
-    "Next" : {
-      "comment" : "Walkthrough next button"
+    "New Puzzle": {
+      "comment": "Button to generate new Pro puzzle"
     },
-    "Next Difficulty" : {
-      "comment" : "Button to advance to next difficulty"
+    "Next": {
+      "comment": "Walkthrough next button"
     },
-    "Next Puzzle" : {
-      "comment" : "Button to advance to next puzzle"
+    "Next Difficulty": {
+      "comment": "Button to advance to next difficulty"
     },
-    "No puzzle available" : {
-      "comment" : "Shown when no puzzle can be loaded"
+    "Next Puzzle": {
+      "comment": "Button to advance to next puzzle"
     },
-    "Numbers guide your way" : {
-      "comment" : "Walkthrough page 3 subtitle"
+    "No puzzle available": {
+      "comment": "Shown when no puzzle can be loaded"
     },
-    "Place 3 berries" : {
-      "comment" : "Walkthrough page 2 title"
+    "Numbers guide your way": {
+      "comment": "Walkthrough page 3 subtitle"
     },
-    "Place 3 berries in every row, column & block" : {
-      "comment" : "Home screen subtitle"
+    "Place 3 berries": {
+      "comment": "Walkthrough page 2 title"
     },
-    "Place 3 berries in every row, column, and 3×3 block." : {
-      "comment" : "Tutorial: welcome subtitle"
+    "Place 3 berries in every row, column & block": {
+      "comment": "Home screen subtitle"
     },
-    "Place 3 berries into each row, column, and block. Surround each number with the specified number of berries." : {
-      "comment" : "Game rules description"
+    "Place 3 berries in every row, column, and 3×3 block.": {
+      "comment": "Tutorial: welcome subtitle"
     },
-    "Play Pro" : {
-      "comment" : "Button to start a Pro puzzle"
+    "Place 3 berries into each row, column, and block. Surround each number with the specified number of berries.": {
+      "comment": "Game rules description"
     },
-    "Play Today's Puzzle" : {
-      "comment" : "Tutorial: completion button"
+    "Play Pro": {
+      "comment": "Button to start a Pro puzzle"
     },
-    "Pro" : {
-      "comment" : "Pro puzzle mode"
+    "Play Today's Puzzle": {
+      "comment": "Tutorial: completion button"
     },
-    "Pro Puzzles" : {
-      "comment" : "Pro mode card/section title"
+    "Pro": {
+      "comment": "Pro puzzle mode"
     },
-    "Pro Unlocked" : {
-      "comment" : "Label showing Pro is purchased"
+    "Pro Puzzles": {
+      "comment": "Pro mode card/section title"
     },
-    "Puzzle Solved!" : {
-      "comment" : "Tutorial: completion title"
+    "Pro Unlocked": {
+      "comment": "Label showing Pro is purchased"
     },
-    "Quick and intuitive controls" : {
-      "comment" : "Walkthrough page 4 subtitle"
+    "Puzzle Solved!": {
+      "comment": "Tutorial: completion title"
     },
-    "Redeem Code" : {
-      "comment" : "Button to redeem an offer code for Pro"
+    "Quick and intuitive controls": {
+      "comment": "Walkthrough page 4 subtitle"
     },
-    "Redo" : {
-      "comment" : "Toolbar button"
+    "Redeem Code": {
+      "comment": "Button to redeem an offer code for Pro"
     },
-    "Restore" : {
-      "comment" : "Button to restore purchases"
+    "Redo": {
+      "comment": "Toolbar button"
     },
-    "Restore Purchases" : {
-      "comment" : "Button to restore purchases in settings"
+    "Restore": {
+      "comment": "Button to restore purchases"
     },
-    "Row %lld, column %lld, %@" : {
-      "comment" : "VoiceOver label for a cell, %@ is the state (empty/crossed/berry)"
+    "Restore Purchases": {
+      "comment": "Button to restore purchases in settings"
     },
-    "Row %lld, column %lld, clue %lld" : {
-      "comment" : "VoiceOver label for a cell with a number clue"
+    "Row %lld, column %lld, %@": {
+      "comment": "VoiceOver label for a cell, %@ is the state (empty/crossed/berry)"
     },
-    "Row 2 has 3 berries!" : {
-      "comment" : "Tutorial: row completion coach mark"
+    "Row %lld, column %lld, clue %lld": {
+      "comment": "VoiceOver label for a cell with a number clue"
     },
-    "Ruled out" : {
-      "comment" : "Walkthrough crossed state label"
+    "Row 2 has 3 berries!": {
+      "comment": "Tutorial: row completion coach mark"
     },
-    "Rules" : {
-      "comment" : "Settings section header"
+    "Ruled out": {
+      "comment": "Walkthrough crossed state label"
     },
-    "Settings" : {
-      "comment" : "Settings screen title/button"
+    "Settings": {
+      "comment": "Settings screen title/button"
     },
-    "Show Timer" : {
-      "comment" : "Settings toggle - show timer"
+    "Show Timer": {
+      "comment": "Settings toggle - show timer"
     },
-    "Show tutorial" : {
-      "comment" : "Settings button to replay tutorial",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show tutorial"
+    "Show tutorial": {
+      "comment": "Settings button to replay tutorial",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show tutorial"
           }
         }
       }
     },
-    "Show walkthrough" : {
-      "comment" : "Settings button to replay tutorial\nSettings button to replay walkthrough"
+    "Show walkthrough": {
+      "comment": "Settings button to replay walkthrough"
     },
-    "Solve puzzles daily to build your streak. Earn achievements and compete on the leaderboard." : {
-      "comment" : "Walkthrough page 5 description"
+    "Solve puzzles daily to build your streak. Earn achievements and compete on the leaderboard.": {
+      "comment": "Walkthrough page 5 description"
     },
-    "Solved!" : {
-      "comment" : "Celebration message when puzzle is completed"
+    "Solved!": {
+      "comment": "Celebration message when puzzle is completed"
     },
-    "Sound" : {
-      "comment" : "Settings toggle - sound effects"
+    "Sound": {
+      "comment": "Settings toggle - sound effects"
     },
-    "Source" : {
-      "comment" : "Picker label for Daily/Pro"
+    "Source": {
+      "comment": "Picker label for Daily/Pro"
     },
-    "Start with the **0**" : {
-      "comment" : "Tutorial: explain zero title"
+    "Start with the **0**": {
+      "comment": "Tutorial: explain zero title"
     },
-    "Statistics" : {
-      "comment" : "Stats card title"
+    "Statistics": {
+      "comment": "Stats card title"
     },
-    "Tap a cell to cycle: empty, crossed out, or berry. Use crossed to mark cells you've ruled out. Drag to paint multiple cells at once." : {
-      "comment" : "Walkthrough page 4 description"
+    "Tap a cell to cycle: empty, crossed out, or berry. Use crossed to mark cells you've ruled out. Drag to paint multiple cells at once.": {
+      "comment": "Walkthrough page 4 description"
     },
-    "Tap and drag" : {
-      "comment" : "Walkthrough page 4 title"
+    "Tap and drag": {
+      "comment": "Walkthrough page 4 title"
     },
-    "Tap each highlighted cell once for ✕" : {
-      "comment" : "Tutorial: cross neighbors instruction"
+    "Tap each highlighted cell once for ✕": {
+      "comment": "Tutorial: cross neighbors instruction"
     },
-    "That row is full — cross out the remaining cells." : {
-      "comment" : "Tutorial: cross row instruction"
+    "That row is full — cross out the remaining cells.": {
+      "comment": "Tutorial: cross row instruction"
     },
-    "The 9×9 grid is divided into blocks. Each row, column, and block must contain exactly 3 berries." : {
-      "comment" : "Walkthrough page 2 description"
+    "The 9×9 grid is divided into blocks. Each row, column, and block must contain exactly 3 berries.": {
+      "comment": "Walkthrough page 2 description"
     },
-    "The grid" : {
-      "comment" : "Tutorial: grid explanation title"
+    "The grid": {
+      "comment": "Tutorial: grid explanation title"
     },
-    "The last column has 1 berry. Place the other 2 to complete it! Tap each **twice**." : {
-      "comment" : "Tutorial: column berry instruction"
+    "The last column has 1 berry. Place the other 2 to complete it! Tap each **twice**.": {
+      "comment": "Tutorial: column berry instruction"
     },
-    "This block needs 3 berries and has exactly 3 empty cells. They must all be berries! Tap each one **twice**." : {
-      "comment" : "Tutorial: fill block instruction"
+    "This block needs 3 berries and has exactly 3 empty cells. They must all be berries! Tap each one **twice**.": {
+      "comment": "Tutorial: fill block instruction"
     },
-    "This row already has 1 berry. Place the other 2 to finish it!" : {
-      "comment" : "Tutorial: row completion instruction"
+    "This row already has 1 berry. Place the other 2 to finish it!": {
+      "comment": "Tutorial: row completion instruction"
     },
-    "Today's Puzzles" : {
-      "comment" : "Daily puzzle card title"
+    "Today's Puzzles": {
+      "comment": "Daily puzzle card title"
     },
-    "Today's puzzles are ready! Can you keep your streak going?" : {
-      "comment" : "Daily reminder notification body"
+    "Today's puzzles are ready! Can you keep your streak going?": {
+      "comment": "Daily reminder notification body"
     },
-    "Undo" : {
-      "comment" : "Toolbar button"
+    "Undo": {
+      "comment": "Toolbar button"
     },
-    "Unlimited puzzle sets unlocked." : {
-      "comment" : "Shown when Pro is purchased"
+    "Unlimited puzzle sets unlocked.": {
+      "comment": "Shown when Pro is purchased"
     },
-    "Unlock Pro %@" : {
-      "comment" : "Button to purchase Pro, %@ is the price"
+    "Unlock Pro %@": {
+      "comment": "Button to purchase Pro, %@ is the price"
     },
-    "Unlock Pro Puzzles" : {
-      "comment" : "Button to purchase Pro in settings"
+    "Unlock Pro Puzzles": {
+      "comment": "Button to purchase Pro in settings"
     },
-    "Unlock unlimited additional puzzle sets beyond the daily puzzles." : {
-      "comment" : "Pro mode description"
+    "Unlock unlimited additional puzzle sets beyond the daily puzzles.": {
+      "comment": "Pro mode description"
     },
-    "View grid" : {
-      "comment" : "Button to dismiss solved overlay and view completed puzzle"
+    "View grid": {
+      "comment": "Button to dismiss solved overlay and view completed puzzle"
     },
-    "Want more? Unlock Pro" : {
-      "comment" : "Button to purchase Pro from solved overlay"
+    "Want more? Unlock Pro": {
+      "comment": "Button to purchase Pro from solved overlay"
     },
-    "Welcome to Berroku" : {
-      "comment" : "Walkthrough page 1 title"
+    "Website": {
+      "comment": "Settings About section: link to berroku.com"
     },
-    "You've completed the tutorial!" : {
-      "comment" : "Tutorial: completion subtitle"
+    "Welcome to Berroku": {
+      "comment": "Walkthrough page 1 title"
     },
-    "You've got the hang of it!" : {
-      "comment" : "Tutorial: free play title"
+    "You've completed the tutorial!": {
+      "comment": "Tutorial: completion subtitle"
+    },
+    "You've got the hang of it!": {
+      "comment": "Tutorial: free play title"
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }
