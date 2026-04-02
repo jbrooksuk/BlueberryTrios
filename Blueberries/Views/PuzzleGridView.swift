@@ -6,6 +6,7 @@ struct PuzzleGridView: View {
     var hapticsEnabled: Bool = false
     var soundService: SoundService?
     var onStateChanged: (() -> Void)?
+    var highlightedCells: Set<CellID> = []
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -181,7 +182,7 @@ struct PuzzleGridView: View {
             let cellPath = Path(roundedRect: insetRect, cornerRadius: 2)
             context.fill(cellPath, with: .color(bgColor))
 
-            if isHinted {
+            if isHinted || highlightedCells.contains(cell) {
                 context.fill(cellPath, with: .color(Theme.hintHighlight))
             }
         }
