@@ -163,19 +163,7 @@ private struct WalkthroughPageView: View {
     // MARK: - Illustrations
 
     private var berriesIllustration: some View {
-        PhaseAnimator([false, true]) { phase in
-            HStack(spacing: -8) {
-                BlueberryView(size: 64, expression: .smile)
-                    .offset(y: phase ? -6 : 2)
-                    .rotationEffect(.degrees(phase ? -5 : -2))
-                BlueberryView(size: 80, expression: .happy)
-                    .offset(y: phase ? 3 : -3)
-                    .zIndex(1)
-                BlueberryView(size: 60, expression: .wink)
-                    .offset(y: phase ? -4 : 4)
-                    .rotationEffect(.degrees(phase ? 6 : 3))
-            }
-        } animation: { _ in .easeInOut(duration: 1.5) }
+        BerryClusterView(animated: true)
     }
 
     // Real puzzle solve animation with berries AND crosses
@@ -330,14 +318,13 @@ private struct WalkthroughPageView: View {
         }
     }
 
-    // Animated clue demonstration: berries appear one-by-one around a "3" clue
-    // Phases: 0=empty grid with clue, 1=first berry, 2=second berry, 3=third berry + crossed empties, 4=pause then reset
+    // Animated clue demonstration: "3" at top-right (0,2) with berries surrounding it
+    // Phases: 0=empty grid with clue, 1-3=berries appear, 4=crosses on remaining + pause
     private var clueIllustration: some View {
         PhaseAnimator([0, 1, 2, 3, 4]) { phase in
-            // Grid positions: (row, col) -> content
-            // Center is the clue "3", berries appear at (0,0), (0,2), (2,2)
-            let berryPositions: [(Int, Int)] = [(0, 0), (0, 2), (2, 2)]
-            let crossedPositions: [(Int, Int)] = [(0, 1), (1, 0), (1, 2), (2, 0), (2, 1)]
+            // Clue "3" at (0,2). Its neighbors: (0,1), (1,1), (1,2) — all get berries
+            let berryPositions: [(Int, Int)] = [(0, 1), (1, 2), (1, 1)]
+            let crossedPositions: [(Int, Int)] = [(0, 0), (1, 0), (2, 0), (2, 1), (2, 2)]
             let berriesShown = min(phase, 3)
 
             VStack(spacing: 4) {
@@ -346,7 +333,7 @@ private struct WalkthroughPageView: View {
                         ForEach(0..<3, id: \.self) { col in
                             let isBerry = berryPositions.prefix(berriesShown).contains { $0.0 == row && $0.1 == col }
                             let isCrossed = phase >= 3 && crossedPositions.contains { $0.0 == row && $0.1 == col }
-                            let isClue = row == 1 && col == 1
+                            let isClue = row == 0 && col == 2
                             let isHinted = phase < 3 && berryPositions.dropFirst(berriesShown).prefix(1).contains { $0.0 == row && $0.1 == col }
 
                             ZStack {

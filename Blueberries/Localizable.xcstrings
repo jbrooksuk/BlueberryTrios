@@ -2,13 +2,24 @@
   "sourceLanguage" : "en",
   "strings" : {
     "%lld" : {
-
+      "comment" : "Generic number format"
     },
     "%lld/3" : {
       "comment" : "Daily puzzle progress counter"
     },
     "3" : {
-
+      "comment" : "Number displayed in walkthrough"
+    },
+    "A **0** means none of its neighbors are berries. Cross them out with ✕!" : {
+      "comment" : "Tutorial: explain zero step",
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A **0** means none of its neighbours are berries. Cross them out with ✕!"
+          }
+        }
+      }
     },
     "A berry logic puzzle inspired by Sudoku" : {
       "comment" : "Walkthrough page 1 subtitle"
@@ -49,6 +60,12 @@
     "Come back every day" : {
       "comment" : "Walkthrough page 5 subtitle"
     },
+    "Complete row 4" : {
+      "comment" : "Tutorial: row completion step title"
+    },
+    "Complete the column" : {
+      "comment" : "Tutorial: column berry step title"
+    },
     "crossed" : {
       "comment" : "Cell state for VoiceOver - marked empty"
     },
@@ -60,6 +77,9 @@
     },
     "Done" : {
       "comment" : "Dismiss button"
+    },
+    "Each **row**, **column**, and **3×3 block** needs exactly 3 berries. Numbers tell you how many of the 8 surrounding cells have berries." : {
+      "comment" : "Tutorial: grid explanation"
     },
     "Each day brings three new puzzles across Standard, Advanced, and Expert difficulties." : {
       "comment" : "Walkthrough page 1 description"
@@ -76,11 +96,17 @@
     "Fill Hints" : {
       "comment" : "Settings toggle - auto-fill hints"
     },
+    "Fill the block!" : {
+      "comment" : "Tutorial: fill block step title"
+    },
     "Follow the clues" : {
       "comment" : "Walkthrough page 3 title"
     },
     "Gameplay" : {
       "comment" : "Settings section header"
+    },
+    "Got it" : {
+      "comment" : "Tutorial: acknowledge button"
     },
     "Haptics" : {
       "comment" : "Settings toggle - haptic feedback"
@@ -97,14 +123,37 @@
     "In every row, column, and block" : {
       "comment" : "Walkthrough page 2 subtitle"
     },
+    "It has only one empty neighbor — that cell must be a berry! Tap it **twice**." : {
+      "comment" : "Tutorial: corner berry explanation",
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It has only one empty neighbour — that cell must be a berry! Tap it **twice**."
+          }
+        }
+      }
+    },
+    "Keep going! If a cell turns **red**, it means there's an error — undo and try again. Tap %@ for a hint." : {
+      "comment" : "Tutorial: free play with error explanation"
+    },
+    "Let's go!" : {
+      "comment" : "Tutorial: welcome button"
+    },
     "Let's play!" : {
       "comment" : "Walkthrough final button"
+    },
+    "Let's solve your first puzzle!" : {
+      "comment" : "Tutorial: welcome title"
     },
     "Loading products..." : {
       "comment" : "Shown while loading IAP products in settings"
     },
     "Loading..." : {
       "comment" : "Shown while loading IAP products"
+    },
+    "Look at the **1** in the corner" : {
+      "comment" : "Tutorial: corner berry step title"
     },
     "New Puzzle" : {
       "comment" : "Button to generate new Pro puzzle"
@@ -130,11 +179,17 @@
     "Place 3 berries in every row, column & block" : {
       "comment" : "Home screen subtitle"
     },
+    "Place 3 berries in every row, column, and 3×3 block." : {
+      "comment" : "Tutorial: welcome subtitle"
+    },
     "Place 3 berries into each row, column, and block. Surround each number with the specified number of berries." : {
       "comment" : "Game rules description"
     },
     "Play Pro" : {
       "comment" : "Button to start a Pro puzzle"
+    },
+    "Play Today's Puzzle" : {
+      "comment" : "Tutorial: completion button"
     },
     "Pro" : {
       "comment" : "Pro puzzle mode"
@@ -145,8 +200,14 @@
     "Pro Unlocked" : {
       "comment" : "Label showing Pro is purchased"
     },
+    "Puzzle Solved!" : {
+      "comment" : "Tutorial: completion title"
+    },
     "Quick and intuitive controls" : {
       "comment" : "Walkthrough page 4 subtitle"
+    },
+    "Redeem Code" : {
+      "comment" : "Button to redeem an offer code for Pro"
     },
     "Redo" : {
       "comment" : "Toolbar button"
@@ -163,6 +224,9 @@
     "Row %lld, column %lld, clue %lld" : {
       "comment" : "VoiceOver label for a cell with a number clue"
     },
+    "Row 2 has 3 berries!" : {
+      "comment" : "Tutorial: row completion coach mark"
+    },
     "Ruled out" : {
       "comment" : "Walkthrough crossed state label"
     },
@@ -175,8 +239,20 @@
     "Show Timer" : {
       "comment" : "Settings toggle - show timer"
     },
+    "Show tutorial" : {
+      "comment" : "Settings button to replay tutorial",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show tutorial"
+          }
+        }
+      }
+    },
     "Show walkthrough" : {
-      "comment" : "Settings button to replay tutorial"
+      "comment" : "Settings button to replay tutorial\nSettings button to replay walkthrough"
     },
     "Solve puzzles daily to build your streak. Earn achievements and compete on the leaderboard." : {
       "comment" : "Walkthrough page 5 description"
@@ -190,6 +266,9 @@
     "Source" : {
       "comment" : "Picker label for Daily/Pro"
     },
+    "Start with the **0**" : {
+      "comment" : "Tutorial: explain zero title"
+    },
     "Statistics" : {
       "comment" : "Stats card title"
     },
@@ -199,8 +278,26 @@
     "Tap and drag" : {
       "comment" : "Walkthrough page 4 title"
     },
+    "Tap each highlighted cell once for ✕" : {
+      "comment" : "Tutorial: cross neighbors instruction"
+    },
+    "That row is full — cross out the remaining cells." : {
+      "comment" : "Tutorial: cross row instruction"
+    },
     "The 9×9 grid is divided into blocks. Each row, column, and block must contain exactly 3 berries." : {
       "comment" : "Walkthrough page 2 description"
+    },
+    "The grid" : {
+      "comment" : "Tutorial: grid explanation title"
+    },
+    "The last column has 1 berry. Place the other 2 to complete it! Tap each **twice**." : {
+      "comment" : "Tutorial: column berry instruction"
+    },
+    "This block needs 3 berries and has exactly 3 empty cells. They must all be berries! Tap each one **twice**." : {
+      "comment" : "Tutorial: fill block instruction"
+    },
+    "This row already has 1 berry. Place the other 2 to finish it!" : {
+      "comment" : "Tutorial: row completion instruction"
     },
     "Today's Puzzles" : {
       "comment" : "Daily puzzle card title"
@@ -224,16 +321,19 @@
       "comment" : "Pro mode description"
     },
     "View grid" : {
-
-    },
-    "Redeem Code" : {
-      "comment" : "Button to redeem an offer code for Pro"
+      "comment" : "Button to dismiss solved overlay and view completed puzzle"
     },
     "Want more? Unlock Pro" : {
       "comment" : "Button to purchase Pro from solved overlay"
     },
     "Welcome to Berroku" : {
       "comment" : "Walkthrough page 1 title"
+    },
+    "You've completed the tutorial!" : {
+      "comment" : "Tutorial: completion subtitle"
+    },
+    "You've got the hang of it!" : {
+      "comment" : "Tutorial: free play title"
     }
   },
   "version" : "1.0"

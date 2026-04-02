@@ -60,7 +60,7 @@ struct HomeView: View {
                 WalkthroughView(isPresented: $showWalkthrough)
             }
             .fullScreenCover(isPresented: $showTutorial) {
-                TutorialView(isPresented: $showTutorial, gameCenterService: gameCenterService)
+                TutorialView(isPresented: $showTutorial, gameCenterService: gameCenterService, dismissable: hasCompletedTutorial)
                     .onDisappear { hasCompletedTutorial = true }
             }
             .onChange(of: showWalkthrough) {
@@ -476,7 +476,12 @@ struct HomeView: View {
                 Button {
                     showWalkthrough = true
                 } label: {
-                    Label(String(localized: "Show walkthrough", comment: "Settings button to replay tutorial"), systemImage: "questionmark.circle")
+                    Label(String(localized: "Show walkthrough", comment: "Settings button to replay walkthrough"), systemImage: "questionmark.circle")
+                }
+                Button {
+                    showTutorial = true
+                } label: {
+                    Label(String(localized: "Show tutorial", comment: "Settings button to replay tutorial"), systemImage: "puzzlepiece")
                 }
             }
             Section("Rules") {
