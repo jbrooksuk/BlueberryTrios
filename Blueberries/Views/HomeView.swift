@@ -17,17 +17,11 @@ struct HomeView: View {
     @State private var selectedDifficulty: Difficulty = .standard
     @State private var showCalendar: Bool = false
     @State private var showWalkthrough: Bool = false
-    @State private var showOfferCode: Bool = false
     @State private var selectedTab: HomeTab = .home
     @AppStorage("hasSeenWalkthrough") private var hasSeenWalkthrough: Bool = false
     @AppStorage("hasCompletedTutorial") private var hasCompletedTutorial: Bool = false
     @State private var showTutorial: Bool = false
 
-    @AppStorage("autoCheck") private var autoCheck: Bool = true
-    @AppStorage("showTimer") private var showTimer: Bool = true
-    @AppStorage("fillHints") private var fillHints: Bool = false
-    @AppStorage("hapticsEnabled") private var hapticsEnabled: Bool = true
-    @AppStorage("soundEnabled") private var soundEnabled: Bool = true
 
     private enum HomeTab: Hashable {
         case home, achievements, settings
@@ -439,60 +433,13 @@ struct HomeView: View {
     // MARK: - Settings Sheet
 
     private var settingsTab: some View {
-        Form {
-            Section("Gameplay") {
-                Toggle("Auto Check", isOn: $autoCheck)
-                Toggle("Show Timer", isOn: $showTimer)
-                Toggle("Fill Hints", isOn: $fillHints)
-                Toggle("Haptics", isOn: $hapticsEnabled)
-                Toggle("Sound", isOn: $soundEnabled)
-            }
-            Section("Pro Puzzles") {
-                if storeService.isProUnlocked {
-                    Label("Pro Unlocked", systemImage: "checkmark.seal.fill")
-                        .foregroundStyle(.green)
-                } else {
-                    if let product = storeService.proProduct {
-                        Button {
-                            Task { try? await storeService.purchasePro() }
-                        } label: {
-                            HStack {
-                                Text("Unlock Pro Puzzles")
-                                Spacer()
-                                Text(product.displayPrice)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                    }
-                    Button("Restore Purchases") {
-                        Task { await storeService.restorePurchases() }
-                    }
-                    Button("Redeem Code") {
-                        showOfferCode = true
-                    }
-                }
-            }
-            Section("Help") {
-                Button {
-                    showWalkthrough = true
-                } label: {
-                    Label(String(localized: "Show walkthrough", comment: "Settings button to replay walkthrough"), systemImage: "questionmark.circle")
-                }
-                Button {
-                    showTutorial = true
-                } label: {
-                    Label(String(localized: "Show tutorial", comment: "Settings button to replay tutorial"), systemImage: "puzzlepiece")
-                }
-            }
-            Section("Rules") {
-                Text("Place 3 berries into each row, column, and block. Surround each number with the specified number of berries.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-        }
+        SettingsFormView(
+            storeService: storeService,
+            onShowWalkthrough: { showWalkthrough = true },
+            onShowTutorial: { showTutorial = true }
+        )
         .scrollContentBackground(.hidden)
         .background(Theme.backgroundGradient)
-        .offerCodeRedemption(isPresented: $showOfferCode)
     }
 
     // MARK: - Helpers

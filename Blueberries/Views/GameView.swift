@@ -25,7 +25,6 @@ struct GameView: View {
     @AppStorage("soundEnabled") private var soundEnabled: Bool = true
     @State private var gameTimer = GameTimer()
     @State private var soundService = SoundService()
-    @State private var notificationService = NotificationService()
     @State private var cachedPuzzleKey: String?
 
     init(
@@ -238,60 +237,15 @@ struct GameView: View {
 
     private var settingsSheet: some View {
         NavigationStack {
-            Form {
-                Section("Gameplay") {
-                    Toggle("Auto Check", isOn: $autoCheck)
-                    Toggle("Show Timer", isOn: $showTimer)
-                    Toggle("Fill Hints", isOn: $fillHints)
-                    Toggle("Haptics", isOn: $hapticsEnabled)
-                    Toggle("Sound", isOn: $soundEnabled)
-                    Toggle("Daily Reminder", isOn: $notificationService.isEnabled)
-                }
-                Section("Pro Puzzles") {
-                    if storeService.isProUnlocked {
-                        Label("Pro Unlocked", systemImage: "checkmark.seal.fill")
-                            .foregroundStyle(.green)
-                    } else {
-                        if let product = storeService.proProduct {
-                            Button {
-                                Task { try? await storeService.purchasePro() }
-                            } label: {
-                                HStack {
-                                    Text("Unlock Pro Puzzles")
-                                    Spacer()
-                                    Text(product.displayPrice)
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                        } else {
-                            HStack {
-                                ProgressView()
-                                    .controlSize(.small)
-                                Text("Loading products...")
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                        Button("Restore Purchases") {
-                            Task { await storeService.restorePurchases() }
-                        }
+            SettingsFormView(
+                storeService: storeService,
+                onShowWalkthrough: {
+                    showSettings = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        showWalkthrough = true
                     }
                 }
-                Section("Help") {
-                    Button {
-                        showSettings = false
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            showWalkthrough = true
-                        }
-                    } label: {
-                        Label(String(localized: "Show walkthrough", comment: "Settings button to replay tutorial"), systemImage: "questionmark.circle")
-                    }
-                }
-                Section("Rules") {
-                    Text("Place 3 berries into each row, column, and block. Surround each number with the specified number of berries.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-            }
+            )
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
