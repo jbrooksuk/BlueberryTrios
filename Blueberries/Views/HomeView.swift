@@ -164,14 +164,16 @@ struct HomeView: View {
                     .font(.headline)
                 Spacer()
                 let solvedCount = Difficulty.allCases.filter { isDailySolved($0) }.count
+                let anyHinted = Difficulty.allCases.contains { isDailyHintUsed($0) }
                 Text("\(solvedCount)/3")
                     .font(.subheadline.bold().monospacedDigit())
-                    .foregroundStyle(solvedCount == 3 ? .green : .secondary)
+                    .foregroundStyle(solvedCount == 3 ? (anyHinted ? .orange : .green) : .secondary)
             }
 
             HStack(spacing: 0) {
                 ForEach(Difficulty.allCases) { diff in
                     let solved = isDailySolved(diff)
+                    let hinted = isDailyHintUsed(diff)
                     let inProgress = isDailyInProgress(diff)
                     Button {
                         selectedSource = .daily
@@ -180,7 +182,16 @@ struct HomeView: View {
                     } label: {
                         VStack(spacing: 8) {
                             ZStack {
-                                if solved {
+                                if solved && hinted {
+                                    Circle()
+                                        .fill(Color.orange)
+                                        .frame(width: 56, height: 56)
+                                        .overlay {
+                                            Image(systemName: "lightbulb.fill")
+                                                .font(.title3.bold())
+                                                .foregroundStyle(.white)
+                                        }
+                                } else if solved {
                                     Circle()
                                         .fill(Color.green)
                                         .frame(width: 56, height: 56)
@@ -213,7 +224,7 @@ struct HomeView: View {
 
                             Text(diff.rawValue)
                                 .font(.caption.weight(.medium))
-                                .foregroundStyle(solved ? .green : inProgress ? .primary : .secondary)
+                                .foregroundStyle(solved ? (hinted ? .orange : .green) : inProgress ? .primary : .secondary)
                         }
                         .frame(maxWidth: .infinity)
                     }
@@ -387,6 +398,16 @@ struct HomeView: View {
                 Divider().padding(.leading, 44)
                 achievementRow(icon: "sparkles", title: "Daily Sweep", subtitle: "Complete all 3 daily puzzles", progress: allDailySolved ? 1 : 0, target: 1)
             }
+
+            if (stats?.totalHintsUsed ?? 0) >= 1 {
+                VStack(spacing: 0) {
+                    achievementRow(icon: "lightbulb.fill", title: "Hint Helper", subtitle: "Use a hint", progress: stats?.totalHintsUsed ?? 0, target: 1)
+                    if (stats?.totalHintsUsed ?? 0) >= 100 {
+                        Divider().padding(.leading, 44)
+                        achievementRow(icon: "lightbulb.max.fill", title: "Hint Master", subtitle: "Use 100 hints", progress: stats?.totalHintsUsed ?? 0, target: 100)
+                    }
+                }
+            }
         }
         .padding(20)
         .adaptiveGlass(in: 16)
@@ -472,11 +493,18 @@ struct HomeView: View {
         return savedStates.contains { $0.puzzleJSON == key && !$0.solved }
     }
 
+    private func isDailyHintUsed(_ difficulty: Difficulty) -> Bool {
+        guard let key = dailyPuzzleKey(difficulty) else { return false }
+        return savedStates.contains { $0.puzzleJSON == key && $0.solved && $0.hintUsed }
+    }
+
     private func updateWidgetData() {
         let defaults = UserDefaults(suiteName: "group.com.altthree.berroku")
         let solvedCount = Difficulty.allCases.filter { isDailySolved($0) }.count
+        let hintFlags = Difficulty.allCases.map { isDailyHintUsed($0) ? "1" : "0" }.joined()
         defaults?.set(solvedCount, forKey: "widget.solvedCount")
         defaults?.set(stats?.currentStreak ?? 0, forKey: "widget.currentStreak")
+        defaults?.set(hintFlags, forKey: "widget.hintFlags")
         WidgetCenter.shared.reloadAllTimelines()
     }
 

@@ -16,11 +16,12 @@ struct DailyProgressEntry: TimelineEntry {
     let solvedCount: Int
     let totalCount: Int
     let currentStreak: Int
+    let hintFlags: String // "000", "010", etc. — one char per difficulty
 }
 
 struct DailyProgressProvider: TimelineProvider {
     func placeholder(in context: Context) -> DailyProgressEntry {
-        DailyProgressEntry(date: .now, solvedCount: 1, totalCount: 3, currentStreak: 5)
+        DailyProgressEntry(date: .now, solvedCount: 1, totalCount: 3, currentStreak: 5, hintFlags: "000")
     }
 
     func getSnapshot(in context: Context, completion: @escaping (DailyProgressEntry) -> Void) {
@@ -31,12 +32,14 @@ struct DailyProgressProvider: TimelineProvider {
         let defaults = UserDefaults(suiteName: "group.com.altthree.berroku") ?? .standard
         let solved = defaults.integer(forKey: "widget.solvedCount")
         let streak = defaults.integer(forKey: "widget.currentStreak")
+        let hintFlags = defaults.string(forKey: "widget.hintFlags") ?? "000"
 
         let entry = DailyProgressEntry(
             date: .now,
             solvedCount: solved,
             totalCount: 3,
-            currentStreak: streak
+            currentStreak: streak,
+            hintFlags: hintFlags
         )
 
         let calendar = Calendar.current
@@ -70,11 +73,16 @@ private struct SmallWidgetView: View {
             HStack(spacing: 6) {
                 ForEach(0..<3, id: \.self) { i in
                     let solved = i < entry.solvedCount
+                    let hinted = solved && hintUsedForIndex(i, flags: entry.hintFlags)
                     ZStack {
                         Circle()
-                            .fill(solved ? berryBlue : Color.gray.opacity(0.2))
+                            .fill(solved ? (hinted ? Color.orange : berryBlue) : Color.gray.opacity(0.2))
                             .frame(width: 24, height: 24)
-                        if solved {
+                        if solved && hinted {
+                            Image(systemName: "lightbulb.fill")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(.white)
+                        } else if solved {
                             Image(systemName: "checkmark")
                                 .font(.system(size: 11, weight: .bold))
                                 .foregroundStyle(.white)
@@ -168,12 +176,17 @@ private struct MediumWidgetView: View {
             VStack(alignment: .leading, spacing: 8) {
                 ForEach(0..<3, id: \.self) { i in
                     let solved = i < entry.solvedCount
+                    let hinted = solved && hintUsedForIndex(i, flags: entry.hintFlags)
                     HStack(spacing: 8) {
                         ZStack {
                             Circle()
-                                .fill(solved ? berryBlue : Color.gray.opacity(0.15))
+                                .fill(solved ? (hinted ? Color.orange : berryBlue) : Color.gray.opacity(0.15))
                                 .frame(width: 22, height: 22)
-                            if solved {
+                            if solved && hinted {
+                                Image(systemName: "lightbulb.fill")
+                                    .font(.system(size: 9, weight: .bold))
+                                    .foregroundStyle(.white)
+                            } else if solved {
                                 Image(systemName: "checkmark")
                                     .font(.system(size: 10, weight: .bold))
                                     .foregroundStyle(.white)
@@ -190,7 +203,11 @@ private struct MediumWidgetView: View {
 
                         Spacer()
 
-                        if solved {
+                        if solved && hinted {
+                            Image(systemName: "lightbulb.fill")
+                                .font(.caption2)
+                                .foregroundStyle(.orange)
+                        } else if solved {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.caption2)
                                 .foregroundStyle(.green)
@@ -202,6 +219,13 @@ private struct MediumWidgetView: View {
         }
         .padding(.horizontal, 4)
     }
+}
+
+// MARK: - Helpers
+
+private func hintUsedForIndex(_ index: Int, flags: String) -> Bool {
+    guard index < flags.count else { return false }
+    return flags[flags.index(flags.startIndex, offsetBy: index)] == "1"
 }
 
 // MARK: - Entry View
@@ -237,14 +261,14 @@ struct BlueberriesWidget: Widget {
 #Preview(as: .systemSmall) {
     BlueberriesWidget()
 } timeline: {
-    DailyProgressEntry(date: .now, solvedCount: 0, totalCount: 3, currentStreak: 0)
-    DailyProgressEntry(date: .now, solvedCount: 2, totalCount: 3, currentStreak: 7)
-    DailyProgressEntry(date: .now, solvedCount: 3, totalCount: 3, currentStreak: 12)
+    DailyProgressEntry(date: .now, solvedCount: 0, totalCount: 3, currentStreak: 0, hintFlags: "000")
+    DailyProgressEntry(date: .now, solvedCount: 2, totalCount: 3, currentStreak: 7, hintFlags: "010")
+    DailyProgressEntry(date: .now, solvedCount: 3, totalCount: 3, currentStreak: 12, hintFlags: "000")
 }
 
 #Preview(as: .systemMedium) {
     BlueberriesWidget()
 } timeline: {
-    DailyProgressEntry(date: .now, solvedCount: 1, totalCount: 3, currentStreak: 3)
-    DailyProgressEntry(date: .now, solvedCount: 3, totalCount: 3, currentStreak: 14)
+    DailyProgressEntry(date: .now, solvedCount: 1, totalCount: 3, currentStreak: 3, hintFlags: "100")
+    DailyProgressEntry(date: .now, solvedCount: 3, totalCount: 3, currentStreak: 14, hintFlags: "010")
 }

@@ -535,12 +535,15 @@ struct TutorialView: View {
 
     private func recordCompletion() {
         let time = gameTimer.elapsedTime
-        stats?.recordCompletion(time: time, date: Date.now)
+        let hintUsed = model.hintUsed
+        stats?.recordCompletion(time: time, date: Date.now, hintUsed: hintUsed)
 
         gameCenterService.reportPuzzleCompleted(
             totalCompleted: stats?.totalPuzzlesCompleted ?? 0,
             completionTime: time,
-            streak: stats?.currentStreak ?? 0
+            streak: stats?.currentStreak ?? 0,
+            hintUsed: hintUsed,
+            totalHintsUsed: stats?.totalHintsUsed ?? 0
         )
     }
 

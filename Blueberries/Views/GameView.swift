@@ -490,16 +490,17 @@ struct GameView: View {
     }
 
     private func recordCompletion(time: TimeInterval) {
-        stats?.recordCompletion(time: time, date: Date.now)
+        let hintUsed = model?.hintUsed ?? false
+        stats?.recordCompletion(time: time, date: Date.now, hintUsed: hintUsed)
 
-        // Check if all daily puzzles are now solved
+        // Check if all daily puzzles are now solved (hint-free only for daily sweep)
         let allDailySolved = source == .daily && Difficulty.allCases.allSatisfy { diff in
             guard let def = puzzleStore.dailyPuzzle(date: Date.now, difficulty: diff) else { return false }
             let encoder = JSONEncoder()
             encoder.outputFormatting = .sortedKeys
             guard let data = try? encoder.encode(def),
                   let key = String(data: data, encoding: .utf8) else { return false }
-            return savedStates.contains { $0.puzzleJSON == key && $0.solved }
+            return savedStates.contains { $0.puzzleJSON == key && $0.solved && !$0.hintUsed }
         }
 
         gameCenterService.reportPuzzleCompleted(
@@ -508,7 +509,9 @@ struct GameView: View {
             streak: stats?.currentStreak ?? 0,
             difficulty: difficulty,
             isDaily: source == .daily,
-            allDailySolved: allDailySolved
+            allDailySolved: allDailySolved,
+            hintUsed: hintUsed,
+            totalHintsUsed: stats?.totalHintsUsed ?? 0
         )
         updateWidgetData()
     }
@@ -522,21 +525,31 @@ struct GameView: View {
 
     private func updateWidgetData() {
         let defaults = UserDefaults(suiteName: "group.com.altthree.berroku")
-        // Count how many daily puzzles are solved today
         var solvedCount = 0
+        var hintFlags = ""
         for diff in Difficulty.allCases {
             if let def = puzzleStore.dailyPuzzle(date: Date.now, difficulty: diff) {
                 let encoder = JSONEncoder()
                 encoder.outputFormatting = .sortedKeys
                 if let data = try? encoder.encode(def),
-                   let key = String(data: data, encoding: .utf8),
-                   savedStates.contains(where: { $0.puzzleJSON == key && $0.solved }) {
-                    solvedCount += 1
+                   let key = String(data: data, encoding: .utf8) {
+                    let state = savedStates.first { $0.puzzleJSON == key && $0.solved }
+                    if state != nil {
+                        solvedCount += 1
+                        hintFlags += (state?.hintUsed == true) ? "1" : "0"
+                    } else {
+                        hintFlags += "0"
+                    }
+                } else {
+                    hintFlags += "0"
                 }
+            } else {
+                hintFlags += "0"
             }
         }
         defaults?.set(solvedCount, forKey: "widget.solvedCount")
         defaults?.set(stats?.currentStreak ?? 0, forKey: "widget.currentStreak")
+        defaults?.set(hintFlags, forKey: "widget.hintFlags")
         WidgetCenter.shared.reloadAllTimelines()
     }
 
