@@ -18,6 +18,7 @@ struct TutorialView: View {
     @State private var soundService = SoundService()
     @AppStorage("hapticsEnabled") private var hapticsEnabled: Bool = true
     @AppStorage("soundEnabled") private var soundEnabled: Bool = true
+    @ScaledMetric(relativeTo: .largeTitle) private var solvedIconSize: CGFloat = 48
 
     private var stats: PlayerStats? { statsRecords.first }
 
@@ -552,7 +553,7 @@ struct TutorialView: View {
             }
             VStack(spacing: 12) {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 48))
+                    .font(.system(size: solvedIconSize))
                     .foregroundStyle(.green)
                     .symbolEffect(.bounce, isActive: !reduceMotion)
                 Text("Puzzle Solved!")

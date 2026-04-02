@@ -279,7 +279,7 @@ private struct WalkthroughPageView: View {
 
                                 if let clue {
                                     Text("\(clue)")
-                                        .font(.system(size: 10, weight: .medium, design: .rounded))
+                                        .font(.system(.caption2, design: .rounded, weight: .medium))
                                         .foregroundStyle(Theme.clueText.opacity(0.6))
                                 } else if hasBerry {
                                     Circle()
@@ -422,7 +422,7 @@ private struct WalkthroughPageView: View {
                         }
                     }
                     Text(weekdayLabel(day))
-                        .font(.system(size: 10))
+                        .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
             }

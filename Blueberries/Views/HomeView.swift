@@ -38,49 +38,75 @@ struct HomeView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            TabView(selection: $selectedTab) {
-                homeTab
-                    .tabItem { Label("Home", systemImage: "house.fill") }
-                    .tag(HomeTab.home)
-                achievementsTab
-                    .tabItem { Label("Achievements", systemImage: "trophy.fill") }
-                    .tag(HomeTab.achievements)
-                settingsTab
-                    .tabItem { Label("Settings", systemImage: "gearshape") }
-                    .tag(HomeTab.settings)
-            }
-            .fullScreenCover(isPresented: $showWalkthrough) {
-                WalkthroughView(isPresented: $showWalkthrough)
-            }
-            .fullScreenCover(isPresented: $showTutorial) {
-                TutorialView(isPresented: $showTutorial, gameCenterService: gameCenterService, dismissable: hasCompletedTutorial)
-                    .onDisappear { hasCompletedTutorial = true }
-            }
-            .onChange(of: showWalkthrough) {
-                if !showWalkthrough && !hasSeenWalkthrough {
-                    hasSeenWalkthrough = true
-                    if !hasCompletedTutorial {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            showTutorial = true
-                        }
+        TabView(selection: $selectedTab) {
+            homeTab
+                .tabItem { Label("Home", systemImage: "house.fill") }
+                .tag(HomeTab.home)
+            achievementsTab
+                .tabItem { Label("Achievements", systemImage: "trophy.fill") }
+                .tag(HomeTab.achievements)
+            settingsTab
+                .tabItem { Label("Settings", systemImage: "gearshape") }
+                .tag(HomeTab.settings)
+        }
+        .fullScreenCover(isPresented: $showWalkthrough) {
+            WalkthroughView(isPresented: $showWalkthrough)
+        }
+        .fullScreenCover(isPresented: $showTutorial) {
+            TutorialView(isPresented: $showTutorial, gameCenterService: gameCenterService, dismissable: hasCompletedTutorial)
+                .onDisappear { hasCompletedTutorial = true }
+        }
+        .onChange(of: showWalkthrough) {
+            if !showWalkthrough && !hasSeenWalkthrough {
+                hasSeenWalkthrough = true
+                if !hasCompletedTutorial {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        showTutorial = true
                     }
                 }
             }
-            .task {
-                ensureStats()
-                gameCenterService.authenticate()
-                updateWidgetData()
+        }
+        .task {
+            ensureStats()
+            gameCenterService.authenticate()
+            updateWidgetData()
 
-                // Existing users who already saw the walkthrough skip the tutorial
-                if hasSeenWalkthrough && !hasCompletedTutorial {
-                    hasCompletedTutorial = true
-                }
-
-                if !hasSeenWalkthrough {
-                    showWalkthrough = true
-                }
+            // Existing users who already saw the walkthrough skip the tutorial
+            if hasSeenWalkthrough && !hasCompletedTutorial {
+                hasCompletedTutorial = true
             }
+
+            if !hasSeenWalkthrough {
+                showWalkthrough = true
+            }
+        }
+    }
+
+    // MARK: - Hero Header
+
+    // MARK: - Tabs
+
+    private var homeTab: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 0) {
+                    heroHeader
+                        .padding(.bottom, 24)
+
+                    AdaptiveGlassContainer(spacing: 20) {
+                        VStack(spacing: 20) {
+                            dailyPuzzleCard
+                            proPuzzlesCard
+                            statsAndCalendarCard
+                        }
+                    }
+                    .frame(maxWidth: 600)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 24)
+                }
+                .frame(maxWidth: .infinity)
+            }
+            .background(Theme.backgroundGradient)
             .navigationDestination(isPresented: $navigateToGame) {
                 GameView(
                     storeService: storeService,
@@ -91,32 +117,6 @@ struct HomeView: View {
                 )
             }
         }
-    }
-
-    // MARK: - Hero Header
-
-    // MARK: - Tabs
-
-    private var homeTab: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                heroHeader
-                    .padding(.bottom, 24)
-
-                AdaptiveGlassContainer(spacing: 20) {
-                    VStack(spacing: 20) {
-                        dailyPuzzleCard
-                        proPuzzlesCard
-                        statsAndCalendarCard
-                    }
-                }
-                .frame(maxWidth: 600)
-                .padding(.horizontal, 16)
-                .padding(.bottom, 24)
-            }
-            .frame(maxWidth: .infinity)
-        }
-        .background(Theme.backgroundGradient)
     }
 
     private var achievementsTab: some View {

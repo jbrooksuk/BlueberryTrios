@@ -72,7 +72,6 @@ struct PuzzleGridView: View {
                     onStateChanged?()
                 }
         )
-        .defersSystemGestures(on: .all)
         .sensoryFeedback(.impact(flexibility: .solid, intensity: 0.5), trigger: hapticTrigger) { _, _ in
             hapticsEnabled
         }

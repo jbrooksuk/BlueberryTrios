@@ -26,6 +26,7 @@ struct GameView: View {
     @State private var gameTimer = GameTimer()
     @State private var soundService = SoundService()
     @State private var cachedPuzzleKey: String?
+    @ScaledMetric(relativeTo: .largeTitle) private var solvedIconSize: CGFloat = 48
 
     init(
         storeService: StoreKitService,
@@ -112,6 +113,7 @@ struct GameView: View {
             }
         }
         .toolbarRole(.automatic)
+        .toolbar(.hidden, for: .tabBar)
         .background(Theme.backgroundGradient)
         .navigationTitle("Berroku")
         .navigationBarTitleDisplayMode(.inline)
@@ -266,8 +268,9 @@ struct GameView: View {
             }
             VStack(spacing: 12) {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 48))
+                    .font(.system(size: solvedIconSize))
                     .foregroundStyle(.green)
+                    .accessibilityHidden(true)
                     .symbolEffect(.bounce, isActive: !reduceMotion && model?.isSolved == true)
                 Text("Solved!")
                     .font(.title.bold())
