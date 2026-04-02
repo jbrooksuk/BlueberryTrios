@@ -72,8 +72,6 @@ struct SettingsFormView: View {
                         Label(String(localized: "Show tutorial", comment: "Settings button to replay tutorial"), systemImage: "puzzlepiece")
                     }
                 }
-            }
-            Section("Rules") {
                 Text("Place 3 berries into each row, column, and block. Surround each number with the specified number of berries.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -88,24 +86,22 @@ struct SettingsFormView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                Link(destination: URL(string: "https://berroku.com/privacy")!) {
+                Link(destination: URL(string: "https://x.com/jbrooksuk")!) {
                     HStack {
-                        Label("Privacy Policy", systemImage: "hand.raised")
+                        Label("Follow @jbrooksuk", systemImage: "at")
                         Spacer()
                         Image(systemName: "arrow.up.right.square")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
-                Link(destination: URL(string: "https://berroku.com/terms")!) {
-                    HStack {
-                        Label("Terms of Use", systemImage: "doc.text")
-                        Spacer()
-                        Image(systemName: "arrow.up.right.square")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
+            }
+            Section {
+                Text("Made with berries 🫐")
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .foregroundStyle(.secondary)
+                    .font(.footnote)
+                    .listRowBackground(Color.clear)
             }
         }
         .offerCodeRedemption(isPresented: $showOfferCode)
