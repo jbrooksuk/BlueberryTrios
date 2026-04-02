@@ -30,7 +30,7 @@ nav {
     align-items: center;
 }
 .nav-brand {
-    font-family: 'DM Serif Display', serif;
+    font-family: 'Fraunces', serif;
     font-size: 1.4rem;
     color: var(--text);
     text-decoration: none;
