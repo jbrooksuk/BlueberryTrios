@@ -106,6 +106,8 @@ struct GameView: View {
                         Label("Check", systemImage: "checkmark.circle")
                     }
                     .disabled(solved)
+                    .opacity(autoCheck ? 0 : 1)
+                    .accessibilityHidden(autoCheck)
                 }
             }
         }

@@ -28,8 +28,8 @@ final class GameCenterService {
 
     func authenticate() {
         GKLocalPlayer.local.authenticateHandler = { [weak self] viewController, error in
-            if let error {
-                print("Game Center auth error: \(error)")
+            if error != nil {
+                // User not signed in or cancelled — expected, not an error
                 return
             }
             self?.isAuthenticated = GKLocalPlayer.local.isAuthenticated
@@ -103,7 +103,9 @@ final class GameCenterService {
             do {
                 try await GKAchievement.report(achievements)
             } catch {
+                #if DEBUG
                 print("Failed to report achievements: \(error)")
+                #endif
             }
 
             try? await GKLeaderboard.submitScore(

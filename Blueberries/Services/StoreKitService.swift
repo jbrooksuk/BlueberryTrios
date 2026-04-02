@@ -24,7 +24,9 @@ final class StoreKitService {
             let products = try await Product.products(for: [Self.proProductID])
             proProduct = products.first
         } catch {
+            #if DEBUG
             print("Failed to load products: \(error)")
+            #endif
         }
     }
 
