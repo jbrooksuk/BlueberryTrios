@@ -331,6 +331,7 @@ struct GameView: View {
     // MARK: - Puzzle Loading
 
     private func loadPuzzle() {
+        saveCurrentState()
         gameTimer.reset()
         let date = Date.now
         let definition: PuzzleDefinition?
@@ -406,6 +407,7 @@ struct GameView: View {
         let cellString = model.allCells.map { (model.cells[$0] ?? .undecided).rawValue }.joined()
         let elapsed = gameTimer.elapsedTime
         let undoString = model.isSolved ? "" : encodeUndoStack(model.undoStack)
+        let redoString = model.isSolved ? "" : encodeUndoStack(model.redoStack)
 
         if model.isSolved {
             gameTimer.stop()
@@ -414,6 +416,7 @@ struct GameView: View {
         if let existing = savedStates.first(where: { $0.puzzleJSON == puzzleKey }) {
             existing.cellStates = cellString
             existing.undoHistory = undoString
+            existing.redoHistory = redoString
             existing.elapsedTime = elapsed
             existing.hintUsed = model.hintUsed
             existing.solved = model.isSolved
@@ -426,6 +429,7 @@ struct GameView: View {
                 puzzleJSON: puzzleKey,
                 cellStates: cellString,
                 undoHistory: undoString,
+                redoHistory: redoString,
                 elapsedTime: elapsed,
                 hintUsed: model.hintUsed,
                 solved: model.isSolved,
@@ -456,8 +460,13 @@ struct GameView: View {
         gameTimer.elapsedTime = saved.elapsedTime
         model.hintUsed = saved.hintUsed
         model.isSolved = saved.solved
-        if !saved.undoHistory.isEmpty && !model.isSolved {
-            model.undoStack = decodeUndoStack(saved.undoHistory)
+        if !model.isSolved {
+            if !saved.undoHistory.isEmpty {
+                model.undoStack = decodeUndoStack(saved.undoHistory)
+            }
+            if !saved.redoHistory.isEmpty {
+                model.redoStack = decodeUndoStack(saved.redoHistory)
+            }
         }
         _ = model.checkSolved()
     }

@@ -6,6 +6,7 @@ final class GameState {
     var puzzleJSON: String
     var cellStates: String
     var undoHistory: String // Encoded undo stack: "r,c,old,new;r,c,old,new;..."
+    var redoHistory: String // Encoded redo stack (same format)
     var elapsedTime: TimeInterval
     var hintUsed: Bool
     var solved: Bool
@@ -19,6 +20,7 @@ final class GameState {
         puzzleJSON: String,
         cellStates: String,
         undoHistory: String = "",
+        redoHistory: String = "",
         elapsedTime: TimeInterval = 0,
         hintUsed: Bool = false,
         solved: Bool = false,
@@ -31,6 +33,7 @@ final class GameState {
         self.puzzleJSON = puzzleJSON
         self.cellStates = cellStates
         self.undoHistory = undoHistory
+        self.redoHistory = redoHistory
         self.elapsedTime = elapsedTime
         self.hintUsed = hintUsed
         self.solved = solved
