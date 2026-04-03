@@ -8,6 +8,7 @@ final class GameState {
     var undoHistory: String // Encoded undo stack: "r,c,old,new;r,c,old,new;..."
     var redoHistory: String // Encoded redo stack (same format)
     var elapsedTime: TimeInterval
+    var hintedCell: String // Encoded hint cell: "r,c" or empty
     var hintUsed: Bool
     var solved: Bool
     var completionDate: Date?
@@ -22,6 +23,7 @@ final class GameState {
         undoHistory: String = "",
         redoHistory: String = "",
         elapsedTime: TimeInterval = 0,
+        hintedCell: String = "",
         hintUsed: Bool = false,
         solved: Bool = false,
         completionDate: Date? = nil,
@@ -35,6 +37,7 @@ final class GameState {
         self.undoHistory = undoHistory
         self.redoHistory = redoHistory
         self.elapsedTime = elapsedTime
+        self.hintedCell = hintedCell
         self.hintUsed = hintUsed
         self.solved = solved
         self.completionDate = completionDate

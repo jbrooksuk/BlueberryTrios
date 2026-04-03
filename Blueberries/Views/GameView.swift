@@ -413,11 +413,14 @@ struct GameView: View {
             gameTimer.stop()
         }
 
+        let hintedCellString = model.hintedCell.map { "\($0.row),\($0.column)" } ?? ""
+
         if let existing = savedStates.first(where: { $0.puzzleJSON == puzzleKey }) {
             existing.cellStates = cellString
             existing.undoHistory = undoString
             existing.redoHistory = redoString
             existing.elapsedTime = elapsed
+            existing.hintedCell = hintedCellString
             existing.hintUsed = model.hintUsed
             existing.solved = model.isSolved
             if model.isSolved && existing.completionDate == nil {
@@ -431,6 +434,7 @@ struct GameView: View {
                 undoHistory: undoString,
                 redoHistory: redoString,
                 elapsedTime: elapsed,
+                hintedCell: hintedCellString,
                 hintUsed: model.hintUsed,
                 solved: model.isSolved,
                 completionDate: model.isSolved ? Date.now : nil,
@@ -458,6 +462,12 @@ struct GameView: View {
             }
         }
         gameTimer.elapsedTime = saved.elapsedTime
+        if !saved.hintedCell.isEmpty {
+            let parts = saved.hintedCell.split(separator: ",")
+            if parts.count == 2, let row = Int(parts[0]), let col = Int(parts[1]) {
+                model.hintedCell = CellID(row: row, column: col)
+            }
+        }
         model.hintUsed = saved.hintUsed
         model.isSolved = saved.solved
         if !model.isSolved {
