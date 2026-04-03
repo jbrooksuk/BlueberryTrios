@@ -5,6 +5,7 @@ import WidgetKit
 
 struct GameView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @Query private var savedStates: [GameState]
     @Query private var statsRecords: [PlayerStats]
 
@@ -125,7 +126,13 @@ struct GameView: View {
             updateWidgetData()
         }
         .onDisappear {
+            saveCurrentState()
             UIApplication.shared.isIdleTimerDisabled = false
+        }
+        .onChange(of: scenePhase) {
+            if scenePhase == .background || scenePhase == .inactive {
+                saveCurrentState()
+            }
         }
         .onChange(of: source) {
             if source == .pro && !storeService.isProUnlocked {
@@ -433,6 +440,8 @@ struct GameView: View {
                 recordCompletion(time: elapsed)
             }
         }
+
+        try? modelContext.save()
     }
 
     private func restoreState(_ saved: GameState, into model: PuzzleModel) {
