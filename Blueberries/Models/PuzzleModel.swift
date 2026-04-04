@@ -272,15 +272,17 @@ final class PuzzleModel {
     }
 
     func erase() {
+        var eraseCommands: [CellCommand] = []
         for cell in allCells {
             if isInteractive(cell) {
                 let oldState = cells[cell] ?? .undecided
                 if oldState != .undecided {
                     cells[cell] = .undecided
-                    undoStack.append(CellCommand(cell: cell, oldState: oldState, newState: .undecided))
+                    eraseCommands.append(CellCommand(cell: cell, oldState: oldState, newState: .undecided))
                 }
             }
         }
+        undoStack.append(contentsOf: eraseCommands.reversed())
         redoStack.removeAll()
         updateCheck()
     }

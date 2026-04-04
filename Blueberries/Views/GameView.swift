@@ -5,6 +5,7 @@ import WidgetKit
 
 struct GameView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @Query private var savedStates: [GameState]
     @Query private var statsRecords: [PlayerStats]
 
@@ -125,7 +126,13 @@ struct GameView: View {
             updateWidgetData()
         }
         .onDisappear {
+            saveCurrentState()
             UIApplication.shared.isIdleTimerDisabled = false
+        }
+        .onChange(of: scenePhase) {
+            if scenePhase == .background || scenePhase == .inactive {
+                saveCurrentState()
+            }
         }
         .onChange(of: source) {
             if source == .pro && !storeService.isProUnlocked {
@@ -324,6 +331,7 @@ struct GameView: View {
     // MARK: - Puzzle Loading
 
     private func loadPuzzle() {
+        saveCurrentState()
         gameTimer.reset()
         let date = Date.now
         let definition: PuzzleDefinition?
@@ -399,15 +407,20 @@ struct GameView: View {
         let cellString = model.allCells.map { (model.cells[$0] ?? .undecided).rawValue }.joined()
         let elapsed = gameTimer.elapsedTime
         let undoString = model.isSolved ? "" : encodeUndoStack(model.undoStack)
+        let redoString = model.isSolved ? "" : encodeUndoStack(model.redoStack)
 
         if model.isSolved {
             gameTimer.stop()
         }
 
+        let hintedCellString = model.hintedCell.map { "\($0.row),\($0.column)" } ?? ""
+
         if let existing = savedStates.first(where: { $0.puzzleJSON == puzzleKey }) {
             existing.cellStates = cellString
             existing.undoHistory = undoString
+            existing.redoHistory = redoString
             existing.elapsedTime = elapsed
+            existing.hintedCell = hintedCellString
             existing.hintUsed = model.hintUsed
             existing.solved = model.isSolved
             if model.isSolved && existing.completionDate == nil {
@@ -419,7 +432,9 @@ struct GameView: View {
                 puzzleJSON: puzzleKey,
                 cellStates: cellString,
                 undoHistory: undoString,
+                redoHistory: redoString,
                 elapsedTime: elapsed,
+                hintedCell: hintedCellString,
                 hintUsed: model.hintUsed,
                 solved: model.isSolved,
                 completionDate: model.isSolved ? Date.now : nil,
@@ -433,6 +448,8 @@ struct GameView: View {
                 recordCompletion(time: elapsed)
             }
         }
+
+        try? modelContext.save()
     }
 
     private func restoreState(_ saved: GameState, into model: PuzzleModel) {
@@ -445,10 +462,21 @@ struct GameView: View {
             }
         }
         gameTimer.elapsedTime = saved.elapsedTime
+        if !saved.hintedCell.isEmpty {
+            let parts = saved.hintedCell.split(separator: ",")
+            if parts.count == 2, let row = Int(parts[0]), let col = Int(parts[1]) {
+                model.hintedCell = CellID(row: row, column: col)
+            }
+        }
         model.hintUsed = saved.hintUsed
         model.isSolved = saved.solved
-        if !saved.undoHistory.isEmpty && !model.isSolved {
-            model.undoStack = decodeUndoStack(saved.undoHistory)
+        if !model.isSolved {
+            if !saved.undoHistory.isEmpty {
+                model.undoStack = decodeUndoStack(saved.undoHistory)
+            }
+            if !saved.redoHistory.isEmpty {
+                model.redoStack = decodeUndoStack(saved.redoHistory)
+            }
         }
         _ = model.checkSolved()
     }
