@@ -37,7 +37,7 @@ final class StoreKitService {
         case .success(let verification):
             let transaction = try checkVerified(verification)
             await transaction.finish()
-            await updatePurchaseStatus()
+            isProUnlocked = true
         case .userCancelled:
             break
         case .pending:
@@ -53,14 +53,15 @@ final class StoreKitService {
     }
 
     private func updatePurchaseStatus() async {
+        var unlocked = false
         for await result in Transaction.currentEntitlements {
             if case .verified(let transaction) = result,
                transaction.productID == Self.proProductID {
-                isProUnlocked = true
-                return
+                unlocked = true
+                break
             }
         }
-        isProUnlocked = false
+        isProUnlocked = unlocked
     }
 
     private func listenForTransactions() -> Task<Void, Never> {
