@@ -76,6 +76,7 @@ final class PuzzleModel {
     let clueCells: Set<CellID>
 
     var hintUsed: Bool = false
+    private var eraseBatch: [CellCommand]?
 
     init(definition: PuzzleDefinition) {
         self.definition = definition
@@ -223,6 +224,7 @@ final class PuzzleModel {
         cells[cell] = newState
         undoStack.append(CellCommand(cell: cell, oldState: oldState, newState: newState))
         redoStack.removeAll()
+        eraseBatch = nil
 
         // Track berry placement for animation
         if newState == .berry {
@@ -250,6 +252,17 @@ final class PuzzleModel {
     var canRedo: Bool { !redoStack.isEmpty }
 
     func undo() {
+        if let batch = eraseBatch {
+            // Undo entire erase in one step
+            for command in batch.reversed() {
+                undoStack.removeLast()
+                cells[command.cell] = command.oldState
+                redoStack.append(command)
+            }
+            eraseBatch = nil
+            updateCheck()
+            return
+        }
         guard let command = undoStack.popLast() else { return }
         cells[command.cell] = command.oldState
         redoStack.append(command)
@@ -273,17 +286,18 @@ final class PuzzleModel {
 
     func erase() {
         var eraseCommands: [CellCommand] = []
-        for cell in allCells {
-            if isInteractive(cell) {
-                let oldState = cells[cell] ?? .undecided
-                if oldState != .undecided {
-                    cells[cell] = .undecided
-                    eraseCommands.append(CellCommand(cell: cell, oldState: oldState, newState: .undecided))
-                }
+        for cell in allCells where isInteractive(cell) {
+            let oldState = cells[cell] ?? .undecided
+            if oldState != .undecided {
+                cells[cell] = .undecided
+                eraseCommands.append(CellCommand(cell: cell, oldState: oldState, newState: .undecided))
             }
         }
-        undoStack.append(contentsOf: eraseCommands.reversed())
-        redoStack.removeAll()
+        if !eraseCommands.isEmpty {
+            eraseBatch = eraseCommands
+            undoStack.append(contentsOf: eraseCommands)
+            redoStack.removeAll()
+        }
         updateCheck()
     }
 
