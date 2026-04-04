@@ -133,15 +133,23 @@ final class GameCenterService {
                 print("Failed to report achievements: \(error)")
                 #endif
             }
+        }
 
-            // Only submit to leaderboard for hint-free daily completions
-            if !hintUsed, isDaily, let difficulty {
-                try? await GKLeaderboard.submitScore(
-                    Int(completionTime * 100),
-                    context: 0,
-                    player: GKLocalPlayer.local,
-                    leaderboardIDs: [Self.dailyLeaderboard(for: difficulty)]
-                )
+        // Submit leaderboard score independently so it doesn't depend on achievement reporting
+        if !hintUsed, isDaily, let difficulty {
+            Task {
+                do {
+                    try await GKLeaderboard.submitScore(
+                        Int(completionTime * 100),
+                        context: 0,
+                        player: GKLocalPlayer.local,
+                        leaderboardIDs: [Self.dailyLeaderboard(for: difficulty)]
+                    )
+                } catch {
+                    #if DEBUG
+                    print("Failed to submit leaderboard score: \(error)")
+                    #endif
+                }
             }
         }
     }
