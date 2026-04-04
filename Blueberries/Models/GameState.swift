@@ -6,9 +6,9 @@ final class GameState {
     var puzzleJSON: String
     var cellStates: String
     var undoHistory: String // Encoded undo stack: "r,c,old,new;r,c,old,new;..."
-    var redoHistory: String // Encoded redo stack (same format)
+    var redoHistory: String = "" // Encoded redo stack (same format)
     var elapsedTime: TimeInterval
-    var hintedCell: String // Encoded hint cell: "r,c" or empty
+    var hintedCell: String = "" // Encoded hint cell: "r,c" or empty
     var hintUsed: Bool
     var solved: Bool
     var completionDate: Date?
