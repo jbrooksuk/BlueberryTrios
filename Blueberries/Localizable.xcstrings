@@ -1,349 +1,363 @@
 {
-  "sourceLanguage": "en",
-  "strings": {
-    "%lld": {
-      "comment": "Generic number format"
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%lld" : {
+
     },
-    "%lld/3": {
-      "comment": "Daily puzzle progress counter"
+    "%lld/3" : {
+
     },
-    "3": {
-      "comment": "Number displayed in walkthrough"
+    "3" : {
+
     },
-    "A **0** means none of its neighbors are berries. Cross them out with ✕!": {
-      "comment": "Tutorial: explain zero step",
-      "localizations": {
-        "en-GB": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A **0** means none of its neighbours are berries. Cross them out with ✕!"
+    "A **0** means none of its neighbors are berries. Cross them out with ✕!" : {
+      "comment" : "Tutorial: explain zero step",
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A **0** means none of its neighbours are berries. Cross them out with ✕!"
           }
         }
       }
     },
-    "A berry logic puzzle inspired by Sudoku": {
-      "comment": "Walkthrough page 1 subtitle"
+    "A berry logic puzzle inspired by Sudoku" : {
+      "comment" : "Walkthrough page 1 subtitle"
     },
-    "A number tells you how many of the 8 surrounding cells contain a berry. Use logic to work out where each berry goes.": {
-      "comment": "Walkthrough page 3 description"
+    "A number tells you how many of the 8 surrounding cells contain a berry. Use logic to work out where each berry goes." : {
+      "comment" : "Walkthrough page 3 description"
     },
-    "About": {
-      "comment": "Settings section header for about/links"
+    "About" : {
+
     },
-    "Achievements": {
-      "comment": "Achievements tab/card title"
+    "Achievements" : {
+
     },
-    "Activity": {
-      "comment": "Calendar card title"
+    "Activity" : {
+
     },
-    "All daily puzzles complete!": {
-      "comment": "Shown when all 3 daily puzzles are solved"
+    "All daily puzzles complete!" : {
+
     },
-    "Auto Check": {
-      "comment": "Settings toggle - auto error checking"
+    "Auto Check" : {
+
     },
-    "Back": {
-      "comment": "Walkthrough back button"
+    "Back" : {
+      "comment" : "Walkthrough back button"
     },
-    "Berroku": {
-      "comment": "App name, shown in headers"
+    "Berroku" : {
+
     },
-    "berry": {
-      "comment": "Cell state for VoiceOver - berry placed"
+    "berry" : {
+
     },
-    "Berry": {
-      "comment": "Walkthrough berry state label"
+    "Berry" : {
+      "comment" : "Walkthrough berry state label"
     },
-    "Build your streak": {
-      "comment": "Walkthrough page 5 title"
+    "Build your streak" : {
+      "comment" : "Walkthrough page 5 title"
     },
-    "Check": {
-      "comment": "Toolbar button"
+    "Check" : {
+
     },
-    "Come back every day": {
-      "comment": "Walkthrough page 5 subtitle"
+    "Come back every day" : {
+      "comment" : "Walkthrough page 5 subtitle"
     },
-    "Complete row 4": {
-      "comment": "Tutorial: row completion step title"
+    "Complete row 4" : {
+
     },
-    "Complete the column": {
-      "comment": "Tutorial: column berry step title"
+    "Complete the column" : {
+
     },
-    "crossed": {
-      "comment": "Cell state for VoiceOver - marked empty"
+    "crossed" : {
+
     },
-    "Daily": {
-      "comment": "Daily puzzle mode"
+    "Daily" : {
+
     },
-    "Daily Reminder": {
-      "comment": "Settings toggle - daily notification"
+    "Daily Reminder" : {
+
     },
-    "Done": {
-      "comment": "Dismiss button"
+    "Done" : {
+
     },
-    "Each **row**, **column**, and **3×3 block** needs exactly 3 berries. Numbers tell you how many of the 8 surrounding cells have berries.": {
-      "comment": "Tutorial: grid explanation"
+    "Each **row**, **column**, and **3×3 block** needs exactly 3 berries. Numbers tell you how many of the 8 surrounding cells have berries." : {
+
     },
-    "Each day brings three new puzzles across Standard, Advanced, and Expert difficulties.": {
-      "comment": "Walkthrough page 1 description"
+    "Each day brings three new puzzles across Standard, Advanced, and Expert difficulties." : {
+      "comment" : "Walkthrough page 1 description"
     },
-    "empty": {
-      "comment": "Cell state for VoiceOver - undecided"
+    "empty" : {
+
     },
-    "Empty": {
-      "comment": "Walkthrough cell state label"
+    "Empty" : {
+      "comment" : "Walkthrough cell state label"
     },
-    "Erase": {
-      "comment": "Toolbar button"
+    "Erase" : {
+
     },
-    "Fill Hints": {
-      "comment": "Settings toggle - auto-fill hints"
+    "Fill Hints" : {
+
     },
-    "Fill the block!": {
-      "comment": "Tutorial: fill block step title"
+    "Fill the block!" : {
+
     },
-    "Follow @jbrooksuk": {
-      "comment": "Settings About section: link to X profile"
+    "Follow @jbrooksuk" : {
+
     },
-    "Follow the clues": {
-      "comment": "Walkthrough page 3 title"
+    "Follow the clues" : {
+      "comment" : "Walkthrough page 3 title"
     },
-    "Gameplay": {
-      "comment": "Settings section header"
+    "Gameplay" : {
+
     },
-    "Got it": {
-      "comment": "Tutorial: acknowledge button"
+    "Got it" : {
+
     },
-    "Haptics": {
-      "comment": "Settings toggle - haptic feedback"
+    "Haptics" : {
+
     },
-    "Help": {
-      "comment": "Settings section header for help/tutorial"
+    "Help" : {
+
     },
-    "Hint": {
-      "comment": "Toolbar button"
+    "Hint" : {
+
     },
-    "Home": {
-      "comment": "Home tab label"
+    "Home" : {
+
     },
-    "In every row, column, and block": {
-      "comment": "Walkthrough page 2 subtitle"
+    "In every row, column, and block" : {
+      "comment" : "Walkthrough page 2 subtitle"
     },
-    "It has only one empty neighbor — that cell must be a berry! Tap it **twice**.": {
-      "comment": "Tutorial: corner berry explanation",
-      "localizations": {
-        "en-GB": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "It has only one empty neighbour — that cell must be a berry! Tap it **twice**."
+    "It has only one empty neighbor — that cell must be a berry! Tap it **twice**." : {
+      "comment" : "Tutorial: corner berry explanation",
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It has only one empty neighbour — that cell must be a berry! Tap it **twice**."
           }
         }
       }
     },
-    "Keep going! If a cell turns **red**, it means there's an error — undo and try again. Tap %@ for a hint.": {
-      "comment": "Tutorial: free play with error explanation"
+    "Keep going! If a cell turns **red**, it means there's an error — undo and try again. Tap %@ for a hint." : {
+
     },
-    "Let's go!": {
-      "comment": "Tutorial: welcome button"
+    "Let's go!" : {
+
     },
-    "Let's play!": {
-      "comment": "Walkthrough final button"
+    "Let's play!" : {
+      "comment" : "Walkthrough final button"
     },
-    "Let's solve your first puzzle!": {
-      "comment": "Tutorial: welcome title"
+    "Let's solve your first puzzle!" : {
+
     },
-    "Loading products...": {
-      "comment": "Shown while loading IAP products in settings"
+    "Loading products..." : {
+
     },
-    "Loading...": {
-      "comment": "Shown while loading IAP products"
+    "Loading..." : {
+
     },
-    "Look at the **1** in the corner": {
-      "comment": "Tutorial: corner berry step title"
+    "Look at the **1** in the corner" : {
+
     },
-    "Made with berries 🫐": {
-      "comment": "Settings footer text"
+    "Made with berries 🫐" : {
+
     },
-    "New Puzzle": {
-      "comment": "Button to generate new Pro puzzle"
+    "New Puzzle" : {
+
     },
-    "Next": {
-      "comment": "Walkthrough next button"
+    "Next" : {
+      "comment" : "Walkthrough next button"
     },
-    "Next Difficulty": {
-      "comment": "Button to advance to next difficulty"
+    "Next Difficulty" : {
+
     },
-    "Next Puzzle": {
-      "comment": "Button to advance to next puzzle"
+    "Next Puzzle" : {
+
     },
-    "No puzzle available": {
-      "comment": "Shown when no puzzle can be loaded"
+    "No puzzle available" : {
+
     },
-    "Numbers guide your way": {
-      "comment": "Walkthrough page 3 subtitle"
+    "Numbers guide your way" : {
+      "comment" : "Walkthrough page 3 subtitle"
     },
-    "Place 3 berries": {
-      "comment": "Walkthrough page 2 title"
+    "Place 3 berries" : {
+      "comment" : "Walkthrough page 2 title"
     },
-    "Place 3 berries in every row, column & block": {
-      "comment": "Home screen subtitle"
+    "Place 3 berries in every row, column & block" : {
+
     },
-    "Place 3 berries in every row, column, and 3×3 block.": {
-      "comment": "Tutorial: welcome subtitle"
+    "Place 3 berries in every row, column, and 3×3 block." : {
+
     },
-    "Place 3 berries into each row, column, and block. Surround each number with the specified number of berries.": {
-      "comment": "Game rules description"
+    "Place 3 berries into each row, column, and block. Surround each number with the specified number of berries." : {
+
     },
-    "Play Pro": {
-      "comment": "Button to start a Pro puzzle"
+    "Play Pro" : {
+
     },
-    "Play Today's Puzzle": {
-      "comment": "Tutorial: completion button"
+    "Play Today's Puzzle" : {
+
     },
-    "Pro": {
-      "comment": "Pro puzzle mode"
+    "Pro" : {
+
     },
-    "Pro Puzzles": {
-      "comment": "Pro mode card/section title"
+    "Pro Puzzles" : {
+
     },
-    "Pro Unlocked": {
-      "comment": "Label showing Pro is purchased"
+    "Pro Unlocked" : {
+
     },
-    "Puzzle Solved!": {
-      "comment": "Tutorial: completion title"
+    "Puzzle Solved!" : {
+
     },
-    "Quick and intuitive controls": {
-      "comment": "Walkthrough page 4 subtitle"
+    "Quick and intuitive controls" : {
+      "comment" : "Walkthrough page 4 subtitle"
     },
-    "Redeem Code": {
-      "comment": "Button to redeem an offer code for Pro"
+    "Redeem Code" : {
+
     },
-    "Redo": {
-      "comment": "Toolbar button"
+    "Redo" : {
+
     },
-    "Restore": {
-      "comment": "Button to restore purchases"
+    "Restore" : {
+
     },
-    "Restore Purchases": {
-      "comment": "Button to restore purchases in settings"
+    "Restore Purchases" : {
+
     },
-    "Row %lld, column %lld, %@": {
-      "comment": "VoiceOver label for a cell, %@ is the state (empty/crossed/berry)"
-    },
-    "Row %lld, column %lld, clue %lld": {
-      "comment": "VoiceOver label for a cell with a number clue"
-    },
-    "Row 2 has 3 berries!": {
-      "comment": "Tutorial: row completion coach mark"
-    },
-    "Ruled out": {
-      "comment": "Walkthrough crossed state label"
-    },
-    "Settings": {
-      "comment": "Settings screen title/button"
-    },
-    "Show Timer": {
-      "comment": "Settings toggle - show timer"
-    },
-    "Show tutorial": {
-      "comment": "Settings button to replay tutorial",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Show tutorial"
+    "Row %lld, column %lld, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Row %1$lld, column %2$lld, %3$@"
           }
         }
       }
     },
-    "Show walkthrough": {
-      "comment": "Settings button to replay walkthrough"
+    "Row %lld, column %lld, clue %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Row %1$lld, column %2$lld, clue %3$lld"
+          }
+        }
+      }
     },
-    "Solve puzzles daily to build your streak. Earn achievements and compete on the leaderboard.": {
-      "comment": "Walkthrough page 5 description"
+    "Row 2 has 3 berries!" : {
+
     },
-    "Solved!": {
-      "comment": "Celebration message when puzzle is completed"
+    "Ruled out" : {
+      "comment" : "Walkthrough crossed state label"
     },
-    "Sound": {
-      "comment": "Settings toggle - sound effects"
+    "Settings" : {
+
     },
-    "Source": {
-      "comment": "Picker label for Daily/Pro"
+    "Show Timer" : {
+
     },
-    "Start with the **0**": {
-      "comment": "Tutorial: explain zero title"
+    "Show tutorial" : {
+      "comment" : "Settings button to replay tutorial",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show tutorial"
+          }
+        }
+      }
     },
-    "Statistics": {
-      "comment": "Stats card title"
+    "Show walkthrough" : {
+      "comment" : "Settings button to replay walkthrough"
     },
-    "Tap a cell to cycle: empty, crossed out, or berry. Use crossed to mark cells you've ruled out. Drag to paint multiple cells at once.": {
-      "comment": "Walkthrough page 4 description"
+    "Solve puzzles daily to build your streak. Earn achievements and compete on the leaderboard." : {
+      "comment" : "Walkthrough page 5 description"
     },
-    "Tap and drag": {
-      "comment": "Walkthrough page 4 title"
+    "Solved!" : {
+
     },
-    "Tap each highlighted cell once for ✕": {
-      "comment": "Tutorial: cross neighbors instruction"
+    "Sound" : {
+
     },
-    "That row is full — cross out the remaining cells.": {
-      "comment": "Tutorial: cross row instruction"
+    "Source" : {
+
     },
-    "The 9×9 grid is divided into blocks. Each row, column, and block must contain exactly 3 berries.": {
-      "comment": "Walkthrough page 2 description"
+    "Start with the **0**" : {
+
     },
-    "The grid": {
-      "comment": "Tutorial: grid explanation title"
+    "Statistics" : {
+
     },
-    "The last column has 1 berry. Place the other 2 to complete it! Tap each **twice**.": {
-      "comment": "Tutorial: column berry instruction"
+    "Tap a cell to cycle: empty, crossed out, or berry. Use crossed to mark cells you've ruled out. Drag to paint multiple cells at once." : {
+      "comment" : "Walkthrough page 4 description"
     },
-    "This block needs 3 berries and has exactly 3 empty cells. They must all be berries! Tap each one **twice**.": {
-      "comment": "Tutorial: fill block instruction"
+    "Tap and drag" : {
+      "comment" : "Walkthrough page 4 title"
     },
-    "This row already has 1 berry. Place the other 2 to finish it!": {
-      "comment": "Tutorial: row completion instruction"
+    "Tap each highlighted cell once for ✕" : {
+
     },
-    "Today's Puzzles": {
-      "comment": "Daily puzzle card title"
+    "That row is full — cross out the remaining cells." : {
+
     },
-    "Today's puzzles are ready! Can you keep your streak going?": {
-      "comment": "Daily reminder notification body"
+    "The 9×9 grid is divided into blocks. Each row, column, and block must contain exactly 3 berries." : {
+      "comment" : "Walkthrough page 2 description"
     },
-    "Undo": {
-      "comment": "Toolbar button"
+    "The grid" : {
+
     },
-    "Unlimited puzzle sets unlocked.": {
-      "comment": "Shown when Pro is purchased"
+    "The last column has 1 berry. Place the other 2 to complete it! Tap each **twice**." : {
+
     },
-    "Unlock Pro %@": {
-      "comment": "Button to purchase Pro, %@ is the price"
+    "This block needs 3 berries and has exactly 3 empty cells. They must all be berries! Tap each one **twice**." : {
+
     },
-    "Unlock Pro Puzzles": {
-      "comment": "Button to purchase Pro in settings"
+    "This row already has 1 berry. Place the other 2 to finish it!" : {
+
     },
-    "Unlock unlimited additional puzzle sets beyond the daily puzzles.": {
-      "comment": "Pro mode description"
+    "Today's Puzzles" : {
+
     },
-    "View grid": {
-      "comment": "Button to dismiss solved overlay and view completed puzzle"
+    "Today's puzzles are ready! Can you keep your streak going?" : {
+
     },
-    "Want more? Unlock Pro": {
-      "comment": "Button to purchase Pro from solved overlay"
+    "Undo" : {
+
     },
-    "Website": {
-      "comment": "Settings About section: link to berroku.com"
+    "Unlimited puzzle sets unlocked." : {
+
     },
-    "Welcome to Berroku": {
-      "comment": "Walkthrough page 1 title"
+    "Unlock Pro %@" : {
+
     },
-    "You've completed the tutorial!": {
-      "comment": "Tutorial: completion subtitle"
+    "Unlock Pro Puzzles" : {
+
     },
-    "You've got the hang of it!": {
-      "comment": "Tutorial: free play title"
+    "Unlock unlimited additional puzzle sets beyond the daily puzzles." : {
+
+    },
+    "View grid" : {
+
+    },
+    "Want more? Unlock Pro" : {
+
+    },
+    "Website" : {
+
+    },
+    "Welcome to Berroku" : {
+      "comment" : "Walkthrough page 1 title"
+    },
+    "You've completed the tutorial!" : {
+
+    },
+    "You've got the hang of it!" : {
+
     }
   },
-  "version": "1.0"
+  "version" : "1.0"
 }
