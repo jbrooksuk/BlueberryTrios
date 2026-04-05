@@ -49,7 +49,7 @@ struct PuzzleCalendarView: View {
 
             // Days grid
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: 7), spacing: 4) {
-                ForEach(daysInMonth, id: \.self) { day in
+                ForEach(Array(daysInMonth.enumerated()), id: \.offset) { _, day in
                     if let day {
                         let solvedCount = solvedCountForDay(day)
                         let isToday = calendar.isDateInToday(day)
