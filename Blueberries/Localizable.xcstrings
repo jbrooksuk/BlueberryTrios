@@ -10,6 +10,15 @@
     "3" : {
 
     },
+    "3-day streak" : {
+
+    },
+    "7-day streak" : {
+
+    },
+    "30-day streak" : {
+
+    },
     "A **0** means none of its neighbors are berries. Cross them out with ✕!" : {
       "comment" : "Tutorial: explain zero step",
       "localizations" : {
@@ -36,10 +45,19 @@
     "Activity" : {
 
     },
+    "Advanced solver" : {
+
+    },
     "All daily puzzles complete!" : {
 
     },
-    "Auto Check" : {
+    "Another three hints down. A fresh start might help this puzzle click. Your hint count stays the same either way." : {
+
+    },
+    "Auto check" : {
+
+    },
+    "Avg hints / puzzle" : {
 
     },
     "Back" : {
@@ -54,8 +72,17 @@
     "Berry" : {
       "comment" : "Walkthrough berry state label"
     },
+    "Berry committed" : {
+
+    },
+    "Best streak" : {
+
+    },
     "Build your streak" : {
       "comment" : "Walkthrough page 5 title"
+    },
+    "Centurion" : {
+
     },
     "Check" : {
 
@@ -63,19 +90,52 @@
     "Come back every day" : {
       "comment" : "Walkthrough page 5 subtitle"
     },
+    "Complete 10 puzzles" : {
+
+    },
+    "Complete 100 puzzles" : {
+
+    },
+    "Complete 500 puzzles" : {
+
+    },
+    "Complete a Standard puzzle" : {
+
+    },
+    "Complete all 3 daily puzzles" : {
+
+    },
+    "Complete an Advanced puzzle" : {
+
+    },
+    "Complete an Expert puzzle" : {
+
+    },
     "Complete row 4" : {
 
     },
     "Complete the column" : {
 
     },
+    "Complete your first puzzle" : {
+
+    },
     "crossed" : {
+
+    },
+    "Current streak" : {
 
     },
     "Daily" : {
 
     },
-    "Daily Reminder" : {
+    "Daily reminder" : {
+
+    },
+    "Daily sweep" : {
+
+    },
+    "Dedicated" : {
 
     },
     "Done" : {
@@ -96,10 +156,19 @@
     "Erase" : {
 
     },
-    "Fill Hints" : {
+    "Expert solver" : {
+
+    },
+    "Fastest time" : {
+
+    },
+    "Fill hints" : {
 
     },
     "Fill the block!" : {
+
+    },
+    "First puzzle" : {
 
     },
     "Follow @jbrooksuk" : {
@@ -124,6 +193,15 @@
 
     },
     "Hint" : {
+
+    },
+    "Hint helper" : {
+
+    },
+    "Hint master" : {
+
+    },
+    "Hints used" : {
 
     },
     "Home" : {
@@ -158,7 +236,7 @@
     "Let's solve your first puzzle!" : {
 
     },
-    "Loading products..." : {
+    "Loading products…" : {
 
     },
     "Loading..." : {
@@ -170,16 +248,19 @@
     "Made with berries 🫐" : {
 
     },
-    "New Puzzle" : {
+    "Master" : {
+
+    },
+    "New puzzle" : {
 
     },
     "Next" : {
       "comment" : "Walkthrough next button"
     },
-    "Next Difficulty" : {
+    "Next difficulty" : {
 
     },
-    "Next Puzzle" : {
+    "Next puzzle" : {
 
     },
     "No puzzle available" : {
@@ -187,6 +268,9 @@
     },
     "Numbers guide your way" : {
       "comment" : "Walkthrough page 3 subtitle"
+    },
+    "On a roll" : {
+
     },
     "Place 3 berries" : {
       "comment" : "Walkthrough page 2 title"
@@ -203,37 +287,40 @@
     "Play Pro" : {
 
     },
-    "Play Today's Puzzle" : {
+    "Play today's puzzle" : {
 
     },
     "Pro" : {
 
     },
-    "Pro Puzzles" : {
+    "Pro puzzles" : {
 
     },
-    "Pro Unlocked" : {
+    "Pro unlocked" : {
 
     },
-    "Puzzle Solved!" : {
+    "Puzzle solved!" : {
+
+    },
+    "Puzzles solved" : {
 
     },
     "Quick and intuitive controls" : {
       "comment" : "Walkthrough page 4 subtitle"
     },
-    "Redeem Code" : {
+    "Redeem code" : {
 
     },
     "Redo" : {
 
     },
-    "Restart Puzzle" : {
+    "Restart puzzle" : {
 
     },
     "Restore" : {
 
     },
-    "Restore Purchases" : {
+    "Restore purchases" : {
 
     },
     "Row %lld, column %lld, %@" : {
@@ -265,7 +352,7 @@
     "Settings" : {
 
     },
-    "Show Timer" : {
+    "Show timer" : {
 
     },
     "Show tutorial" : {
@@ -283,6 +370,9 @@
     "Show walkthrough" : {
       "comment" : "Settings button to replay walkthrough"
     },
+    "Solve a puzzle in under 1 minute" : {
+
+    },
     "Solve puzzles daily to build your streak. Earn achievements and compete on the leaderboard." : {
       "comment" : "Walkthrough page 5 description"
     },
@@ -293,6 +383,12 @@
 
     },
     "Source" : {
+
+    },
+    "Speed demon" : {
+
+    },
+    "Standard solver" : {
 
     },
     "Start with the **0**" : {
@@ -328,7 +424,10 @@
     "This row already has 1 berry. Place the other 2 to finish it!" : {
 
     },
-    "Today's Puzzles" : {
+    "Three hints in — sometimes a clean slate helps a puzzle click. Your hint count stays the same either way." : {
+
+    },
+    "Today's puzzles" : {
 
     },
     "Today's puzzles are ready! Can you keep your streak going?" : {
@@ -343,10 +442,16 @@
     "Unlock Pro %@" : {
 
     },
-    "Unlock Pro Puzzles" : {
+    "Unlock Pro puzzles" : {
 
     },
     "Unlock unlimited additional puzzle sets beyond the daily puzzles." : {
+
+    },
+    "Use 100 hints" : {
+
+    },
+    "Use a hint" : {
 
     },
     "View grid" : {
@@ -356,6 +461,9 @@
 
     },
     "Website" : {
+
+    },
+    "Week warrior" : {
 
     },
     "Welcome to Berroku" : {

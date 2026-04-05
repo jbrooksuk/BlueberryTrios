@@ -18,16 +18,16 @@ struct SettingsFormView: View {
     var body: some View {
         Form {
             Section("Gameplay") {
-                Toggle("Auto Check", isOn: $autoCheck)
-                Toggle("Show Timer", isOn: $showTimer)
-                Toggle("Fill Hints", isOn: $fillHints)
+                Toggle("Auto check", isOn: $autoCheck)
+                Toggle("Show timer", isOn: $showTimer)
+                Toggle("Fill hints", isOn: $fillHints)
                 Toggle("Haptics", isOn: $hapticsEnabled)
                 Toggle("Sound", isOn: $soundEnabled)
-                Toggle("Daily Reminder", isOn: $notificationService.isEnabled)
+                Toggle("Daily reminder", isOn: $notificationService.isEnabled)
             }
-            Section("Pro Puzzles") {
+            Section("Pro puzzles") {
                 if storeService.isProUnlocked {
-                    Label("Pro Unlocked", systemImage: "checkmark.seal.fill")
+                    Label("Pro unlocked", systemImage: "checkmark.seal.fill")
                         .foregroundStyle(.green)
                 } else {
                     if let product = storeService.proProduct {
@@ -35,9 +35,9 @@ struct SettingsFormView: View {
                             Task { try? await storeService.purchasePro() }
                         } label: {
                             HStack {
-                                Text("Unlock Pro Puzzles")
+                                Text("Unlock Pro puzzles")
                                 Spacer()
-                                Text(product.displayPrice)
+                                Text(verbatim: product.displayPrice)
                                     .foregroundStyle(.secondary)
                             }
                         }
@@ -45,14 +45,14 @@ struct SettingsFormView: View {
                         HStack {
                             ProgressView()
                                 .controlSize(.small)
-                            Text("Loading products...")
+                            Text("Loading products…")
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    Button("Restore Purchases") {
+                    Button("Restore purchases") {
                         Task { await storeService.restorePurchases() }
                     }
-                    Button("Redeem Code") {
+                    Button("Redeem code") {
                         showOfferCode = true
                     }
                 }

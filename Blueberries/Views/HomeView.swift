@@ -167,7 +167,7 @@ struct HomeView: View {
     private var dailyPuzzleCard: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Label("Today's Puzzles", systemImage: "calendar")
+                Label("Today's puzzles", systemImage: "calendar")
                     .font(.headline)
                 Spacer()
                 let solvedCount = Difficulty.allCases.filter { isDailySolved($0) }.count
@@ -248,7 +248,7 @@ struct HomeView: View {
     private var proPuzzlesCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Label("Pro Puzzles", systemImage: "infinity")
+                Label("Pro puzzles", systemImage: "infinity")
                     .font(.headline)
                 Spacer()
                 if storeService.isProUnlocked {
@@ -344,12 +344,12 @@ struct HomeView: View {
                     return String(format: "%.1f", Double(totalHints) / Double(totalPuzzles))
                 }()
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                    statItem(value: "\(totalPuzzles)", label: "Puzzles Solved", icon: "puzzlepiece.fill")
-                    statItem(value: stats?.fastestCompletionTime?.formattedAsTimer ?? "--:--", label: "Fastest Time", icon: "bolt.fill")
-                    statItem(value: "\(stats?.currentStreak ?? 0)", label: "Current Streak", icon: "flame.fill")
-                    statItem(value: "\(stats?.longestStreak ?? 0)", label: "Best Streak", icon: "trophy.fill")
-                    statItem(value: "\(totalHints)", label: "Hints Used", icon: "lightbulb.fill")
-                    statItem(value: avgHintsText, label: "Avg Hints / Puzzle", icon: "chart.bar.xaxis")
+                    statItem(value: "\(totalPuzzles)", label: "Puzzles solved", icon: "puzzlepiece.fill")
+                    statItem(value: stats?.fastestCompletionTime?.formattedAsTimer ?? "--:--", label: "Fastest time", icon: "bolt.fill")
+                    statItem(value: "\(stats?.currentStreak ?? 0)", label: "Current streak", icon: "flame.fill")
+                    statItem(value: "\(stats?.longestStreak ?? 0)", label: "Best streak", icon: "trophy.fill")
+                    statItem(value: "\(totalHints)", label: "Hints used", icon: "lightbulb.fill")
+                    statItem(value: avgHintsText, label: "Avg hints / puzzle", icon: "chart.bar.xaxis")
                 }
             }
         }
@@ -357,12 +357,12 @@ struct HomeView: View {
         .adaptiveGlass(in: 16)
     }
 
-    private func statItem(value: String, label: String, icon: String) -> some View {
+    private func statItem(value: String, label: LocalizedStringKey, icon: String) -> some View {
         VStack(spacing: 6) {
             Image(systemName: icon)
                 .font(.caption)
                 .foregroundStyle(Theme.berryBlue)
-            Text(value)
+            Text(verbatim: value)
                 .font(.title2.bold().monospacedDigit())
             Text(label)
                 .font(.caption)
@@ -383,7 +383,7 @@ struct HomeView: View {
                 .font(.headline)
 
             VStack(spacing: 0) {
-                achievementRow(icon: "1.circle.fill", title: "First Puzzle", subtitle: "Complete your first puzzle", progress: stats?.totalPuzzlesCompleted ?? 0, target: 1)
+                achievementRow(icon: "1.circle.fill", title: "First puzzle", subtitle: "Complete your first puzzle", progress: stats?.totalPuzzlesCompleted ?? 0, target: 1)
                 Divider().padding(.leading, 44)
                 achievementRow(icon: "10.circle.fill", title: "Dedicated", subtitle: "Complete 10 puzzles", progress: stats?.totalPuzzlesCompleted ?? 0, target: 10)
                 Divider().padding(.leading, 44)
@@ -393,33 +393,33 @@ struct HomeView: View {
             }
 
             VStack(spacing: 0) {
-                achievementRow(icon: "flame.fill", title: "On a Roll", subtitle: "3-day streak", progress: stats?.longestStreak ?? 0, target: 3)
+                achievementRow(icon: "flame.fill", title: "On a roll", subtitle: "3-day streak", progress: stats?.longestStreak ?? 0, target: 3)
                 Divider().padding(.leading, 44)
-                achievementRow(icon: "flame.fill", title: "Week Warrior", subtitle: "7-day streak", progress: stats?.longestStreak ?? 0, target: 7)
+                achievementRow(icon: "flame.fill", title: "Week warrior", subtitle: "7-day streak", progress: stats?.longestStreak ?? 0, target: 7)
                 Divider().padding(.leading, 44)
-                achievementRow(icon: "flame.fill", title: "Berry Committed", subtitle: "30-day streak", progress: stats?.longestStreak ?? 0, target: 30)
+                achievementRow(icon: "flame.fill", title: "Berry committed", subtitle: "30-day streak", progress: stats?.longestStreak ?? 0, target: 30)
             }
 
             VStack(spacing: 0) {
-                achievementRow(icon: "bolt.fill", title: "Speed Demon", subtitle: "Solve a puzzle in under 1 minute", progress: (stats?.fastestCompletionTime ?? .infinity) < 60 ? 1 : 0, target: 1)
+                achievementRow(icon: "bolt.fill", title: "Speed demon", subtitle: "Solve a puzzle in under 1 minute", progress: (stats?.fastestCompletionTime ?? .infinity) < 60 ? 1 : 0, target: 1)
             }
 
             VStack(spacing: 0) {
-                achievementRow(icon: "square.grid.3x3.fill", title: "Standard Solver", subtitle: "Complete a Standard puzzle", progress: hasSolvedDifficulty(.standard) ? 1 : 0, target: 1)
+                achievementRow(icon: "square.grid.3x3.fill", title: "Standard solver", subtitle: "Complete a Standard puzzle", progress: hasSolvedDifficulty(.standard) ? 1 : 0, target: 1)
                 Divider().padding(.leading, 44)
-                achievementRow(icon: "square.grid.3x3.fill", title: "Advanced Solver", subtitle: "Complete an Advanced puzzle", progress: hasSolvedDifficulty(.advanced) ? 1 : 0, target: 1)
+                achievementRow(icon: "square.grid.3x3.fill", title: "Advanced solver", subtitle: "Complete an Advanced puzzle", progress: hasSolvedDifficulty(.advanced) ? 1 : 0, target: 1)
                 Divider().padding(.leading, 44)
-                achievementRow(icon: "square.grid.3x3.fill", title: "Expert Solver", subtitle: "Complete an Expert puzzle", progress: hasSolvedDifficulty(.expert) ? 1 : 0, target: 1)
+                achievementRow(icon: "square.grid.3x3.fill", title: "Expert solver", subtitle: "Complete an Expert puzzle", progress: hasSolvedDifficulty(.expert) ? 1 : 0, target: 1)
                 Divider().padding(.leading, 44)
-                achievementRow(icon: "sparkles", title: "Daily Sweep", subtitle: "Complete all 3 daily puzzles", progress: allDailySolved ? 1 : 0, target: 1)
+                achievementRow(icon: "sparkles", title: "Daily sweep", subtitle: "Complete all 3 daily puzzles", progress: allDailySolved ? 1 : 0, target: 1)
             }
 
             if (stats?.totalHintsUsed ?? 0) >= 1 {
                 VStack(spacing: 0) {
-                    achievementRow(icon: "lightbulb.fill", title: "Hint Helper", subtitle: "Use a hint", progress: stats?.totalHintsUsed ?? 0, target: 1)
+                    achievementRow(icon: "lightbulb.fill", title: "Hint helper", subtitle: "Use a hint", progress: stats?.totalHintsUsed ?? 0, target: 1)
                     if (stats?.totalHintsUsed ?? 0) >= 100 {
                         Divider().padding(.leading, 44)
-                        achievementRow(icon: "lightbulb.max.fill", title: "Hint Master", subtitle: "Use 100 hints", progress: stats?.totalHintsUsed ?? 0, target: 100)
+                        achievementRow(icon: "lightbulb.max.fill", title: "Hint master", subtitle: "Use 100 hints", progress: stats?.totalHintsUsed ?? 0, target: 100)
                     }
                 }
             }
@@ -428,7 +428,7 @@ struct HomeView: View {
         .adaptiveGlass(in: 16)
     }
 
-    private func achievementRow(icon: String, title: String, subtitle: String, progress: Int, target: Int) -> some View {
+    private func achievementRow(icon: String, title: LocalizedStringKey, subtitle: LocalizedStringKey, progress: Int, target: Int) -> some View {
         let completed = progress >= target
 
         return HStack(spacing: 12) {

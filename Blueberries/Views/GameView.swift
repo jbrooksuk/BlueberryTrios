@@ -211,7 +211,7 @@ struct GameView: View {
                 .disabled(!storeService.isProUnlocked && source == .daily)
 
                 if source == .pro && storeService.isProUnlocked {
-                    Button("New Puzzle", systemImage: "plus", action: newProPuzzle)
+                    Button("New puzzle", systemImage: "plus", action: newProPuzzle)
                         .labelStyle(.iconOnly)
                         .font(.subheadline.bold())
                         .padding(6)
@@ -287,18 +287,18 @@ struct GameView: View {
                 TimerDisplayView(timer: gameTimer)
             if source == .pro && storeService.isProUnlocked {
                 HStack(spacing: 12) {
-                    Button("New Puzzle") {
+                    Button("New puzzle") {
                         newProPuzzle()
                     }
                     .adaptiveProminentButton()
-                    Button("Next Difficulty") {
+                    Button("Next difficulty") {
                         advanceToNextPuzzle()
                     }
                     .adaptiveSecondaryButton()
                 }
             } else {
                 VStack(spacing: 10) {
-                    Button("Next Puzzle") {
+                    Button("Next puzzle") {
                         advanceToNextPuzzle()
                     }
                     .adaptiveProminentButton()
@@ -333,17 +333,9 @@ struct GameView: View {
 
     // MARK: - Restart Prompt Overlay
 
-    private var restartPromptMessage: String {
-        let count = model?.hintCount ?? 0
-        if count <= 3 {
-            return "Three hints in — sometimes a clean slate helps a puzzle click. Your hint count stays the same either way."
-        } else {
-            return "Another three hints down. A fresh start might help this puzzle click. Your hint count stays the same either way."
-        }
-    }
-
     private var restartPromptOverlay: some View {
-        VStack(spacing: 14) {
+        let hintCount = model?.hintCount ?? 0
+        return VStack(spacing: 14) {
             Image(systemName: "arrow.counterclockwise.circle.fill")
                 .font(.system(size: solvedIconSize))
                 .foregroundStyle(Theme.berryBlue)
@@ -352,7 +344,13 @@ struct GameView: View {
             Text("Fresh start?")
                 .font(.title2.bold())
 
-            Text(restartPromptMessage)
+            Group {
+                if hintCount <= 3 {
+                    Text("Three hints in — sometimes a clean slate helps a puzzle click. Your hint count stays the same either way.")
+                } else {
+                    Text("Another three hints down. A fresh start might help this puzzle click. Your hint count stays the same either way.")
+                }
+            }
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -365,7 +363,7 @@ struct GameView: View {
                     }
                     restartCurrentPuzzle()
                 } label: {
-                    Label("Restart Puzzle", systemImage: "arrow.counterclockwise")
+                    Label("Restart puzzle", systemImage: "arrow.counterclockwise")
                         .frame(maxWidth: .infinity)
                 }
                 .adaptiveProminentButton()

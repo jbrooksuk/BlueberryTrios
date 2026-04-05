@@ -542,13 +542,13 @@ struct TutorialView: View {
                     .font(.system(size: solvedIconSize))
                     .foregroundStyle(.green)
                     .symbolEffect(.bounce, isActive: !reduceMotion)
-                Text("Puzzle Solved!")
+                Text("Puzzle solved!")
                     .font(.title.bold())
                 Text("You've completed the tutorial!")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 
-                Button("Play Today's Puzzle") {
+                Button("Play today's puzzle") {
                     isPresented = false
                 }
                 .adaptiveProminentButton()
