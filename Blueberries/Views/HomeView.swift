@@ -135,8 +135,8 @@ struct HomeView: View {
 
     private var heroHeader: some View {
         VStack(spacing: 12) {
-            BerryClusterView(animated: !reduceMotion)
-                .frame(height: 100)
+            IllustratedBerryClusterView(animated: !reduceMotion)
+                .frame(width: 220, height: 140)
 
             Text("Berroku")
                 .font(.largeTitle.bold())
