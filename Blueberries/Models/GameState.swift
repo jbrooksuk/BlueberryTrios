@@ -9,8 +9,8 @@ final class GameState {
     var redoHistory: String = "" // Encoded redo stack (same format)
     var elapsedTime: TimeInterval
     var hintedCell: String = "" // Encoded hint cell: "r,c" or empty
-    var hintUsed: Bool
-    var solved: Bool
+    var hintUsed: Bool = false
+    var solved: Bool = false
     var completionDate: Date?
     var source: String
     var difficulty: String
