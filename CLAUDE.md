@@ -33,7 +33,7 @@ Open `Blueberries.xcodeproj` in Xcode for running on simulator/device and previe
 - `PuzzleGridView` — SwiftUI `Canvas` rendering of the 9x9 grid. Handles tap-and-drag via `DragGesture` (first cell sets the transition, subsequent cells get the same state). Draws cell backgrounds, block boundaries (thick) vs grid lines (thin), berry circles, empty dots, number clues with satisfaction opacity, error highlighting, and hint highlighting. Supports haptic feedback
 
 ### Services (`Blueberries/Services/`)
-- `StoreKitService` — StoreKit 2 IAP for a single non-consumable "Pro Puzzles" product (`com.alt-three.Berroku.pro`). Handles purchase, restore, verification, and entitlement tracking
+- `StoreKitService` — StoreKit 2 IAP for a single non-consumable "Pro Puzzles" product (`com.altthree.Berroku.pro`). Handles purchase, restore, verification, and entitlement tracking
 - `GameCenterService` — Seven achievements (1/10/100/500 puzzles, 3/7/30-day streaks) and a fastest-time leaderboard. Authenticates on launch
 - `PuzzleSolver` — Four solving techniques for hint generation: fill/full (basic), min/max (intersection reasoning), and shallow lookahead (contradiction detection)
 
@@ -45,13 +45,13 @@ Open `Blueberries.xcodeproj` in Xcode for running on simulator/device and previe
 
 ## Key Details
 
-- Bundle ID: `com.alt-three.Berroku` (release), `com.altthree.Berroku.debug` (debug). Debug builds use a separate SwiftData store (`Berroku-Debug.store`) so experimentation never touches release user data.
+- Bundle ID: `com.altthree.Berroku` (release), `com.altthree.Berroku.debug` (debug). Debug builds use a separate SwiftData store (`Berroku-Debug.store`) so experimentation never touches release user data. Debug builds skip Game Center entirely (the debug bundle ID is not registered in App Store Connect).
 - iOS 17.0+ deployment target, built with Xcode 26.2, Swift 6 concurrency (`MainActor` default isolation)
 - Cell states cycle: undecided -> empty -> berry -> undecided; drag paints all touched cells with the same transition
 - Daily puzzles use `cyrb53(dateString + difficulty + source + setNumber)` for deterministic selection
 - Pro puzzles increment set number; `newProPuzzle()` skips already-solved sets
 - Settings are per-session state in GameView: auto-check, show timer, fill hints (vs highlight-only), haptics
-- Game Center achievement IDs follow pattern: `com.alt-three.Berroku.{identifier}`
+- Game Center achievement IDs follow pattern: `com.altthree.berroku.{identifier}` (lowercase `berroku` — does not match the bundle ID's `Berroku` capitalisation; keep it lowercase to match what's registered in App Store Connect)
 
 ## Changing SwiftData `@Model` classes
 
