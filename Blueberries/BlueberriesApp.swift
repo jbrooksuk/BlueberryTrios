@@ -29,7 +29,7 @@ struct BlueberriesApp: App {
     /// the release store. Release builds continue to use the default store
     /// name to preserve data from previously shipped versions.
     private static func makeContainer() -> ModelContainer {
-        let schema = Schema(versionedSchema: SchemaV1.self)
+        let schema = Schema(versionedSchema: SchemaV2.self)
 
         #if DEBUG
         // Separate on-disk file for debug builds. "Berroku-Debug.store" lives

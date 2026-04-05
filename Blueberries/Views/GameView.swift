@@ -26,6 +26,7 @@ struct GameView: View {
     @State private var gameTimer = GameTimer()
     @State private var soundService = SoundService()
     @State private var cachedPuzzleKey: String?
+    @State private var showRestartPrompt: Bool = false
     @ScaledMetric(relativeTo: .largeTitle) private var solvedIconSize: CGFloat = 48
 
     init(
@@ -149,9 +150,12 @@ struct GameView: View {
         .overlay {
             if model?.showSolvedOverlay == true {
                 solvedOverlay
+            } else if showRestartPrompt {
+                restartPromptOverlay
             }
         }
         .animation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3), value: model?.showSolvedOverlay)
+        .animation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3), value: showRestartPrompt)
         .onChange(of: soundEnabled) { soundService.isEnabled = soundEnabled }
         .onChange(of: model?.isSolved) {
             if let model, model.isSolved, !model.showSolvedOverlay {
@@ -327,10 +331,66 @@ struct GameView: View {
         .transition(reduceMotion ? .identity : .scale.combined(with: .opacity))
     }
 
+    // MARK: - Restart Prompt Overlay
+
+    private var restartPromptMessage: String {
+        let count = model?.hintCount ?? 0
+        if count <= 3 {
+            return "Three hints in — sometimes a clean slate helps a puzzle click. Your hint count stays the same either way."
+        } else {
+            return "Another three hints down. A fresh start might help this puzzle click. Your hint count stays the same either way."
+        }
+    }
+
+    private var restartPromptOverlay: some View {
+        VStack(spacing: 14) {
+            Image(systemName: "arrow.counterclockwise.circle.fill")
+                .font(.system(size: solvedIconSize))
+                .foregroundStyle(Theme.berryBlue)
+                .accessibilityHidden(true)
+
+            Text("Fresh start?")
+                .font(.title2.bold())
+
+            Text(restartPromptMessage)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+
+            VStack(spacing: 10) {
+                Button {
+                    withAnimation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3)) {
+                        showRestartPrompt = false
+                    }
+                    restartCurrentPuzzle()
+                } label: {
+                    Label("Restart Puzzle", systemImage: "arrow.counterclockwise")
+                        .frame(maxWidth: .infinity)
+                }
+                .adaptiveProminentButton()
+
+                Button("Keep going") {
+                    withAnimation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3)) {
+                        showRestartPrompt = false
+                    }
+                }
+                .adaptiveSecondaryButton()
+            }
+        }
+        .padding(28)
+        .frame(maxWidth: 340)
+        .adaptiveGlass(in: 16)
+        .shadow(radius: 10)
+        .padding(32)
+        .transition(reduceMotion ? .identity : .scale.combined(with: .opacity))
+    }
+
     // MARK: - Puzzle Loading
 
     private func loadPuzzle() {
         saveCurrentState()
+        showRestartPrompt = false
         gameTimer.reset()
         let date = Date.now
         let definition: PuzzleDefinition?
@@ -420,7 +480,7 @@ struct GameView: View {
             existing.redoHistory = redoString
             existing.elapsedTime = elapsed
             existing.hintedCell = hintedCellString
-            existing.hintUsed = model.hintUsed
+            existing.hintCount = model.hintCount
             existing.solved = model.isSolved
             if model.isSolved && existing.completionDate == nil {
                 existing.completionDate = Date.now
@@ -434,7 +494,7 @@ struct GameView: View {
                 redoHistory: redoString,
                 elapsedTime: elapsed,
                 hintedCell: hintedCellString,
-                hintUsed: model.hintUsed,
+                hintCount: model.hintCount,
                 solved: model.isSolved,
                 completionDate: model.isSolved ? Date.now : nil,
                 source: source.rawValue,
@@ -479,7 +539,7 @@ struct GameView: View {
                 model.hintedCell = CellID(row: row, column: col)
             }
         }
-        model.hintUsed = saved.hintUsed
+        model.hintCount = saved.hintCount
         model.isSolved = saved.solved
         if !model.isSolved {
             if !saved.undoHistory.isEmpty {
@@ -516,7 +576,8 @@ struct GameView: View {
     private func useHint(model: PuzzleModel) {
         let solver = PuzzleSolver(model: model)
         if let move = solver.findHint() {
-            model.hintUsed = true
+            let previousCount = model.hintCount
+            model.hintCount += 1
             if let (cell, state) = move.knowledge.first {
                 if fillHints {
                     model.applyCell(cell, to: state)
@@ -525,12 +586,30 @@ struct GameView: View {
                 }
             }
             saveCurrentState()
+            // Nudge the player to restart every time they rack up another
+            // three hints (3, 6, 9, ...) regardless of whether they took
+            // the previous nudge. `hintCount` is monotonic and preserved
+            // across a restart, so this fires once per threshold crossing.
+            if model.hintCount % 3 == 0 && model.hintCount > previousCount && !model.isSolved {
+                withAnimation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3)) {
+                    showRestartPrompt = true
+                }
+            }
         }
     }
 
+    private func restartCurrentPuzzle() {
+        guard let model else { return }
+        model.restart()
+        // Leave `gameTimer` running — restart preserves hint count *and*
+        // elapsed time so the puzzle still reflects the full effort spent.
+        saveCurrentState()
+    }
+
     private func recordCompletion(time: TimeInterval) {
-        let hintUsed = model?.hintUsed ?? false
-        stats?.recordCompletion(time: time, date: Date.now, hintUsed: hintUsed)
+        let hintCount = model?.hintCount ?? 0
+        let hintUsed = hintCount > 0
+        stats?.recordCompletion(time: time, date: Date.now, hintCount: hintCount)
 
         // Check if all daily puzzles are now solved (hint-free only for daily sweep)
         let allDailySolved = source == .daily && Difficulty.allCases.allSatisfy { diff in
@@ -540,7 +619,7 @@ struct GameView: View {
             guard let data = try? encoder.encode(def),
                   let key = String(data: data, encoding: .utf8) else { return false }
             guard let saved = fetchSavedState(for: key) else { return false }
-            return saved.solved && !saved.hintUsed
+            return saved.solved && saved.hintCount == 0
         }
 
         gameCenterService.reportPuzzleCompleted(
@@ -575,7 +654,7 @@ struct GameView: View {
                    let key = String(data: data, encoding: .utf8) {
                     if let state = fetchSavedState(for: key), state.solved {
                         solvedCount += 1
-                        hintFlags += state.hintUsed ? "1" : "0"
+                        hintFlags += state.hintCount > 0 ? "1" : "0"
                     } else {
                         hintFlags += "0"
                     }

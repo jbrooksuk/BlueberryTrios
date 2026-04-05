@@ -171,7 +171,6 @@ struct TutorialView: View {
             if model.isSolved {
                 soundService.playSolved()
                 gameTimer.stop()
-                recordCompletion()
                 if reduceMotion {
                     model.celebrationProgress = 1
                     step = .solved
@@ -523,28 +522,12 @@ struct TutorialView: View {
     private func useHint() {
         let solver = PuzzleSolver(model: model)
         if let move = solver.findHint() {
-            model.hintUsed = true
+            model.hintCount += 1
             if let (cell, state) = move.knowledge.first {
                 model.applyCell(cell, to: state)
                 checkProgress()
             }
         }
-    }
-
-    // MARK: - Completion
-
-    private func recordCompletion() {
-        let time = gameTimer.elapsedTime
-        let hintUsed = model.hintUsed
-        stats?.recordCompletion(time: time, date: Date.now, hintUsed: hintUsed)
-
-        gameCenterService.reportPuzzleCompleted(
-            totalCompleted: stats?.totalPuzzlesCompleted ?? 0,
-            completionTime: time,
-            streak: stats?.currentStreak ?? 0,
-            hintUsed: hintUsed,
-            totalHintsUsed: stats?.totalHintsUsed ?? 0
-        )
     }
 
     // MARK: - Solved Overlay

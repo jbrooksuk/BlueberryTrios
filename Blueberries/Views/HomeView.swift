@@ -337,11 +337,19 @@ struct HomeView: View {
             if showCalendar {
                 PuzzleCalendarView(savedStates: savedStates)
             } else {
+                let totalPuzzles = stats?.totalPuzzlesCompleted ?? 0
+                let totalHints = stats?.totalHintsUsed ?? 0
+                let avgHintsText: String = {
+                    guard totalPuzzles > 0 else { return "—" }
+                    return String(format: "%.1f", Double(totalHints) / Double(totalPuzzles))
+                }()
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                    statItem(value: "\(stats?.totalPuzzlesCompleted ?? 0)", label: "Puzzles Solved", icon: "puzzlepiece.fill")
+                    statItem(value: "\(totalPuzzles)", label: "Puzzles Solved", icon: "puzzlepiece.fill")
                     statItem(value: stats?.fastestCompletionTime?.formattedAsTimer ?? "--:--", label: "Fastest Time", icon: "bolt.fill")
                     statItem(value: "\(stats?.currentStreak ?? 0)", label: "Current Streak", icon: "flame.fill")
                     statItem(value: "\(stats?.longestStreak ?? 0)", label: "Best Streak", icon: "trophy.fill")
+                    statItem(value: "\(totalHints)", label: "Hints Used", icon: "lightbulb.fill")
+                    statItem(value: avgHintsText, label: "Avg Hints / Puzzle", icon: "chart.bar.xaxis")
                 }
             }
         }
@@ -502,7 +510,7 @@ struct HomeView: View {
 
     private func isDailyHintUsed(_ difficulty: Difficulty) -> Bool {
         guard let key = dailyPuzzleKey(difficulty) else { return false }
-        return savedStates.contains { $0.puzzleJSON == key && $0.solved && $0.hintUsed }
+        return savedStates.contains { $0.puzzleJSON == key && $0.solved && $0.hintCount > 0 }
     }
 
     private func updateWidgetData() {

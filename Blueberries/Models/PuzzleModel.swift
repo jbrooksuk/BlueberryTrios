@@ -75,7 +75,11 @@ final class PuzzleModel {
     // Stored set for quick lookup (avoid recomputing)
     let clueCells: Set<CellID>
 
-    var hintUsed: Bool = false
+    /// Running tally of hint actions the player has taken on this puzzle.
+    /// Persisted via `GameState.hintCount` and preserved across a restart
+    /// so a puzzle stays flagged as hint-assisted.
+    var hintCount: Int = 0
+    var hintUsed: Bool { hintCount > 0 }
     private var eraseBatch: [CellCommand]?
 
     init(definition: PuzzleDefinition) {
@@ -281,6 +285,27 @@ final class PuzzleModel {
         guard let command = redoStack.popLast() else { return }
         cells[command.cell] = command.newState
         undoStack.append(command)
+        updateCheck()
+    }
+
+    /// Clears the board back to its initial state (clue cells empty, all
+    /// other cells undecided) and discards undo/redo history. `hintCount`
+    /// is intentionally preserved so a restarted puzzle still counts as
+    /// hint-assisted for stats purposes.
+    func restart() {
+        for cell in allCells {
+            cells[cell] = clueForCell[cell] != nil ? .empty : .undecided
+        }
+        undoStack.removeAll()
+        redoStack.removeAll()
+        eraseBatch = nil
+        hintedCell = nil
+        recentlyPlacedBerries.removeAll()
+        showErrors = false
+        isSolved = false
+        showSolvedOverlay = false
+        celebrationProgress = 0
+        lastChangeTime = .now
         updateCheck()
     }
 
