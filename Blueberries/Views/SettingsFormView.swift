@@ -97,7 +97,7 @@ struct SettingsFormView: View {
                 }
             }
             Section {
-                Text("Made with berries 🫐")
+                Text("Made with berries by James Brooks 🫐")
                     .frame(maxWidth: .infinity, alignment: .center)
                     .foregroundStyle(.secondary)
                     .font(.footnote)
