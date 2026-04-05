@@ -75,7 +75,8 @@ final class PuzzleModel {
     // Stored set for quick lookup (avoid recomputing)
     let clueCells: Set<CellID>
 
-    var hintUsed: Bool = false
+    var hintCount: Int = 0
+    var hintUsed: Bool { hintCount > 0 }
     private var eraseBatch: [CellCommand]?
 
     init(definition: PuzzleDefinition) {

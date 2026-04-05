@@ -19,6 +19,8 @@ struct GameView: View {
     @State private var proSetNumber: Int = 0
     @State private var showSettings: Bool = false
     @State private var showWalkthrough: Bool = false
+    @State private var showRestartSuggestion: Bool = false
+    @State private var restartSuggestionShown: Bool = false
     @AppStorage("autoCheck") private var autoCheck: Bool = true
     @AppStorage("showTimer") private var showTimer: Bool = true
     @AppStorage("fillHints") private var fillHints: Bool = false
@@ -150,9 +152,12 @@ struct GameView: View {
         .overlay {
             if model?.showSolvedOverlay == true {
                 solvedOverlay
+            } else if showRestartSuggestion {
+                restartSuggestionOverlay
             }
         }
         .animation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3), value: model?.showSolvedOverlay)
+        .animation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3), value: showRestartSuggestion)
         .onChange(of: soundEnabled) { soundService.isEnabled = soundEnabled }
         .onChange(of: model?.isSolved) {
             if let model, model.isSolved, !model.showSolvedOverlay {
@@ -328,11 +333,60 @@ struct GameView: View {
         .transition(reduceMotion ? .identity : .scale.combined(with: .opacity))
     }
 
+    // MARK: - Restart Suggestion Overlay
+
+    private var restartSuggestionOverlay: some View {
+        ZStack {
+            VStack(spacing: 12) {
+                Image(systemName: "arrow.counterclockwise.circle.fill")
+                    .font(.system(size: solvedIconSize))
+                    .foregroundStyle(Theme.berryBlue)
+                    .accessibilityHidden(true)
+                    .symbolEffect(.bounce, isActive: !reduceMotion && showRestartSuggestion)
+                Text("Need a fresh start?")
+                    .font(.title.bold())
+                Text("You've used 3 hints on this puzzle. Restarting might help you see it with fresh eyes.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                VStack(spacing: 10) {
+                    Button("Restart Puzzle") {
+                        restartPuzzle()
+                        withAnimation { showRestartSuggestion = false }
+                    }
+                    .adaptiveProminentButton()
+
+                    Button("Keep Going") {
+                        withAnimation { showRestartSuggestion = false }
+                    }
+                    .adaptiveSecondaryButton()
+                }
+            }
+            .padding(32)
+            .adaptiveGlass(in: 16)
+            .shadow(radius: 10)
+        }
+        .transition(reduceMotion ? .identity : .scale.combined(with: .opacity))
+    }
+
+    private func restartPuzzle() {
+        guard let model else { return }
+        model.undoAll()
+        model.hintedCell = nil
+        gameTimer.reset()
+        gameTimer.start()
+        saveCurrentState()
+    }
+
     // MARK: - Puzzle Loading
 
     private func loadPuzzle() {
         saveCurrentState()
         gameTimer.reset()
+        restartSuggestionShown = false
+        showRestartSuggestion = false
         let date = Date.now
         let definition: PuzzleDefinition?
         switch source {
@@ -421,7 +475,7 @@ struct GameView: View {
             existing.redoHistory = redoString
             existing.elapsedTime = elapsed
             existing.hintedCell = hintedCellString
-            existing.hintUsed = model.hintUsed
+            existing.hintCount = model.hintCount
             existing.solved = model.isSolved
             if model.isSolved && existing.completionDate == nil {
                 existing.completionDate = Date.now
@@ -435,7 +489,7 @@ struct GameView: View {
                 redoHistory: redoString,
                 elapsedTime: elapsed,
                 hintedCell: hintedCellString,
-                hintUsed: model.hintUsed,
+                hintCount: model.hintCount,
                 solved: model.isSolved,
                 completionDate: model.isSolved ? Date.now : nil,
                 source: source.rawValue,
@@ -468,7 +522,7 @@ struct GameView: View {
                 model.hintedCell = CellID(row: row, column: col)
             }
         }
-        model.hintUsed = saved.hintUsed
+        model.hintCount = saved.hintCount
         model.isSolved = saved.solved
         if !model.isSolved {
             if !saved.undoHistory.isEmpty {
@@ -505,7 +559,7 @@ struct GameView: View {
     private func useHint(model: PuzzleModel) {
         let solver = PuzzleSolver(model: model)
         if let move = solver.findHint() {
-            model.hintUsed = true
+            model.hintCount += 1
             if let (cell, state) = move.knowledge.first {
                 if fillHints {
                     model.applyCell(cell, to: state)
@@ -514,12 +568,18 @@ struct GameView: View {
                 }
             }
             saveCurrentState()
+
+            if model.hintCount >= 3 && !restartSuggestionShown && !model.isSolved {
+                restartSuggestionShown = true
+                withAnimation { showRestartSuggestion = true }
+            }
         }
     }
 
     private func recordCompletion(time: TimeInterval) {
-        let hintUsed = model?.hintUsed ?? false
-        stats?.recordCompletion(time: time, date: Date.now, hintUsed: hintUsed)
+        let hintCount = model?.hintCount ?? 0
+        let hintUsed = hintCount > 0
+        stats?.recordCompletion(time: time, date: Date.now, hintCount: hintCount)
 
         // Check if all daily puzzles are now solved (hint-free only for daily sweep)
         let allDailySolved = source == .daily && Difficulty.allCases.allSatisfy { diff in

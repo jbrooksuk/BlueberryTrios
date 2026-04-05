@@ -26,15 +26,13 @@ final class PlayerStats {
         self.totalHintsUsed = totalHintsUsed
     }
 
-    func recordCompletion(time: TimeInterval, date: Date, hintUsed: Bool = false) {
+    func recordCompletion(time: TimeInterval, date: Date, hintCount: Int = 0) {
         totalPuzzlesCompleted += 1
 
-        if hintUsed {
-            totalHintsUsed += 1
-        }
+        totalHintsUsed += hintCount
 
         // Only record fastest time for hint-free completions
-        if !hintUsed {
+        if hintCount == 0 {
             if let fastest = fastestCompletionTime {
                 if time < fastest {
                     fastestCompletionTime = time

@@ -31,6 +31,12 @@ struct HomeView: View {
         statsRecords.first
     }
 
+    private var averageHintsDisplay: String {
+        guard let stats, stats.totalPuzzlesCompleted > 0 else { return "--" }
+        let average = Double(stats.totalHintsUsed) / Double(stats.totalPuzzlesCompleted)
+        return String(format: "%.1f", average)
+    }
+
     private func ensureStats() {
         if statsRecords.isEmpty {
             modelContext.insert(PlayerStats())
@@ -335,6 +341,8 @@ struct HomeView: View {
                     statItem(value: stats?.fastestCompletionTime?.formattedAsTimer ?? "--:--", label: "Fastest Time", icon: "bolt.fill")
                     statItem(value: "\(stats?.currentStreak ?? 0)", label: "Current Streak", icon: "flame.fill")
                     statItem(value: "\(stats?.longestStreak ?? 0)", label: "Best Streak", icon: "trophy.fill")
+                    statItem(value: "\(stats?.totalHintsUsed ?? 0)", label: "Hints Used", icon: "lightbulb.fill")
+                    statItem(value: averageHintsDisplay, label: "Avg Hints / Puzzle", icon: "lightbulb.max.fill")
                 }
             }
         }

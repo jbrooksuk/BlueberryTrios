@@ -523,7 +523,7 @@ struct TutorialView: View {
     private func useHint() {
         let solver = PuzzleSolver(model: model)
         if let move = solver.findHint() {
-            model.hintUsed = true
+            model.hintCount += 1
             if let (cell, state) = move.knowledge.first {
                 model.applyCell(cell, to: state)
                 checkProgress()
@@ -535,8 +535,9 @@ struct TutorialView: View {
 
     private func recordCompletion() {
         let time = gameTimer.elapsedTime
-        let hintUsed = model.hintUsed
-        stats?.recordCompletion(time: time, date: Date.now, hintUsed: hintUsed)
+        let hintCount = model.hintCount
+        let hintUsed = hintCount > 0
+        stats?.recordCompletion(time: time, date: Date.now, hintCount: hintCount)
 
         gameCenterService.reportPuzzleCompleted(
             totalCompleted: stats?.totalPuzzlesCompleted ?? 0,
