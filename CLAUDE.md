@@ -46,7 +46,7 @@ Open `Blueberries.xcodeproj` in Xcode for running on simulator/device and previe
 ## Key Details
 
 - Bundle ID: `com.alt-three.Berroku`
-- iOS 26.2+, Xcode 26.2, Swift 6 concurrency (`MainActor` default isolation)
+- iOS 17.0+ deployment target, built with Xcode 26.2, Swift 6 concurrency (`MainActor` default isolation)
 - Cell states cycle: undecided -> empty -> berry -> undecided; drag paints all touched cells with the same transition
 - Daily puzzles use `cyrb53(dateString + difficulty + source + setNumber)` for deterministic selection
 - Pro puzzles increment set number; `newProPuzzle()` skips already-solved sets
