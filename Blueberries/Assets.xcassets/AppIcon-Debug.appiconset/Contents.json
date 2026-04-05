@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "Build.png",
+      "filename" : "Debug.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -24,7 +24,7 @@
           "value" : "tinted"
         }
       ],
-      "filename" : "Build - Tinted.png",
+      "filename" : "Debug - Tinted.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"

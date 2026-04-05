@@ -35,6 +35,15 @@ final class GameCenterService {
     }
 
     func authenticate() {
+        // Debug builds use a separate bundle ID (`com.altthree.Berroku.debug`)
+        // that isn't registered with Game Center in App Store Connect. Trying
+        // to authenticate there produces "Invalid gamekit configuration" and
+        // cascades into "No AchievementDescription could be found" noise on
+        // every report call. Skip GC entirely in debug — `isAuthenticated`
+        // stays false, so every other method early-returns cleanly.
+        #if DEBUG
+        return
+        #else
         GKLocalPlayer.local.authenticateHandler = { [weak self] viewController, error in
             if error != nil {
                 // User not signed in or cancelled — expected, not an error
@@ -42,6 +51,7 @@ final class GameCenterService {
             }
             self?.isAuthenticated = GKLocalPlayer.local.isAuthenticated
         }
+        #endif
     }
 
     func reportPuzzleCompleted(totalCompleted: Int, completionTime: TimeInterval, streak: Int, difficulty: Difficulty? = nil, isDaily: Bool = false, allDailySolved: Bool = false, hintUsed: Bool = false, totalHintsUsed: Int = 0) {

@@ -6,7 +6,6 @@ import WidgetKit
 struct GameView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
-    @Query private var savedStates: [GameState]
     @Query private var statsRecords: [PlayerStats]
 
     var storeService: StoreKitService
@@ -348,7 +347,7 @@ struct GameView: View {
         let puzzleKey = puzzleIdentifier(definition)
         cachedPuzzleKey = puzzleKey
 
-        if let saved = savedStates.first(where: { $0.puzzleJSON == puzzleKey }) {
+        if let saved = fetchSavedState(for: puzzleKey) {
             restoreState(saved, into: newModel)
         }
 
@@ -371,7 +370,7 @@ struct GameView: View {
             let date = Date.now
             guard let definition = puzzleStore.proPuzzle(date: date, difficulty: difficulty, setNumber: proSetNumber) else { break }
             let key = puzzleIdentifier(definition)
-            let alreadyStarted = savedStates.contains { $0.puzzleJSON == key }
+            let alreadyStarted = fetchSavedState(for: key) != nil
             if !alreadyStarted { break }
         }
         loadPuzzle()
@@ -415,7 +414,7 @@ struct GameView: View {
 
         let hintedCellString = model.hintedCell.map { "\($0.row),\($0.column)" } ?? ""
 
-        if let existing = savedStates.first(where: { $0.puzzleJSON == puzzleKey }) {
+        if let existing = fetchSavedState(for: puzzleKey) {
             existing.cellStates = cellString
             existing.undoHistory = undoString
             existing.redoHistory = redoString
@@ -449,7 +448,19 @@ struct GameView: View {
             }
         }
 
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            assertionFailure("Failed to save GameState: \(error)")
+        }
+    }
+
+    private func fetchSavedState(for key: String) -> GameState? {
+        var descriptor = FetchDescriptor<GameState>(
+            predicate: #Predicate { $0.puzzleJSON == key }
+        )
+        descriptor.fetchLimit = 1
+        return (try? modelContext.fetch(descriptor))?.first
     }
 
     private func restoreState(_ saved: GameState, into model: PuzzleModel) {
@@ -528,7 +539,8 @@ struct GameView: View {
             encoder.outputFormatting = .sortedKeys
             guard let data = try? encoder.encode(def),
                   let key = String(data: data, encoding: .utf8) else { return false }
-            return savedStates.contains { $0.puzzleJSON == key && $0.solved && !$0.hintUsed }
+            guard let saved = fetchSavedState(for: key) else { return false }
+            return saved.solved && !saved.hintUsed
         }
 
         gameCenterService.reportPuzzleCompleted(
@@ -561,10 +573,9 @@ struct GameView: View {
                 encoder.outputFormatting = .sortedKeys
                 if let data = try? encoder.encode(def),
                    let key = String(data: data, encoding: .utf8) {
-                    let state = savedStates.first { $0.puzzleJSON == key && $0.solved }
-                    if state != nil {
+                    if let state = fetchSavedState(for: key), state.solved {
                         solvedCount += 1
-                        hintFlags += (state?.hintUsed == true) ? "1" : "0"
+                        hintFlags += state.hintUsed ? "1" : "0"
                     } else {
                         hintFlags += "0"
                     }
