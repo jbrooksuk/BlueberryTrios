@@ -330,7 +330,7 @@ struct TutorialView: View {
                 }
 
             case .freePlay:
-                VStack(spacing: 4) {
+                VStack(spacing: 8) {
                     HStack(spacing: 8) {
                         Image(systemName: "sparkles")
                             .foregroundStyle(Theme.berryBlue)
@@ -341,6 +341,13 @@ struct TutorialView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
+                    Button("Skip Tutorial") {
+                        isPresented = false
+                    }
+                    .font(.caption.weight(.medium))
+                    .buttonStyle(.borderless)
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 2)
                 }
 
             case .solved:
