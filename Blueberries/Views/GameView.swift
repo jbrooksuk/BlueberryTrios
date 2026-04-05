@@ -364,6 +364,7 @@ struct GameView: View {
                     .adaptiveSecondaryButton()
                 }
             }
+            .frame(maxWidth: 320)
             .padding(32)
             .adaptiveGlass(in: 16)
             .shadow(radius: 10)
@@ -559,7 +560,12 @@ struct GameView: View {
     private func useHint(model: PuzzleModel) {
         let solver = PuzzleSolver(model: model)
         if let move = solver.findHint() {
-            model.hintCount += 1
+            // Don't double-count taps on an already-visible highlight. In fill-hints mode
+            // hintedCell is never set, so each tap fills a new cell and is counted.
+            let isReshowingExistingHint = model.hintedCell != nil
+            if !isReshowingExistingHint {
+                model.hintCount += 1
+            }
             if let (cell, state) = move.knowledge.first {
                 if fillHints {
                     model.applyCell(cell, to: state)

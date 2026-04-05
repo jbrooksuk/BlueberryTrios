@@ -535,15 +535,14 @@ struct TutorialView: View {
 
     private func recordCompletion() {
         let time = gameTimer.elapsedTime
-        let hintCount = model.hintCount
-        let hintUsed = hintCount > 0
-        stats?.recordCompletion(time: time, date: Date.now, hintCount: hintCount)
+        // Tutorial hints don't count toward the player's hint totals.
+        stats?.recordCompletion(time: time, date: Date.now, hintCount: 0)
 
         gameCenterService.reportPuzzleCompleted(
             totalCompleted: stats?.totalPuzzlesCompleted ?? 0,
             completionTime: time,
             streak: stats?.currentStreak ?? 0,
-            hintUsed: hintUsed,
+            hintUsed: false,
             totalHintsUsed: stats?.totalHintsUsed ?? 0
         )
     }
