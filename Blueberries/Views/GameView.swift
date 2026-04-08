@@ -27,6 +27,7 @@ struct GameView: View {
     @State private var soundService = SoundService()
     @State private var cachedPuzzleKey: String?
     @State private var showRestartPrompt: Bool = false
+    @State private var showHintConfirmation: Bool = false
     @ScaledMetric(relativeTo: .largeTitle) private var solvedIconSize: CGFloat = 48
 
     init(
@@ -150,11 +151,14 @@ struct GameView: View {
         .overlay {
             if model?.showSolvedOverlay == true {
                 solvedOverlay
+            } else if showHintConfirmation {
+                hintConfirmationOverlay
             } else if showRestartPrompt {
                 restartPromptOverlay
             }
         }
         .animation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3), value: model?.showSolvedOverlay)
+        .animation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3), value: showHintConfirmation)
         .animation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3), value: showRestartPrompt)
         .onChange(of: soundEnabled) { soundService.isEnabled = soundEnabled }
         .onChange(of: model?.isSolved) {
@@ -328,6 +332,54 @@ struct GameView: View {
             .adaptiveGlass(in: 16)
             .shadow(radius: 10)
         }
+        .transition(reduceMotion ? .identity : .scale.combined(with: .opacity))
+    }
+
+    // MARK: - Hint Confirmation Overlay
+
+    private var hintConfirmationOverlay: some View {
+        VStack(spacing: 14) {
+            Image(systemName: "lightbulb.circle.fill")
+                .font(.system(size: solvedIconSize))
+                .foregroundStyle(.orange)
+                .accessibilityHidden(true)
+
+            Text("Use a hint?")
+                .font(.title2.bold())
+
+            Text("Using a hint will disqualify this puzzle from the leaderboard.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+
+            VStack(spacing: 10) {
+                Button {
+                    withAnimation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3)) {
+                        showHintConfirmation = false
+                    }
+                    if let model {
+                        performHint(model: model)
+                    }
+                } label: {
+                    Label("Use hint", systemImage: "lightbulb")
+                        .frame(maxWidth: .infinity)
+                }
+                .adaptiveProminentButton()
+
+                Button("Cancel") {
+                    withAnimation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3)) {
+                        showHintConfirmation = false
+                    }
+                }
+                .adaptiveSecondaryButton()
+            }
+        }
+        .padding(28)
+        .frame(maxWidth: 340)
+        .adaptiveGlass(in: 16)
+        .shadow(radius: 10)
+        .padding(32)
         .transition(reduceMotion ? .identity : .scale.combined(with: .opacity))
     }
 
@@ -572,6 +624,17 @@ struct GameView: View {
     }
 
     private func useHint(model: PuzzleModel) {
+        // First hint: warn the player that hints disqualify from leaderboard
+        if model.hintCount == 0 {
+            withAnimation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3)) {
+                showHintConfirmation = true
+            }
+            return
+        }
+        performHint(model: model)
+    }
+
+    private func performHint(model: PuzzleModel) {
         let solver = PuzzleSolver(model: model)
         if let move = solver.findHint() {
             let previousCount = model.hintCount
