@@ -285,6 +285,12 @@ struct GameView: View {
                 Text("Solved!")
                     .font(.title.bold())
                 TimerDisplayView(timer: gameTimer)
+
+                Button { sharePuzzle() } label: {
+                    Label("Share", systemImage: "square.and.arrow.up")
+                }
+                .adaptiveSecondaryButton()
+
             if source == .pro && storeService.isProUnlocked {
                 HStack(spacing: 12) {
                     Button("New puzzle") {
@@ -602,6 +608,55 @@ struct GameView: View {
         // Leave `gameTimer` running — restart preserves hint count *and*
         // elapsed time so the puzzle still reflects the full effort spent.
         saveCurrentState()
+    }
+
+    private func sharePuzzle() {
+        guard let model else { return }
+
+        let cardView = ShareCardView(
+            model: model,
+            elapsedTime: gameTimer.elapsedTime,
+            difficulty: difficulty,
+            source: source,
+            date: Date.now
+        )
+
+        let renderer = ImageRenderer(content: cardView)
+        renderer.scale = 3
+
+        guard let image = renderer.uiImage else { return }
+
+        let hintCount = model.hintCount
+        let hintStr = hintCount == 0 ? "No hints" : "\(hintCount) hint\(hintCount == 1 ? "" : "s")"
+        let text = """
+        \u{1FAD0} Berroku \u{2014} \(source.rawValue) \(difficulty.rawValue)
+        \u{23F1}\u{FE0F} \(gameTimer.elapsedTime.formattedAsTimer) \u{00B7} \u{1F4A1} \(hintStr)
+        \(Date.now.formatted(date: .long, time: .omitted))
+        """
+
+        let activityVC = UIActivityViewController(
+            activityItems: [image, text],
+            applicationActivities: nil
+        )
+
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let rootVC = windowScene.windows.first?.rootViewController else { return }
+
+        var topVC = rootVC
+        while let presented = topVC.presentedViewController {
+            topVC = presented
+        }
+
+        if let popover = activityVC.popoverPresentationController {
+            popover.sourceView = topVC.view
+            popover.sourceRect = CGRect(
+                x: topVC.view.bounds.midX,
+                y: topVC.view.bounds.midY,
+                width: 0, height: 0
+            )
+        }
+
+        topVC.present(activityVC, animated: true)
     }
 
     private func recordCompletion(time: TimeInterval) {
