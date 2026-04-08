@@ -547,7 +547,7 @@ struct GameView: View {
                 model.redoStack = decodeUndoStack(saved.redoHistory)
             }
         }
-        _ = model.checkSolved()
+        model.lastCheck = model.checkSolved()
     }
 
     // MARK: - Undo Stack Encoding
