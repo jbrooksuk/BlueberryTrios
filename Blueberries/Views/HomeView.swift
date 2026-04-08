@@ -11,6 +11,7 @@ struct HomeView: View {
 
     @State private var storeService = StoreKitService()
     @State private var gameCenterService = GameCenterService()
+    @State private var hintService = HintService()
     private let puzzleStore = PuzzleStore()
     @State private var navigateToGame = false
     @State private var selectedSource: PuzzleSource = .daily
@@ -75,6 +76,7 @@ struct HomeView: View {
         }
         .task {
             ensureStats()
+            storeService.hintService = hintService
             gameCenterService.authenticate()
             updateWidgetData()
 
@@ -119,6 +121,7 @@ struct HomeView: View {
                     storeService: storeService,
                     gameCenterService: gameCenterService,
                     puzzleStore: puzzleStore,
+                    hintService: hintService,
                     initialSource: selectedSource,
                     initialDifficulty: selectedDifficulty
                 )
@@ -471,6 +474,7 @@ struct HomeView: View {
     private var settingsTab: some View {
         SettingsFormView(
             storeService: storeService,
+            hintService: hintService,
             onShowWalkthrough: { showWalkthrough = true },
             onShowTutorial: { showTutorial = true }
         )

@@ -26,6 +26,121 @@
       "productID" : "com.altthree.Berroku.pro",
       "referenceName" : "Pro Puzzles",
       "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "0.99",
+      "familyShareable" : false,
+      "internalID" : "A1B2C3D4-E5F6-7A8B-9C0D-1E2F3A4B5C6D",
+      "localizations" : [
+        {
+          "description" : "A strawberry theme with matching app icon and berry colors.",
+          "displayName" : "Strawberry Theme",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "A strawberry theme with matching app icon and berry colors.",
+          "displayName" : "Strawberry Theme",
+          "locale" : "en_GB"
+        }
+      ],
+      "locale_prices" : {
+        "en_GB" : "0.99"
+      },
+      "productID" : "com.altthree.Berroku.theme.strawberry",
+      "referenceName" : "Strawberry Theme",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "0.99",
+      "familyShareable" : false,
+      "internalID" : "B2C3D4E5-F6A7-8B9C-0D1E-2F3A4B5C6D7E",
+      "localizations" : [
+        {
+          "description" : "A raspberry theme with matching app icon and berry colors.",
+          "displayName" : "Raspberry Theme",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "A raspberry theme with matching app icon and berry colors.",
+          "displayName" : "Raspberry Theme",
+          "locale" : "en_GB"
+        }
+      ],
+      "locale_prices" : {
+        "en_GB" : "0.99"
+      },
+      "productID" : "com.altthree.Berroku.theme.raspberry",
+      "referenceName" : "Raspberry Theme",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "0.99",
+      "familyShareable" : false,
+      "internalID" : "C3D4E5F6-A7B8-9C0D-1E2F-3A4B5C6D7E8F",
+      "localizations" : [
+        {
+          "description" : "A cherry theme with matching app icon and berry colors.",
+          "displayName" : "Cherry Theme",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "A cherry theme with matching app icon and berry colors.",
+          "displayName" : "Cherry Theme",
+          "locale" : "en_GB"
+        }
+      ],
+      "locale_prices" : {
+        "en_GB" : "0.99"
+      },
+      "productID" : "com.altthree.Berroku.theme.cherry",
+      "referenceName" : "Cherry Theme",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "0.99",
+      "familyShareable" : false,
+      "internalID" : "D4E5F6A7-B8C9-0D1E-2F3A-4B5C6D7E8F9A",
+      "localizations" : [
+        {
+          "description" : "10 bonus hints to use when your daily hints run out.",
+          "displayName" : "10 Hints",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "10 bonus hints to use when your daily hints run out.",
+          "displayName" : "10 Hints",
+          "locale" : "en_GB"
+        }
+      ],
+      "locale_prices" : {
+        "en_GB" : "0.99"
+      },
+      "productID" : "com.altthree.Berroku.hints.10",
+      "referenceName" : "10 Hints",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "1.99",
+      "familyShareable" : false,
+      "internalID" : "E5F6A7B8-C9D0-1E2F-3A4B-5C6D7E8F9A0B",
+      "localizations" : [
+        {
+          "description" : "30 bonus hints to use when your daily hints run out.",
+          "displayName" : "30 Hints",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "30 bonus hints to use when your daily hints run out.",
+          "displayName" : "30 Hints",
+          "locale" : "en_GB"
+        }
+      ],
+      "locale_prices" : {
+        "en_GB" : "1.99"
+      },
+      "productID" : "com.altthree.Berroku.hints.30",
+      "referenceName" : "30 Hints",
+      "type" : "Consumable"
     }
   ],
   "settings" : {

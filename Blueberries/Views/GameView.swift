@@ -11,6 +11,7 @@ struct GameView: View {
     var storeService: StoreKitService
     var gameCenterService: GameCenterService
     var puzzleStore: PuzzleStore
+    var hintService: HintService
 
     @State private var model: PuzzleModel?
     @State private var source: PuzzleSource
@@ -27,18 +28,21 @@ struct GameView: View {
     @State private var soundService = SoundService()
     @State private var cachedPuzzleKey: String?
     @State private var showRestartPrompt: Bool = false
+    @State private var showHintStore: Bool = false
     @ScaledMetric(relativeTo: .largeTitle) private var solvedIconSize: CGFloat = 48
 
     init(
         storeService: StoreKitService,
         gameCenterService: GameCenterService,
         puzzleStore: PuzzleStore,
+        hintService: HintService,
         initialSource: PuzzleSource = .daily,
         initialDifficulty: Difficulty = .standard
     ) {
         self.storeService = storeService
         self.gameCenterService = gameCenterService
         self.puzzleStore = puzzleStore
+        self.hintService = hintService
         _source = State(initialValue: initialSource)
         _difficulty = State(initialValue: initialDifficulty)
     }
@@ -99,8 +103,8 @@ struct GameView: View {
                     }
                     .disabled(solved)
 
-                    Button { useHint(model: model) } label: {
-                        Label("Hint", systemImage: "lightbulb")
+                    Button { hintButtonTapped(model: model) } label: {
+                        Label("Hint (\(hintService.totalHintsAvailable))", systemImage: "lightbulb")
                     }
                     .disabled(solved)
 
@@ -146,6 +150,9 @@ struct GameView: View {
         }
         .fullScreenCover(isPresented: $showWalkthrough) {
             WalkthroughView(isPresented: $showWalkthrough)
+        }
+        .sheet(isPresented: $showHintStore) {
+            HintStoreSheet(storeService: storeService, hintService: hintService)
         }
         .overlay {
             if model?.showSolvedOverlay == true {
@@ -251,6 +258,7 @@ struct GameView: View {
         NavigationStack {
             SettingsFormView(
                 storeService: storeService,
+                hintService: hintService,
                 onShowWalkthrough: {
                     showSettings = false
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -571,9 +579,18 @@ struct GameView: View {
         }
     }
 
+    private func hintButtonTapped(model: PuzzleModel) {
+        if hintService.canUseHint {
+            useHint(model: model)
+        } else {
+            showHintStore = true
+        }
+    }
+
     private func useHint(model: PuzzleModel) {
         let solver = PuzzleSolver(model: model)
         if let move = solver.findHint() {
+            hintService.consumeHint()
             let previousCount = model.hintCount
             model.hintCount += 1
             if let (cell, state) = move.knowledge.first {

@@ -1,23 +1,25 @@
 import SwiftUI
 
-// MARK: - Palette (derived from source illustration)
+// MARK: - Palette (derived from active BerryTheme)
 
 private enum BerryPalette {
-    // Berry body
-    static let bodyDark  = Color(red: 0.19, green: 0.29, blue: 0.51) // #314A83
-    static let bodyMid   = Color(red: 0.31, green: 0.42, blue: 0.63) // #4F6AA2
-    static let bodyBase  = Color(red: 0.38, green: 0.51, blue: 0.72) // #6181B8
-    static let bodyLight = Color(red: 0.60, green: 0.74, blue: 0.89) // #99BCE1
+    private static var theme: BerryTheme { .active }
+
+    // Berry body — driven by the active theme
+    static var bodyDark:  Color { theme.bodyDark }
+    static var bodyMid:   Color { theme.bodyMid }
+    static var bodyBase:  Color { theme.bodyBase }
+    static var bodyLight: Color { theme.bodyLight }
     static let bodyShine = Color(red: 0.96, green: 0.98, blue: 1.00)
 
-    // Face
+    // Face (shared across all themes)
     static let eye       = Color(red: 0.22, green: 0.15, blue: 0.29) // #38274B
     static let eyeShine  = Color.white
     static let cheek     = Color(red: 0.82, green: 0.51, blue: 0.50) // #D18482
     static let mouthDark = Color(red: 0.37, green: 0.14, blue: 0.26) // #602441
     static let mouthRed  = Color(red: 0.93, green: 0.44, blue: 0.42) // #EF716B
 
-    // Leaves
+    // Leaves (shared across all themes)
     static let leafLight = Color(red: 0.67, green: 0.82, blue: 0.40) // #ABD167
     static let leafMid   = Color(red: 0.50, green: 0.66, blue: 0.28) // #80A847
     static let leafDark  = Color(red: 0.33, green: 0.49, blue: 0.20) // #547D33
