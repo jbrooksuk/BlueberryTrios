@@ -122,11 +122,24 @@ final class StoreKitService {
         case .success(let verification):
             let transaction = try checkVerified(verification)
             await transaction.finish()
+            applyEntitlement(for: transaction.productID)
             await updatePurchaseStatus()
         case .userCancelled, .pending:
             break
         @unknown default:
             break
+        }
+    }
+
+    /// Apply a single entitlement immediately (called after a verified purchase).
+    private func applyEntitlement(for productID: String) {
+        if productID == Self.proProductID {
+            isProUnlocked = true
+        }
+        for theme in BerryTheme.allCases {
+            if let pid = theme.productID, productID == pid {
+                unlockedThemes.insert(theme)
+            }
         }
     }
 
@@ -141,7 +154,6 @@ final class StoreKitService {
                 proUnlocked = true
             }
 
-            // Check theme entitlements
             for theme in BerryTheme.allCases {
                 if let pid = theme.productID, transaction.productID == pid {
                     themes.insert(theme)
@@ -149,19 +161,21 @@ final class StoreKitService {
             }
         }
 
-        isProUnlocked = proUnlocked
-        unlockedThemes = themes
+        // Merge — don't discard entitlements already applied from a
+        // direct purchase that currentEntitlements hasn't caught up to yet.
+        if proUnlocked { isProUnlocked = true }
+        unlockedThemes.formUnion(themes)
     }
 
     private func listenForTransactions() -> Task<Void, Never> {
         Task {
             for await result in Transaction.updates {
                 if case .verified(let transaction) = result {
-                    // Credit hints for consumable purchases
                     if Self.hintProductIDs.contains(transaction.productID) {
                         creditHints(for: transaction.productID)
                     }
                     await transaction.finish()
+                    applyEntitlement(for: transaction.productID)
                     await updatePurchaseStatus()
                 }
             }

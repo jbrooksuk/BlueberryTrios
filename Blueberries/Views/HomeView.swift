@@ -57,6 +57,7 @@ struct HomeView: View {
                 .tabItem { Label("Settings", systemImage: "gearshape") }
                 .tag(HomeTab.settings)
         }
+        .tint(Theme.berryBlue)
         .fullScreenCover(isPresented: $showWalkthrough) {
             WalkthroughView(isPresented: $showWalkthrough)
         }

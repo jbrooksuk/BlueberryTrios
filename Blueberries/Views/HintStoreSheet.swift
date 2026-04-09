@@ -1,4 +1,5 @@
 import SwiftUI
+import StoreKit
 
 /// Sheet presented when the player taps Hint but has no hints remaining.
 /// Shows remaining daily hints, bonus balance, and purchasable refill packs.

@@ -119,6 +119,7 @@ struct GameView: View {
         }
         .toolbarRole(.automatic)
         .toolbar(.hidden, for: .tabBar)
+        .tint(Theme.berryBlue)
         .background(Theme.backgroundGradient)
         .navigationTitle("Berroku")
         .navigationBarTitleDisplayMode(.inline)

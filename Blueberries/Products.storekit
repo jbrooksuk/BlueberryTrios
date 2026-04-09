@@ -99,6 +99,29 @@
     {
       "displayPrice" : "0.99",
       "familyShareable" : false,
+      "internalID" : "F6A7B8C9-D0E1-2F3A-4B5C-6D7E8F9A0B1C",
+      "localizations" : [
+        {
+          "description" : "A gooseberry theme with matching app icon and berry colors.",
+          "displayName" : "Gooseberry Theme",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "A gooseberry theme with matching app icon and berry colors.",
+          "displayName" : "Gooseberry Theme",
+          "locale" : "en_GB"
+        }
+      ],
+      "locale_prices" : {
+        "en_GB" : "0.99"
+      },
+      "productID" : "com.altthree.Berroku.theme.gooseberry",
+      "referenceName" : "Gooseberry Theme",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "0.99",
+      "familyShareable" : false,
       "internalID" : "D4E5F6A7-B8C9-0D1E-2F3A-4B5C6D7E8F9A",
       "localizations" : [
         {

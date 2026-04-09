@@ -43,7 +43,12 @@ struct SettingsFormView: View {
                         if isUnlocked {
                             applyTheme(theme)
                         } else {
-                            Task { try? await storeService.purchaseTheme(theme) }
+                            Task {
+                                try? await storeService.purchaseTheme(theme)
+                                if storeService.isThemeUnlocked(theme) {
+                                    applyTheme(theme)
+                                }
+                            }
                         }
                     } label: {
                         HStack(spacing: 12) {
@@ -82,8 +87,8 @@ struct SettingsFormView: View {
                                     .foregroundStyle(.secondary)
                             }
                         }
+                        .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
                 }
             }
 
