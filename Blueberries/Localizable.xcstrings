@@ -4,6 +4,16 @@
     "%lld" : {
 
     },
+    "%lld/%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld/%2$lld"
+          }
+        }
+      }
+    },
     "%lld/3" : {
 
     },
@@ -78,8 +88,17 @@
     "Best streak" : {
 
     },
+    "Bonus" : {
+
+    },
+    "Bonus hints" : {
+
+    },
     "Build your streak" : {
       "comment" : "Walkthrough page 5 title"
+    },
+    "Buy %@" : {
+
     },
     "Centurion" : {
 
@@ -127,6 +146,9 @@
 
     },
     "Daily" : {
+
+    },
+    "Daily hints" : {
 
     },
     "Daily reminder" : {
@@ -183,6 +205,9 @@
     "Gameplay" : {
 
     },
+    "Get Hints" : {
+
+    },
     "Got it" : {
 
     },
@@ -195,10 +220,16 @@
     "Hint" : {
 
     },
+    "Hint (%lld)" : {
+
+    },
     "Hint helper" : {
 
     },
     "Hint master" : {
+
+    },
+    "Hints" : {
 
     },
     "Hints used" : {
@@ -245,7 +276,7 @@
     "Look at the **1** in the corner" : {
 
     },
-    "Made with berries 🫐" : {
+    "Made with berries by James Brooks 🫐" : {
 
     },
     "Master" : {
@@ -270,6 +301,9 @@
       "comment" : "Walkthrough page 3 subtitle"
     },
     "On a roll" : {
+
+    },
+    "Out of hints" : {
 
     },
     "Place 3 berries" : {
@@ -418,6 +452,9 @@
     "The last column has 1 berry. Place the other 2 to complete it! Tap each **twice**." : {
 
     },
+    "Theme" : {
+
+    },
     "This block needs 3 berries and has exactly 3 empty cells. They must all be berries! Tap each one **twice**." : {
 
     },
@@ -468,6 +505,9 @@
     },
     "Welcome to Berroku" : {
       "comment" : "Walkthrough page 1 title"
+    },
+    "You get %lld free hints each day. Buy extra hints to keep going." : {
+
     },
     "You've completed the tutorial!" : {
 

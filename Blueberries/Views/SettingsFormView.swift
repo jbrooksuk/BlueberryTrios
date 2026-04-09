@@ -7,13 +7,19 @@ struct SettingsFormView: View {
     @AppStorage("fillHints") private var fillHints: Bool = false
     @AppStorage("hapticsEnabled") private var hapticsEnabled: Bool = true
     @AppStorage("soundEnabled") private var soundEnabled: Bool = true
+    @AppStorage("selectedTheme") private var selectedThemeRaw: String = BerryTheme.blueberry.rawValue
 
     @State private var notificationService = NotificationService()
     @State private var showOfferCode: Bool = false
 
     var storeService: StoreKitService
+    var hintService: HintService?
     var onShowWalkthrough: (() -> Void)?
     var onShowTutorial: (() -> Void)?
+
+    private var selectedTheme: BerryTheme {
+        BerryTheme(rawValue: selectedThemeRaw) ?? .blueberry
+    }
 
     var body: some View {
         Form {
@@ -25,6 +31,101 @@ struct SettingsFormView: View {
                 Toggle("Sound", isOn: $soundEnabled)
                 Toggle("Daily reminder", isOn: $notificationService.isEnabled)
             }
+
+            // MARK: - Theme picker
+
+            Section("Theme") {
+                ForEach(BerryTheme.allCases) { theme in
+                    let isSelected = selectedTheme == theme
+                    let isUnlocked = storeService.isThemeUnlocked(theme)
+
+                    Button {
+                        if isUnlocked {
+                            applyTheme(theme)
+                        } else {
+                            Task {
+                                try? await storeService.purchaseTheme(theme)
+                                if storeService.isThemeUnlocked(theme) {
+                                    applyTheme(theme)
+                                }
+                            }
+                        }
+                    } label: {
+                        HStack(spacing: 12) {
+                            Circle()
+                                .fill(theme.primaryColor)
+                                .frame(width: 28, height: 28)
+                                .overlay {
+                                    if isSelected {
+                                        Image(systemName: "checkmark")
+                                            .font(.caption.bold())
+                                            .foregroundStyle(.white)
+                                    }
+                                }
+
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(theme.displayName)
+                                    .font(.body)
+                                    .foregroundStyle(.primary)
+                                if !isUnlocked, let product = storeService.product(for: theme) {
+                                    Text(product.displayPrice)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+
+                            Spacer()
+
+                            if isUnlocked {
+                                if isSelected {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundStyle(.green)
+                                }
+                            } else {
+                                Image(systemName: "lock.fill")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .contentShape(Rectangle())
+                    }
+                }
+            }
+
+            // MARK: - Hints
+
+            if let hintService {
+                Section("Hints") {
+                    HStack {
+                        Label("Daily hints", systemImage: "clock")
+                        Spacer()
+                        Text("\(hintService.dailyHintsRemaining)/\(HintService.dailyFreeHints)")
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    }
+                    HStack {
+                        Label("Bonus hints", systemImage: "plus.circle")
+                        Spacer()
+                        Text("\(hintService.bonusHints)")
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    }
+
+                    ForEach(storeService.sortedHintProducts, id: \.id) { product in
+                        Button {
+                            Task { try? await storeService.purchaseHints(productID: product.id) }
+                        } label: {
+                            HStack {
+                                Text("Buy \(product.displayName)")
+                                Spacer()
+                                Text(product.displayPrice)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
+            }
+
             Section("Pro puzzles") {
                 if storeService.isProUnlocked {
                     Label("Pro unlocked", systemImage: "checkmark.seal.fill")
@@ -97,7 +198,7 @@ struct SettingsFormView: View {
                 }
             }
             Section {
-                Text("Made with berries by James Brooks 🫐")
+                Text("Made with berries by James Brooks \u{1FAD0}")
                     .frame(maxWidth: .infinity, alignment: .center)
                     .foregroundStyle(.secondary)
                     .font(.footnote)
@@ -105,5 +206,19 @@ struct SettingsFormView: View {
             }
         }
         .offerCodeRedemption(isPresented: $showOfferCode)
+    }
+
+    private func applyTheme(_ theme: BerryTheme) {
+        selectedThemeRaw = theme.rawValue
+        BerryTheme.active = theme
+
+        // Switch the app icon to match the theme.
+        // nil resets to the primary icon; a name selects an alternate.
+        #if !DEBUG
+        let iconName = theme.alternateIconName
+        if UIApplication.shared.alternateIconName != iconName {
+            UIApplication.shared.setAlternateIconName(iconName)
+        }
+        #endif
     }
 }

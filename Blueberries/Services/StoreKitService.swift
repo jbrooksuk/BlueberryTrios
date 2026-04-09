@@ -7,9 +7,34 @@ import Observation
 final class StoreKitService {
     static let proProductID = "com.altthree.Berroku.pro"
 
+    // Hint refill product IDs
+    static let hints10ProductID = "com.altthree.Berroku.hints.10"
+    static let hints30ProductID = "com.altthree.Berroku.hints.30"
+    static let hintProductIDs: Set<String> = [hints10ProductID, hints30ProductID]
+
+    /// All product IDs the app knows about.
+    static var allProductIDs: Set<String> {
+        var ids: Set<String> = [proProductID, hints10ProductID, hints30ProductID]
+        ids.formUnion(BerryTheme.allProductIDs)
+        return ids
+    }
+
+    // MARK: - Products
+
     private(set) var proProduct: Product?
+    private(set) var themeProducts: [String: Product] = [:]
+    private(set) var hintProducts: [String: Product] = [:]
+
+    // MARK: - Entitlements
+
     private(set) var isProUnlocked: Bool = false
+    private(set) var unlockedThemes: Set<BerryTheme> = [.blueberry]
+
     private var transactionListener: Task<Void, Never>?
+
+    /// Optional reference to the hint service so consumable purchases can
+    /// credit bonus hints immediately.
+    var hintService: HintService?
 
     init() {
         transactionListener = listenForTransactions()
@@ -19,10 +44,20 @@ final class StoreKitService {
         }
     }
 
+    // MARK: - Load products
+
     func loadProducts() async {
         do {
-            let products = try await Product.products(for: [Self.proProductID])
-            proProduct = products.first
+            let products = try await Product.products(for: Self.allProductIDs)
+            for product in products {
+                if product.id == Self.proProductID {
+                    proProduct = product
+                } else if BerryTheme.allProductIDs.contains(product.id) {
+                    themeProducts[product.id] = product
+                } else if Self.hintProductIDs.contains(product.id) {
+                    hintProducts[product.id] = product
+                }
+            }
         } catch {
             #if DEBUG
             print("Failed to load products: \(error)")
@@ -30,17 +65,28 @@ final class StoreKitService {
         }
     }
 
+    // MARK: - Purchases
+
     func purchasePro() async throws {
         guard let product = proProduct else { return }
+        try await purchaseNonConsumable(product)
+    }
+
+    func purchaseTheme(_ theme: BerryTheme) async throws {
+        guard let productID = theme.productID,
+              let product = themeProducts[productID] else { return }
+        try await purchaseNonConsumable(product)
+    }
+
+    func purchaseHints(productID: String) async throws {
+        guard let product = hintProducts[productID] else { return }
         let result = try await product.purchase()
         switch result {
         case .success(let verification):
             let transaction = try checkVerified(verification)
             await transaction.finish()
-            isProUnlocked = true
-        case .userCancelled:
-            break
-        case .pending:
+            creditHints(for: transaction.productID)
+        case .userCancelled, .pending:
             break
         @unknown default:
             break
@@ -52,27 +98,98 @@ final class StoreKitService {
         await updatePurchaseStatus()
     }
 
-    private func updatePurchaseStatus() async {
-        var unlocked = false
-        for await result in Transaction.currentEntitlements {
-            if case .verified(let transaction) = result,
-               transaction.productID == Self.proProductID {
-                unlocked = true
-                break
+    // MARK: - Theme helpers
+
+    func isThemeUnlocked(_ theme: BerryTheme) -> Bool {
+        unlockedThemes.contains(theme)
+    }
+
+    func product(for theme: BerryTheme) -> Product? {
+        guard let id = theme.productID else { return nil }
+        return themeProducts[id]
+    }
+
+    /// Sorted hint products (cheapest first) for display in the store UI.
+    var sortedHintProducts: [Product] {
+        hintProducts.values.sorted { $0.price < $1.price }
+    }
+
+    // MARK: - Private
+
+    private func purchaseNonConsumable(_ product: Product) async throws {
+        let result = try await product.purchase()
+        switch result {
+        case .success(let verification):
+            let transaction = try checkVerified(verification)
+            await transaction.finish()
+            applyEntitlement(for: transaction.productID)
+            await updatePurchaseStatus()
+        case .userCancelled, .pending:
+            break
+        @unknown default:
+            break
+        }
+    }
+
+    /// Apply a single entitlement immediately (called after a verified purchase).
+    private func applyEntitlement(for productID: String) {
+        if productID == Self.proProductID {
+            isProUnlocked = true
+        }
+        for theme in BerryTheme.allCases {
+            if let pid = theme.productID, productID == pid {
+                unlockedThemes.insert(theme)
             }
         }
-        isProUnlocked = unlocked
+    }
+
+    private func updatePurchaseStatus() async {
+        var proUnlocked = false
+        var themes: Set<BerryTheme> = [.blueberry]
+
+        for await result in Transaction.currentEntitlements {
+            guard case .verified(let transaction) = result else { continue }
+
+            if transaction.productID == Self.proProductID {
+                proUnlocked = true
+            }
+
+            for theme in BerryTheme.allCases {
+                if let pid = theme.productID, transaction.productID == pid {
+                    themes.insert(theme)
+                }
+            }
+        }
+
+        // Merge — don't discard entitlements already applied from a
+        // direct purchase that currentEntitlements hasn't caught up to yet.
+        if proUnlocked { isProUnlocked = true }
+        unlockedThemes.formUnion(themes)
     }
 
     private func listenForTransactions() -> Task<Void, Never> {
         Task {
             for await result in Transaction.updates {
                 if case .verified(let transaction) = result {
+                    if Self.hintProductIDs.contains(transaction.productID) {
+                        creditHints(for: transaction.productID)
+                    }
                     await transaction.finish()
+                    applyEntitlement(for: transaction.productID)
                     await updatePurchaseStatus()
                 }
             }
         }
+    }
+
+    private func creditHints(for productID: String) {
+        let count: Int
+        switch productID {
+        case Self.hints10ProductID: count = 10
+        case Self.hints30ProductID: count = 30
+        default: return
+        }
+        hintService?.addBonusHints(count)
     }
 
     private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {

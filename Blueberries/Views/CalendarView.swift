@@ -8,7 +8,7 @@ struct PuzzleCalendarView: View {
 
     private let calendar = Calendar.current
     private let weekdaySymbols = Calendar.current.shortWeekdaySymbols
-    private let berryBlue = Color("BerryBlue")
+    private var berryBlue: Color { Theme.berryBlue }
 
     var body: some View {
         VStack(spacing: 12) {
