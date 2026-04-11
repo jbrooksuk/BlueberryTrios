@@ -178,10 +178,23 @@ a { color: var(--berry-glow); text-decoration: none; }
 
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
-    .phone-frame img {
-        width: clamp(160px, 44vw, 220px);
-    }
+    .phone-frame img,
     .phone-frame.hero-phone img {
-        width: clamp(200px, 56vw, 260px);
+        width: clamp(140px, 40vw, 200px);
+    }
+    .phone-frame.side {
+        opacity: 1;
+    }
+    .phone-frame.side:first-child {
+        transform: rotate(-4deg);
+    }
+    .phone-frame.side:last-child {
+        transform: rotate(4deg);
+    }
+    .phone-frame.side:first-child:hover {
+        transform: rotate(-4deg) translateY(-8px);
+    }
+    .phone-frame.side:last-child:hover {
+        transform: rotate(4deg) translateY(-8px);
     }
 }

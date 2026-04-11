@@ -234,7 +234,20 @@ h1 {
     justify-content: center;
     align-items: flex-end;
     gap: clamp(12px, 3vw, 28px);
-    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .phone-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        justify-items: center;
+        align-items: end;
+        row-gap: 24px;
+        column-gap: 16px;
+    }
+    .phone-row .phone-frame.hero-phone {
+        grid-column: 1 / -1;
+    }
 }
 
 /* ---- Section typography ---- */
