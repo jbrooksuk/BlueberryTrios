@@ -236,6 +236,12 @@ h1 {
     gap: clamp(12px, 3vw, 28px);
 }
 
+@media (max-width: 768px) {
+    .phone-row {
+        gap: 0;
+    }
+}
+
 /* ---- Section typography ---- */
 h2 {
     font-family: 'Fraunces', serif;

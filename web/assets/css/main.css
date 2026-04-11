@@ -178,6 +178,27 @@ a { color: var(--berry-glow); text-decoration: none; }
 
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
-    .phone-frame.side { display: none; }
-    .phone-frame.hero-phone img { width: 240px; }
+    .phone-frame img,
+    .phone-frame.hero-phone img {
+        width: clamp(140px, 42vw, 220px);
+    }
+    .phone-frame.side {
+        opacity: 1;
+        transform: none;
+    }
+    .phone-frame.side:first-child {
+        margin-right: -24vw;
+        z-index: 0;
+    }
+    .phone-frame.side:last-child {
+        margin-left: -24vw;
+        z-index: 0;
+    }
+    .phone-frame.hero-phone {
+        position: relative;
+        z-index: 1;
+    }
+    .phone-frame.side:hover {
+        transform: translateY(-8px);
+    }
 }
