@@ -178,6 +178,15 @@ a { color: var(--berry-glow); text-decoration: none; }
 
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
-    .phone-frame.side { display: none; }
-    .phone-frame.hero-phone img { width: 240px; }
+    .phone-frame {
+        border-radius: 18px;
+        padding: 4px;
+    }
+    .phone-frame img {
+        width: clamp(80px, 24vw, 140px);
+        border-radius: 14px;
+    }
+    .phone-frame.hero-phone img {
+        width: clamp(100px, 30vw, 170px);
+    }
 }
