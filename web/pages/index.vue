@@ -233,8 +233,8 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    gap: clamp(6px, 2vw, 28px);
-    flex-wrap: nowrap;
+    gap: clamp(12px, 3vw, 28px);
+    flex-wrap: wrap;
 }
 
 /* ---- Section typography ---- */
