@@ -180,21 +180,25 @@ a { color: var(--berry-glow); text-decoration: none; }
 @media (max-width: 768px) {
     .phone-frame img,
     .phone-frame.hero-phone img {
-        width: clamp(140px, 40vw, 200px);
+        width: clamp(140px, 42vw, 220px);
     }
     .phone-frame.side {
         opacity: 1;
+        transform: none;
     }
     .phone-frame.side:first-child {
-        transform: rotate(-4deg);
+        margin-right: -24vw;
+        z-index: 0;
     }
     .phone-frame.side:last-child {
-        transform: rotate(4deg);
+        margin-left: -24vw;
+        z-index: 0;
     }
-    .phone-frame.side:first-child:hover {
-        transform: rotate(-4deg) translateY(-8px);
+    .phone-frame.hero-phone {
+        position: relative;
+        z-index: 1;
     }
-    .phone-frame.side:last-child:hover {
-        transform: rotate(4deg) translateY(-8px);
+    .phone-frame.side:hover {
+        transform: translateY(-8px);
     }
 }

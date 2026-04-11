@@ -238,15 +238,7 @@ h1 {
 
 @media (max-width: 768px) {
     .phone-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        justify-items: center;
-        align-items: end;
-        row-gap: 24px;
-        column-gap: 16px;
-    }
-    .phone-row .phone-frame.hero-phone {
-        grid-column: 1 / -1;
+        gap: 0;
     }
 }
 
