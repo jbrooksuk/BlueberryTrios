@@ -27,6 +27,8 @@ struct GameView: View {
     @State private var soundService = SoundService()
     @State private var cachedPuzzleKey: String?
     @State private var showRestartPrompt: Bool = false
+    @State private var undoHoldTask: Task<Void, Never>?
+    @State private var redoHoldTask: Task<Void, Never>?
     @ScaledMetric(relativeTo: .largeTitle) private var solvedIconSize: CGFloat = 48
 
     init(
@@ -84,15 +86,55 @@ struct GameView: View {
                         Label("Undo", systemImage: "arrow.uturn.backward")
                     }
                     .disabled(!model.canUndo || solved)
-                    .onLongPressGesture {
-                        model.undoAll()
-                        saveCurrentState()
-                    }
+                    .onLongPressGesture(
+                        minimumDuration: 0.3,
+                        maximumDistance: 50,
+                        pressing: { pressing in
+                            if !pressing {
+                                undoHoldTask?.cancel()
+                                undoHoldTask = nil
+                            }
+                        },
+                        perform: {
+                            guard model.canUndo, !solved else { return }
+                            model.undo()
+                            saveCurrentState()
+                            undoHoldTask?.cancel()
+                            undoHoldTask = startHoldRepeat {
+                                guard model.canUndo, !model.isSolved else { return false }
+                                model.undo()
+                                saveCurrentState()
+                                return true
+                            }
+                        }
+                    )
 
                     Button { model.redo(); saveCurrentState() } label: {
                         Label("Redo", systemImage: "arrow.uturn.forward")
                     }
                     .disabled(!model.canRedo || solved)
+                    .onLongPressGesture(
+                        minimumDuration: 0.3,
+                        maximumDistance: 50,
+                        pressing: { pressing in
+                            if !pressing {
+                                redoHoldTask?.cancel()
+                                redoHoldTask = nil
+                            }
+                        },
+                        perform: {
+                            guard model.canRedo, !solved else { return }
+                            model.redo()
+                            saveCurrentState()
+                            redoHoldTask?.cancel()
+                            redoHoldTask = startHoldRepeat {
+                                guard model.canRedo, !model.isSolved else { return false }
+                                model.redo()
+                                saveCurrentState()
+                                return true
+                            }
+                        }
+                    )
 
                     Button { model.erase(); saveCurrentState() } label: {
                         Label("Erase", systemImage: "eraser")
@@ -445,6 +487,26 @@ struct GameView: View {
             difficulty = .standard
         }
         loadPuzzle()
+    }
+
+    // MARK: - Hold-to-Repeat
+
+    /// Runs `action` repeatedly on the main actor with a delay between steps that
+    /// accelerates the longer the caller keeps the task alive. The returned task
+    /// should be cancelled by the caller (e.g. when the user releases the button).
+    /// `action` returns `false` to stop the loop early (e.g. history exhausted).
+    private func startHoldRepeat(action: @escaping () -> Bool) -> Task<Void, Never> {
+        Task { @MainActor in
+            var delaySeconds: TimeInterval = 0.22
+            let minDelaySeconds: TimeInterval = 0.04
+            let acceleration: Double = 0.82
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(delaySeconds))
+                if Task.isCancelled { return }
+                if !action() { return }
+                delaySeconds = max(minDelaySeconds, delaySeconds * acceleration)
+            }
+        }
     }
 
     // MARK: - State Persistence
