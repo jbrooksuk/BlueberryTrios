@@ -60,14 +60,7 @@ struct GameView: View {
             Spacer(minLength: 12)
 
             if let model {
-                if horizontalSizeClass == .regular {
-                    // iPad landscape: grid centered with more padding
-                    PuzzleGridView(model: model, autoCheck: autoCheck, hapticsEnabled: hapticsEnabled, soundService: soundService, onStateChanged: saveCurrentState)
-                        .padding(.horizontal, 40)
-                } else {
-                    PuzzleGridView(model: model, autoCheck: autoCheck, hapticsEnabled: hapticsEnabled, soundService: soundService, onStateChanged: saveCurrentState)
-                        .padding(.horizontal, 8)
-                }
+                gridSection(model: model)
 
                 Spacer(minLength: 0)
             } else {
@@ -190,9 +183,7 @@ struct GameView: View {
             WalkthroughView(isPresented: $showWalkthrough)
         }
         .overlay {
-            if model?.showSolvedOverlay == true {
-                solvedOverlay
-            } else if showRestartPrompt {
+            if showRestartPrompt {
                 restartPromptOverlay
             }
         }
@@ -313,55 +304,83 @@ struct GameView: View {
 
     // MARK: - Solved Overlay
 
+    @ViewBuilder
+    private func gridSection(model: PuzzleModel) -> some View {
+        let hPad: CGFloat = horizontalSizeClass == .regular ? 40 : 8
+        PuzzleGridView(
+            model: model,
+            autoCheck: autoCheck,
+            hapticsEnabled: hapticsEnabled,
+            soundService: soundService,
+            onStateChanged: saveCurrentState
+        )
+        .overlay { gridSolvedOverlay }
+        .padding(.horizontal, hPad)
+    }
+
+    @ViewBuilder
+    private var gridSolvedOverlay: some View {
+        if model?.showSolvedOverlay == true {
+            solvedOverlay
+        }
+    }
+
     private var solvedOverlay: some View {
         ZStack {
             if !reduceMotion {
                 ConfettiView()
             }
-            VStack(spacing: 12) {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: solvedIconSize))
-                    .foregroundStyle(.green)
-                    .accessibilityHidden(true)
-                    .symbolEffect(.bounce, isActive: !reduceMotion && model?.isSolved == true)
-                Text("Solved!")
-                    .font(.title.bold())
-                TimerDisplayView(timer: gameTimer)
+            VStack(spacing: 0) {
+                Spacer(minLength: 0)
 
-                Button { sharePuzzle() } label: {
-                    Label("Share", systemImage: "square.and.arrow.up")
+                VStack(spacing: 12) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: solvedIconSize))
+                        .foregroundStyle(.green)
+                        .accessibilityHidden(true)
+                        .symbolEffect(.bounce, isActive: !reduceMotion && model?.isSolved == true)
+                    Text("Solved!")
+                        .font(.title.bold())
+                    TimerDisplayView(timer: gameTimer)
                 }
-                .adaptiveSecondaryButton()
 
-            if source == .pro && storeService.isProUnlocked {
-                HStack(spacing: 12) {
-                    Button("New puzzle") {
-                        newProPuzzle()
-                    }
-                    .adaptiveProminentButton()
-                    Button("Next difficulty") {
-                        advanceToNextPuzzle()
-                    }
-                    .adaptiveSecondaryButton()
-                }
-            } else {
+                Spacer(minLength: 24)
+
                 VStack(spacing: 10) {
-                    Button("Next puzzle") {
-                        advanceToNextPuzzle()
-                    }
-                    .adaptiveProminentButton()
-
-                    if !storeService.isProUnlocked {
-                        Button {
-                            Task { try? await storeService.purchasePro() }
-                        } label: {
-                            Label("Want more? Unlock Pro", systemImage: "infinity")
-                                .font(.subheadline)
+                    if source == .pro && storeService.isProUnlocked {
+                        HStack(spacing: 10) {
+                            Button { sharePuzzle() } label: {
+                                Label("Share", systemImage: "square.and.arrow.up")
+                            }
+                            .adaptiveSecondaryButton()
+                            Button("New puzzle") { newProPuzzle() }
+                                .adaptiveProminentButton()
+                            Button("Next difficulty") { advanceToNextPuzzle() }
+                                .adaptiveSecondaryButton()
                         }
-                        .adaptiveSecondaryButton()
+                    } else {
+                        HStack(spacing: 10) {
+                            Button { sharePuzzle() } label: {
+                                Label("Share", systemImage: "square.and.arrow.up")
+                            }
+                            .adaptiveSecondaryButton()
+                            Button("Next puzzle") { advanceToNextPuzzle() }
+                                .adaptiveProminentButton()
+                        }
+
+                        if !storeService.isProUnlocked {
+                            Button {
+                                Task { try? await storeService.purchasePro() }
+                            } label: {
+                                Label("Want more? Unlock Pro", systemImage: "infinity")
+                                    .font(.subheadline)
+                            }
+                            .adaptiveSecondaryButton()
+                        }
                     }
                 }
-            }
+
+                Spacer(minLength: 16)
 
                 Button {
                     withAnimation { model?.showSolvedOverlay = false }
@@ -370,10 +389,11 @@ struct GameView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                .padding(.top, 4)
         }
-            .padding(32)
-            .adaptiveGlass(in: 16)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 32)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .adaptiveGlass(in: 6)
             .shadow(radius: 10)
         }
         .transition(reduceMotion ? .identity : .scale.combined(with: .opacity))
