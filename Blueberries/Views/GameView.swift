@@ -27,8 +27,6 @@ struct GameView: View {
     @State private var soundService = SoundService()
     @State private var cachedPuzzleKey: String?
     @State private var showRestartPrompt: Bool = false
-    @State private var undoHoldTask: Task<Void, Never>?
-    @State private var redoHoldTask: Task<Void, Never>?
     @ScaledMetric(relativeTo: .largeTitle) private var solvedIconSize: CGFloat = 48
 
     init(
@@ -75,59 +73,31 @@ struct GameView: View {
             ToolbarItemGroup(placement: .bottomBar) {
                 if let model {
                     let solved = model.isSolved
-                    Button { model.undo(); saveCurrentState() } label: {
-                        Label("Undo", systemImage: "arrow.uturn.backward")
-                    }
-                    .disabled(!model.canUndo || solved)
-                    .onLongPressGesture(
-                        minimumDuration: 0.3,
-                        maximumDistance: 50,
-                        pressing: { pressing in
-                            if !pressing {
-                                undoHoldTask?.cancel()
-                                undoHoldTask = nil
-                            }
-                        },
-                        perform: {
-                            guard model.canUndo, !solved else { return }
+                    HoldToRepeatButton(
+                        isEnabled: model.canUndo && !solved,
+                        onTap: { model.undo(); saveCurrentState() },
+                        onHoldStep: {
+                            guard model.canUndo, !model.isSolved else { return false }
                             model.undo()
                             saveCurrentState()
-                            undoHoldTask?.cancel()
-                            undoHoldTask = startHoldRepeat {
-                                guard model.canUndo, !model.isSolved else { return false }
-                                model.undo()
-                                saveCurrentState()
-                                return true
-                            }
+                            return true
                         }
-                    )
-
-                    Button { model.redo(); saveCurrentState() } label: {
-                        Label("Redo", systemImage: "arrow.uturn.forward")
+                    ) {
+                        Label("Undo", systemImage: "arrow.uturn.backward")
                     }
-                    .disabled(!model.canRedo || solved)
-                    .onLongPressGesture(
-                        minimumDuration: 0.3,
-                        maximumDistance: 50,
-                        pressing: { pressing in
-                            if !pressing {
-                                redoHoldTask?.cancel()
-                                redoHoldTask = nil
-                            }
-                        },
-                        perform: {
-                            guard model.canRedo, !solved else { return }
+
+                    HoldToRepeatButton(
+                        isEnabled: model.canRedo && !solved,
+                        onTap: { model.redo(); saveCurrentState() },
+                        onHoldStep: {
+                            guard model.canRedo, !model.isSolved else { return false }
                             model.redo()
                             saveCurrentState()
-                            redoHoldTask?.cancel()
-                            redoHoldTask = startHoldRepeat {
-                                guard model.canRedo, !model.isSolved else { return false }
-                                model.redo()
-                                saveCurrentState()
-                                return true
-                            }
+                            return true
                         }
-                    )
+                    ) {
+                        Label("Redo", systemImage: "arrow.uturn.forward")
+                    }
 
                     Button { model.erase(); saveCurrentState() } label: {
                         Label("Erase", systemImage: "eraser")
@@ -515,26 +485,6 @@ struct GameView: View {
         loadPuzzle()
     }
 
-    // MARK: - Hold-to-Repeat
-
-    /// Runs `action` repeatedly on the main actor with a delay between steps that
-    /// accelerates the longer the caller keeps the task alive. The returned task
-    /// should be cancelled by the caller (e.g. when the user releases the button).
-    /// `action` returns `false` to stop the loop early (e.g. history exhausted).
-    private func startHoldRepeat(action: @escaping () -> Bool) -> Task<Void, Never> {
-        Task { @MainActor in
-            var delaySeconds: TimeInterval = 0.22
-            let minDelaySeconds: TimeInterval = 0.04
-            let acceleration: Double = 0.82
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(delaySeconds))
-                if Task.isCancelled { return }
-                if !action() { return }
-                delaySeconds = max(minDelaySeconds, delaySeconds * acceleration)
-            }
-        }
-    }
-
     // MARK: - State Persistence
 
     private func puzzleIdentifier(_ definition: PuzzleDefinition) -> String {
@@ -812,6 +762,71 @@ struct GameView: View {
         return "\(cal.component(.day, from: d)) \(cal.component(.month, from: d)) \(cal.component(.year, from: d))"
     }
 
+}
+
+// MARK: - Hold-to-Repeat Button
+
+/// Toolbar button that fires `onTap` on a short press and enters an accelerating
+/// repeat loop (`onHoldStep`) while held. Observes the Button's own press state
+/// via `ButtonStyle.configuration.isPressed` because SwiftUI gesture modifiers
+/// are dropped when a Button is bridged into a `.bottomBar` toolbar item.
+private struct HoldToRepeatButton<L: View>: View {
+    let isEnabled: Bool
+    let onTap: () -> Void
+    let onHoldStep: () -> Bool
+    @ViewBuilder var label: () -> L
+
+    @State private var holdTask: Task<Void, Never>?
+    @State private var didRepeat = false
+
+    var body: some View {
+        Button {
+            if didRepeat {
+                didRepeat = false
+            } else {
+                onTap()
+            }
+        } label: {
+            label()
+        }
+        .disabled(!isEnabled)
+        .buttonStyle(PressObservingButtonStyle { pressed in
+            handlePress(pressed)
+        })
+    }
+
+    private func handlePress(_ pressed: Bool) {
+        if pressed {
+            didRepeat = false
+            holdTask?.cancel()
+            holdTask = Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(350))
+                if Task.isCancelled { return }
+                didRepeat = true
+                var delay: TimeInterval = 0.18
+                while !Task.isCancelled {
+                    if !onHoldStep() { return }
+                    try? await Task.sleep(for: .seconds(delay))
+                    if Task.isCancelled { return }
+                    delay = max(0.04, delay * 0.82)
+                }
+            }
+        } else {
+            holdTask?.cancel()
+            holdTask = nil
+        }
+    }
+}
+
+private struct PressObservingButtonStyle: ButtonStyle {
+    let onPressChange: (Bool) -> Void
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(configuration.isPressed ? 0.55 : 1)
+            .onChange(of: configuration.isPressed) { _, pressed in
+                onPressChange(pressed)
+            }
+    }
 }
 
 // MARK: - Isolated Timer Display
