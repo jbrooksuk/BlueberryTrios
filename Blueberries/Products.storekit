@@ -26,6 +26,29 @@
       "productID" : "com.altthree.Berroku.pro",
       "referenceName" : "Pro Puzzles",
       "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "0.99",
+      "familyShareable" : false,
+      "internalID" : "9F4B8D21-5E7C-4A63-B2E1-3C8D0F2A4E71",
+      "localizations" : [
+        {
+          "description" : "Keep solving when today's free hints run out. Adds 10 hints to your saved pool.",
+          "displayName" : "10 Hints",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "Keep solving when today's free hints run out. Adds 10 hints to your saved pool.",
+          "displayName" : "10 Hints",
+          "locale" : "en_GB"
+        }
+      ],
+      "locale_prices" : {
+        "en_GB" : "0.99"
+      },
+      "productID" : "com.altthree.Berroku.hints10",
+      "referenceName" : "10 Hints",
+      "type" : "Consumable"
     }
   ],
   "settings" : {

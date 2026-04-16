@@ -76,6 +76,18 @@ struct HomeView: View {
         .task {
             ensureStats()
             gameCenterService.authenticate()
+            storeService.creditHintPack = { [modelContext] count in
+                var descriptor = FetchDescriptor<PlayerStats>()
+                descriptor.fetchLimit = 1
+                let record = (try? modelContext.fetch(descriptor).first) ?? {
+                    let new = PlayerStats()
+                    modelContext.insert(new)
+                    return new
+                }()
+                record.grantPurchasedHints(count)
+                try? modelContext.save()
+            }
+            stats?.resetDailyHintsIfNeeded()
             updateWidgetData()
 
             // Existing users who already saw the walkthrough skip the tutorial
@@ -104,6 +116,7 @@ struct HomeView: View {
                         VStack(spacing: 20) {
                             dailyPuzzleCard
                             proPuzzlesCard
+                            hintsCard
                             statsAndCalendarCard
                         }
                     }
@@ -306,6 +319,89 @@ struct HomeView: View {
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
         .adaptiveGlass(in: 16)
+    }
+
+    // MARK: - Hints Card
+
+    @State private var isPurchasingHintsFromHome: Bool = false
+
+    private var hintsCard: some View {
+        let freeAvailable = stats?.availableFreeHints ?? PlayerStats.freeHintsPerDay
+        let freeMax = PlayerStats.freeHintsPerDay
+        let purchased = stats?.purchasedHintsRemaining ?? 0
+
+        return VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .firstTextBaseline) {
+                Label("Today's hints", systemImage: "lightbulb.fill")
+                    .font(.headline)
+                    .labelStyle(.titleAndIcon)
+                Spacer()
+                if purchased > 0 {
+                    Text("+\(purchased) saved")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(Theme.berryBlue)
+                        .monospacedDigit()
+                }
+            }
+
+            HStack(alignment: .lastTextBaseline, spacing: 6) {
+                Text("\(freeAvailable)")
+                    .font(.system(size: 44, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+                Text("/ \(freeMax) free")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+            }
+
+            Group {
+                if freeAvailable == PlayerStats.freeHintsPerDay && purchased == 0 {
+                    Text("Three hints a day, on the house. Spend them wisely.")
+                } else if freeAvailable == 0 && purchased == 0 {
+                    Text("All used up. Come back tomorrow for three more — or stock up below.")
+                } else if freeAvailable == 0 {
+                    Text("Today's free hints are gone. You're now spending from your saved pack.")
+                } else {
+                    Text("Free hints reset each day. Anything you buy is yours until you spend it.")
+                }
+            }
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+
+            HStack {
+                if let product = storeService.hintPackProduct {
+                    Button {
+                        Task { await purchaseHintsFromHome() }
+                    } label: {
+                        Group {
+                            if isPurchasingHintsFromHome {
+                                ProgressView().controlSize(.small)
+                            } else {
+                                Text("Buy 10 · \(product.displayPrice)")
+                                    .font(.subheadline.weight(.semibold))
+                            }
+                        }
+                    }
+                    .adaptiveProminentButton()
+                    .disabled(isPurchasingHintsFromHome)
+                } else {
+                    ProgressView().controlSize(.small)
+                    Text("Loading…")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .adaptiveGlass(in: 16)
+    }
+
+    private func purchaseHintsFromHome() async {
+        isPurchasingHintsFromHome = true
+        defer { isPurchasingHintsFromHome = false }
+        _ = try? await storeService.purchaseHintPack()
     }
 
     // MARK: - Stats Card
