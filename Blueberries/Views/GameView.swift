@@ -27,6 +27,9 @@ struct GameView: View {
     @State private var soundService = SoundService()
     @State private var cachedPuzzleKey: String?
     @State private var showRestartPrompt: Bool = false
+    @State private var showHintConfirmPrompt: Bool = false
+    @State private var showOutOfHintsPrompt: Bool = false
+    @State private var isPurchasingHintPack: Bool = false
     @ScaledMetric(relativeTo: .largeTitle) private var solvedIconSize: CGFloat = 48
 
     init(
@@ -104,10 +107,11 @@ struct GameView: View {
                     }
                     .disabled(solved)
 
-                    Button { useHint(model: model) } label: {
+                    Button { requestHint() } label: {
                         Label("Hint", systemImage: "lightbulb")
                     }
                     .disabled(solved)
+                    .badge(solved ? 0 : (stats?.totalAvailableHints ?? 0))
 
                     Button { _ = model.checkSolved() } label: {
                         Label("Check", systemImage: "checkmark.circle")
@@ -127,6 +131,18 @@ struct GameView: View {
         .task {
             UIApplication.shared.isIdleTimerDisabled = true
             soundService.isEnabled = soundEnabled
+            storeService.creditHintPack = { [modelContext] count in
+                var descriptor = FetchDescriptor<PlayerStats>()
+                descriptor.fetchLimit = 1
+                let record = (try? modelContext.fetch(descriptor).first) ?? {
+                    let new = PlayerStats()
+                    modelContext.insert(new)
+                    return new
+                }()
+                record.grantPurchasedHints(count)
+                try? modelContext.save()
+            }
+            stats?.resetDailyHintsIfNeeded()
             loadPuzzle()
             updateWidgetData()
         }
@@ -157,8 +173,20 @@ struct GameView: View {
                 restartPromptOverlay
             }
         }
+        .overlay {
+            if showHintConfirmPrompt {
+                hintConfirmOverlay
+            }
+        }
+        .overlay {
+            if showOutOfHintsPrompt {
+                outOfHintsOverlay
+            }
+        }
         .animation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3), value: model?.showSolvedOverlay)
         .animation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3), value: showRestartPrompt)
+        .animation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3), value: showHintConfirmPrompt)
+        .animation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3), value: showOutOfHintsPrompt)
         .onChange(of: soundEnabled) { soundService.isEnabled = soundEnabled }
         .onChange(of: model?.isSolved) {
             if let model, model.isSolved, !model.showSolvedOverlay {
@@ -369,32 +397,64 @@ struct GameView: View {
         .transition(reduceMotion ? .identity : .scale.combined(with: .opacity))
     }
 
-    // MARK: - Restart Prompt Overlay
+    // MARK: - Confirmation Overlay
 
-    private var restartPromptOverlay: some View {
-        let hintCount = model?.hintCount ?? 0
-        return VStack(spacing: 14) {
-            Image(systemName: "arrow.counterclockwise.circle.fill")
+    /// Compact confirmation-card overlay used by the restart nudge, the
+    /// "use a hint?" prompt, and the out-of-hints upsell. Matches the
+    /// card styling established by the restart prompt: corner-radius 16,
+    /// max-width 340, glass background, soft shadow, scale+opacity
+    /// transition honouring Reduce Motion.
+    @ViewBuilder
+    private func confirmationOverlay<Message: View, Actions: View>(
+        icon: String,
+        iconTint: Color = Theme.berryBlue,
+        title: String,
+        @ViewBuilder message: () -> Message,
+        @ViewBuilder actions: () -> Actions
+    ) -> some View {
+        VStack(spacing: 14) {
+            Image(systemName: icon)
                 .font(.system(size: solvedIconSize))
-                .foregroundStyle(Theme.berryBlue)
+                .foregroundStyle(iconTint)
                 .accessibilityHidden(true)
 
-            Text("Fresh start?")
+            Text(title)
                 .font(.title2.bold())
 
-            Group {
-                if hintCount <= 3 {
-                    Text("Three hints in — sometimes a clean slate helps a puzzle click. Your hint count stays the same either way.")
-                } else {
-                    Text("Another three hints down. A fresh start might help this puzzle click. Your hint count stays the same either way.")
-                }
-            }
+            message()
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
 
             VStack(spacing: 10) {
+                actions()
+            }
+        }
+        .padding(28)
+        .frame(maxWidth: 340)
+        .adaptiveGlass(in: 16)
+        .shadow(radius: 10)
+        .padding(32)
+        .transition(reduceMotion ? .identity : .scale.combined(with: .opacity))
+    }
+
+    // MARK: - Restart Prompt Overlay
+
+    private var restartPromptOverlay: some View {
+        let hintCount = model?.hintCount ?? 0
+
+        return confirmationOverlay(
+            icon: "arrow.counterclockwise.circle.fill",
+            title: "Fresh start?",
+            message: {
+                if hintCount <= 3 {
+                    Text("Three hints in — sometimes a clean slate helps a puzzle click. Your hint count stays the same either way.")
+                } else {
+                    Text("Another three hints down. A fresh start might help this puzzle click. Your hint count stays the same either way.")
+                }
+            },
+            actions: {
                 Button {
                     withAnimation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3)) {
                         showRestartPrompt = false
@@ -413,13 +473,99 @@ struct GameView: View {
                 }
                 .adaptiveSecondaryButton()
             }
-        }
-        .padding(28)
-        .frame(maxWidth: 340)
-        .adaptiveGlass(in: 16)
-        .shadow(radius: 10)
-        .padding(32)
-        .transition(reduceMotion ? .identity : .scale.combined(with: .opacity))
+        )
+    }
+
+    // MARK: - Hint Confirm Overlay
+
+    private var hintConfirmOverlay: some View {
+        let free = stats?.availableFreeHints ?? 0
+        let purchased = stats?.purchasedHintsRemaining ?? 0
+        let usingFree = free > 0
+        let freeRemaining = max(0, free - 1)
+        let purchasedRemaining = max(0, purchased - 1)
+
+        return confirmationOverlay(
+            icon: "lightbulb.fill",
+            title: "Use a hint?",
+            message: {
+                if usingFree && freeRemaining > 1 {
+                    Text("Use this hint and you'll have \(freeRemaining) free hints left today.")
+                } else if usingFree && freeRemaining == 1 {
+                    Text("Use this hint and you'll have one free hint left today.")
+                } else if usingFree && purchased > 1 {
+                    Text("This is your last free hint for today. You'll still have \(purchased) saved hints in your pack.")
+                } else if usingFree && purchased == 1 {
+                    Text("This is your last free hint for today. You'll still have one saved hint in your pack.")
+                } else if usingFree {
+                    Text("This is your last free hint for today. Tomorrow you'll get three more.")
+                } else if purchasedRemaining > 1 {
+                    Text("Use this hint and you'll have \(purchasedRemaining) saved hints left in your pack.")
+                } else if purchasedRemaining == 1 {
+                    Text("Use this hint and you'll have one saved hint left in your pack.")
+                } else {
+                    Text("This is your last saved hint. You can buy more any time.")
+                }
+            },
+            actions: {
+                Button {
+                    confirmHintUse()
+                } label: {
+                    Label("Use hint", systemImage: "lightbulb.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                .adaptiveProminentButton()
+
+                Button("Cancel") {
+                    withAnimation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3)) {
+                        showHintConfirmPrompt = false
+                    }
+                }
+                .adaptiveSecondaryButton()
+            }
+        )
+    }
+
+    // MARK: - Out of Hints Overlay
+
+    private var outOfHintsOverlay: some View {
+        let product = storeService.hintPackProduct
+        let priceLabel = product?.displayPrice ?? ""
+
+        return confirmationOverlay(
+            icon: "lightbulb.slash",
+            title: "Out of hints",
+            message: {
+                Text("You've used all three of today's free hints. Tomorrow you'll get three more — or grab a pack of 10 to keep going now.")
+            },
+            actions: {
+                Button {
+                    Task { await purchaseHintPackFromPrompt() }
+                } label: {
+                    Group {
+                        if isPurchasingHintPack {
+                            ProgressView()
+                                .tint(.white)
+                        } else if let _ = product {
+                            Label("Buy 10 hints · \(priceLabel)", systemImage: "cart.fill")
+                        } else {
+                            ProgressView()
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .adaptiveProminentButton()
+                .disabled(product == nil || isPurchasingHintPack)
+
+                Button("Maybe later") {
+                    withAnimation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3)) {
+                        showOutOfHintsPrompt = false
+                    }
+                }
+                .adaptiveSecondaryButton()
+                .disabled(isPurchasingHintPack)
+            }
+        )
     }
 
     // MARK: - Puzzle Loading
@@ -606,6 +752,60 @@ struct GameView: View {
                 return nil
             }
             return CellCommand(cell: CellID(row: row, column: col), oldState: oldState, newState: newState)
+        }
+    }
+
+    // MARK: - Hint Economy
+
+    /// Entry point for the Hint toolbar button. Lazily resets today's free
+    /// allocation, then routes to either the hint-confirmation prompt or
+    /// the out-of-hints upsell depending on balance.
+    private func requestHint() {
+        guard let model, !model.isSolved else { return }
+        stats?.resetDailyHintsIfNeeded()
+        let available = stats?.totalAvailableHints ?? 0
+        if available == 0 {
+            withAnimation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3)) {
+                showOutOfHintsPrompt = true
+            }
+        } else {
+            withAnimation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3)) {
+                showHintConfirmPrompt = true
+            }
+        }
+        _ = model
+    }
+
+    /// Called from the hint-confirmation prompt's primary action. Spends
+    /// one hint (free first, then purchased), dismisses the prompt, and
+    /// runs the existing hint-reveal logic.
+    private func confirmHintUse() {
+        guard let model else { return }
+        stats?.consumeHint()
+        withAnimation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3)) {
+            showHintConfirmPrompt = false
+        }
+        useHint(model: model)
+    }
+
+    /// Called from the out-of-hints prompt. On a successful purchase the
+    /// credit is applied via `StoreKitService.creditHintPack`, so we just
+    /// dismiss the upsell and immediately re-open the confirmation prompt
+    /// — the player pressed Hint, they still want one.
+    private func purchaseHintPackFromPrompt() async {
+        isPurchasingHintPack = true
+        defer { isPurchasingHintPack = false }
+        do {
+            let purchased = try await storeService.purchaseHintPack()
+            guard purchased else { return }
+            withAnimation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.3)) {
+                showOutOfHintsPrompt = false
+                showHintConfirmPrompt = true
+            }
+        } catch {
+            #if DEBUG
+            print("Hint pack purchase failed: \(error)")
+            #endif
         }
     }
 

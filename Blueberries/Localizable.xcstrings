@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "/ %lld free" : {
+
+    },
     "%@ · %@" : {
       "localizations" : {
         "en" : {
@@ -14,7 +17,20 @@
     "%lld" : {
 
     },
+    "%lld / %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld / %2$lld"
+          }
+        }
+      }
+    },
     "%lld/3" : {
+
+    },
+    "+%lld saved" : {
 
     },
     "3" : {
@@ -61,8 +77,8 @@
     "All daily puzzles complete!" : {
 
     },
-    "Another three hints down. A fresh start might help this puzzle click. Your hint count stays the same either way." : {
-
+    "All used up. Come back tomorrow for three more — or stock up below." : {
+      "comment" : "Home hints card subtitle when the player has zero free and zero saved hints"
     },
     "Auto check" : {
 
@@ -90,6 +106,18 @@
     },
     "Build your streak" : {
       "comment" : "Walkthrough page 5 title"
+    },
+    "Buy 10 · %@" : {
+
+    },
+    "Buy 10 hints" : {
+
+    },
+    "Buy 10 hints · %@" : {
+
+    },
+    "Cancel" : {
+
     },
     "Centurion" : {
 
@@ -187,7 +215,10 @@
     "Follow the clues" : {
       "comment" : "Walkthrough page 3 title"
     },
-    "Fresh start?" : {
+    "Free hints reset each day. Anything you buy is yours until you spend it." : {
+      "comment" : "Home hints card subtitle (default state)"
+    },
+    "Free today" : {
 
     },
     "Gameplay" : {
@@ -209,6 +240,9 @@
 
     },
     "Hint master" : {
+
+    },
+    "Hints" : {
 
     },
     "Hints used" : {
@@ -252,6 +286,9 @@
     "Loading..." : {
 
     },
+    "Loading…" : {
+
+    },
     "Look at the **1** in the corner" : {
 
     },
@@ -259,6 +296,9 @@
 
     },
     "Master" : {
+
+    },
+    "Maybe later" : {
 
     },
     "New puzzle" : {
@@ -281,6 +321,9 @@
     },
     "On a roll" : {
 
+    },
+    "Out of hints" : {
+      "comment" : "Title of the modal shown when the player has no hints left"
     },
     "Place 3 berries" : {
       "comment" : "Walkthrough page 2 title"
@@ -307,6 +350,9 @@
 
     },
     "Pro unlocked" : {
+
+    },
+    "Purchasing…" : {
 
     },
     "Puzzle solved!" : {
@@ -358,6 +404,9 @@
     },
     "Ruled out" : {
       "comment" : "Walkthrough crossed state label"
+    },
+    "Saved pack" : {
+
     },
     "Settings" : {
 
@@ -434,10 +483,28 @@
     "This block needs 3 berries and has exactly 3 empty cells. They must all be berries! Tap each one **twice**." : {
 
     },
+    "This is your last free hint for today. Tomorrow you'll get three more." : {
+      "comment" : "Hint confirmation message when the player is about to use their last free hint and has no purchased hints in reserve"
+    },
+    "This is your last free hint for today. You'll still have %lld saved hints in your pack." : {
+      "comment" : "Hint confirmation message when the player is about to use their last free hint and has more than one purchased hint in reserve. %lld is the purchased count (unchanged by spending a free hint)"
+    },
+    "This is your last free hint for today. You'll still have one saved hint in your pack." : {
+      "comment" : "Hint confirmation message when the player is about to use their last free hint and has exactly one purchased hint in reserve"
+    },
+    "This is your last saved hint. You can buy more any time." : {
+      "comment" : "Hint confirmation message when the player is about to spend the final hint in their purchased pack and has no free hints left today"
+    },
     "This row already has 1 berry. Place the other 2 to finish it!" : {
 
     },
-    "Three hints in — sometimes a clean slate helps a puzzle click. Your hint count stays the same either way." : {
+    "Three hints a day, on the house. Spend them wisely." : {
+      "comment" : "Home hints card subtitle when the player has the full daily allocation and no purchased hints"
+    },
+    "Today's free hints are gone. You're now spending from your saved pack." : {
+      "comment" : "Home hints card subtitle when free hints are exhausted but purchased hints remain"
+    },
+    "Today's hints" : {
 
     },
     "Today's puzzles" : {
@@ -467,6 +534,12 @@
     "Use a hint" : {
 
     },
+    "Use a hint?" : {
+      "comment" : "Title of the hint confirmation modal (asks the player to confirm spending a hint)"
+    },
+    "Use hint" : {
+
+    },
     "View grid" : {
 
     },
@@ -485,8 +558,23 @@
     "You've completed the tutorial!" : {
 
     },
+    "Use this hint and you'll have %lld free hints left today." : {
+      "comment" : "Hint confirmation message when the player has more than one free hint left after spending this one. %lld is the post-action free count (always >= 2)"
+    },
+    "Use this hint and you'll have %lld saved hints left in your pack." : {
+      "comment" : "Hint confirmation message when the player is spending from their purchased pool and will have more than one left. %lld is the post-action purchased count (always >= 2)"
+    },
+    "Use this hint and you'll have one free hint left today." : {
+      "comment" : "Hint confirmation message when the player will have exactly one free hint left after spending this one"
+    },
+    "Use this hint and you'll have one saved hint left in your pack." : {
+      "comment" : "Hint confirmation message when the player is spending from their purchased pool and will have exactly one left"
+    },
     "You've got the hang of it!" : {
 
+    },
+    "You've used all three of today's free hints. Tomorrow you'll get three more — or grab a pack of 10 to keep going now." : {
+      "comment" : "Body of the out-of-hints modal"
     }
   },
   "version" : "1.0"

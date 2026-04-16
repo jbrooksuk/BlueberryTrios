@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 import StoreKit
 
 struct SettingsFormView: View {
@@ -8,12 +9,16 @@ struct SettingsFormView: View {
     @AppStorage("hapticsEnabled") private var hapticsEnabled: Bool = true
     @AppStorage("soundEnabled") private var soundEnabled: Bool = true
 
+    @Query private var statsRecords: [PlayerStats]
     @State private var notificationService = NotificationService()
     @State private var showOfferCode: Bool = false
+    @State private var isPurchasingHints: Bool = false
 
     var storeService: StoreKitService
     var onShowWalkthrough: (() -> Void)?
     var onShowTutorial: (() -> Void)?
+
+    private var stats: PlayerStats? { statsRecords.first }
 
     var body: some View {
         Form {
@@ -24,6 +29,46 @@ struct SettingsFormView: View {
                 Toggle("Haptics", isOn: $hapticsEnabled)
                 Toggle("Sound", isOn: $soundEnabled)
                 Toggle("Daily reminder", isOn: $notificationService.isEnabled)
+            }
+            Section("Hints") {
+                LabeledContent("Free today") {
+                    Text("\(stats?.availableFreeHints ?? PlayerStats.freeHintsPerDay) / \(PlayerStats.freeHintsPerDay)")
+                        .monospacedDigit()
+                        .foregroundStyle(.secondary)
+                }
+                LabeledContent("Saved pack") {
+                    Text("\(stats?.purchasedHintsRemaining ?? 0)")
+                        .monospacedDigit()
+                        .foregroundStyle(.secondary)
+                }
+                if let product = storeService.hintPackProduct {
+                    Button {
+                        Task {
+                            isPurchasingHints = true
+                            _ = try? await storeService.purchaseHintPack()
+                            isPurchasingHints = false
+                        }
+                    } label: {
+                        HStack {
+                            if isPurchasingHints {
+                                ProgressView().controlSize(.small)
+                                Text("Purchasing…")
+                            } else {
+                                Text("Buy 10 hints")
+                            }
+                            Spacer()
+                            Text(verbatim: product.displayPrice)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .disabled(isPurchasingHints)
+                } else {
+                    HStack {
+                        ProgressView().controlSize(.small)
+                        Text("Loading products…")
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
             Section("Pro puzzles") {
                 if storeService.isProUnlocked {
