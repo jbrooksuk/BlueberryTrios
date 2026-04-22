@@ -27,6 +27,7 @@ struct GameView: View {
     @State private var soundService = SoundService()
     @State private var cachedPuzzleKey: String?
     @State private var showRestartPrompt: Bool = false
+    @State private var currentDay: Date = Calendar.current.startOfDay(for: .now)
     @ScaledMetric(relativeTo: .largeTitle) private var solvedIconSize: CGFloat = 48
 
     init(
@@ -137,6 +138,27 @@ struct GameView: View {
         .onChange(of: scenePhase) {
             if scenePhase == .background || scenePhase == .inactive {
                 saveCurrentState()
+            } else if scenePhase == .active {
+                let today = Calendar.current.startOfDay(for: .now)
+                if today != currentDay { currentDay = today }
+                reloadIfDailyDateChanged()
+            }
+        }
+        .task(id: currentDay) {
+            let calendar = Calendar.current
+            let now = Date.now
+            let nextMidnight = calendar.nextDate(
+                after: now,
+                matching: DateComponents(hour: 0, minute: 0, second: 0),
+                matchingPolicy: .nextTime
+            ) ?? now.addingTimeInterval(86400)
+            let interval = max(1, nextMidnight.timeIntervalSince(now))
+            try? await Task.sleep(for: .seconds(interval))
+            if Task.isCancelled { return }
+            let today = calendar.startOfDay(for: .now)
+            if today != currentDay {
+                currentDay = today
+                reloadIfDailyDateChanged()
             }
         }
         .onChange(of: source) {
@@ -456,6 +478,16 @@ struct GameView: View {
         self.model = newModel
         if !newModel.isSolved {
             gameTimer.start()
+        }
+    }
+
+    private func reloadIfDailyDateChanged() {
+        guard source == .daily, let cachedPuzzleKey else { return }
+        guard let todayDefinition = puzzleStore.dailyPuzzle(date: Date.now, difficulty: difficulty) else { return }
+        let todayKey = puzzleIdentifier(todayDefinition)
+        if todayKey != cachedPuzzleKey {
+            loadPuzzle()
+            updateWidgetData()
         }
     }
 

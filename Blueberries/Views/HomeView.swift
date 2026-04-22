@@ -6,6 +6,7 @@ import WidgetKit
 struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.scenePhase) private var scenePhase
     @Query private var savedStates: [GameState]
     @Query private var statsRecords: [PlayerStats]
 
@@ -21,6 +22,7 @@ struct HomeView: View {
     @AppStorage("hasSeenWalkthrough") private var hasSeenWalkthrough: Bool = false
     @AppStorage("hasCompletedTutorial") private var hasCompletedTutorial: Bool = false
     @State private var showTutorial: Bool = false
+    @State private var currentDay: Date = Calendar.current.startOfDay(for: .now)
 
 
     private enum HomeTab: Hashable {
@@ -71,6 +73,32 @@ struct HomeView: View {
                         showTutorial = true
                     }
                 }
+            }
+        }
+        .onChange(of: scenePhase) {
+            if scenePhase == .active {
+                let today = Calendar.current.startOfDay(for: .now)
+                if today != currentDay {
+                    currentDay = today
+                    updateWidgetData()
+                }
+            }
+        }
+        .task(id: currentDay) {
+            let calendar = Calendar.current
+            let now = Date.now
+            let nextMidnight = calendar.nextDate(
+                after: now,
+                matching: DateComponents(hour: 0, minute: 0, second: 0),
+                matchingPolicy: .nextTime
+            ) ?? now.addingTimeInterval(86400)
+            let interval = max(1, nextMidnight.timeIntervalSince(now))
+            try? await Task.sleep(for: .seconds(interval))
+            if Task.isCancelled { return }
+            let today = calendar.startOfDay(for: .now)
+            if today != currentDay {
+                currentDay = today
+                updateWidgetData()
             }
         }
         .task {
