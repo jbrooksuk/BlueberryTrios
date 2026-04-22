@@ -26,14 +26,11 @@
         <section class="showcase">
             <div class="container">
                 <div class="phone-row">
-                    <div class="phone-frame side fade-up" style="transition-delay: 0.1s;">
-                        <img :src="'/screenshots/puzzle-light.png'" alt="Berroku puzzle screen" loading="lazy">
-                    </div>
                     <div class="phone-frame hero-phone fade-up">
-                        <img :src="'/screenshots/home-light.png'" alt="Berroku home screen" loading="lazy">
+                        <img :src="'/screenshots/home.png'" alt="Berroku home screen" loading="lazy">
                     </div>
-                    <div class="phone-frame side fade-up" style="transition-delay: 0.2s;">
-                        <img :src="'/screenshots/puzzle-gameplay.png'" alt="Berroku puzzle gameplay" loading="lazy">
+                    <div class="phone-frame side fade-up" style="transition-delay: 0.1s;">
+                        <img :src="'/screenshots/puzzle.png'" alt="Berroku puzzle screen" loading="lazy">
                     </div>
                 </div>
             </div>
