@@ -465,7 +465,7 @@ struct GameView: View {
         let puzzleKey = puzzleIdentifier(definition)
         cachedPuzzleKey = puzzleKey
 
-        if let saved = fetchSavedState(for: puzzleKey) {
+        if let saved = fetchSavedState(for: puzzleKey, matching: source, on: currentDateString(), proSetNumber: proSetNumber) {
             restoreState(saved, into: newModel)
         }
 
@@ -498,7 +498,7 @@ struct GameView: View {
             let date = Date.now
             guard let definition = puzzleStore.proPuzzle(date: date, difficulty: difficulty, setNumber: proSetNumber) else { break }
             let key = puzzleIdentifier(definition)
-            let alreadyStarted = fetchSavedState(for: key) != nil
+            let alreadyStarted = fetchSavedState(for: key, matching: .pro, on: currentDateString(), proSetNumber: proSetNumber) != nil
             if !alreadyStarted { break }
         }
         loadPuzzle()
@@ -542,7 +542,7 @@ struct GameView: View {
 
         let hintedCellString = model.hintedCell.map { "\($0.row),\($0.column)" } ?? ""
 
-        if let existing = fetchSavedState(for: puzzleKey) {
+        if let existing = fetchSavedState(for: puzzleKey, matching: source, on: currentDateString(), proSetNumber: proSetNumber) {
             existing.cellStates = cellString
             existing.undoHistory = undoString
             existing.redoHistory = redoString
@@ -583,12 +583,34 @@ struct GameView: View {
         }
     }
 
-    private func fetchSavedState(for key: String) -> GameState? {
-        var descriptor = FetchDescriptor<GameState>(
-            predicate: #Predicate { $0.puzzleJSON == key }
-        )
-        descriptor.fetchLimit = 1
-        return (try? modelContext.fetch(descriptor))?.first
+    /// Fetch a saved state that matches the puzzle *and* the (source, day /
+    /// set) tuple. Matching on `puzzleJSON` alone is ambiguous: two different
+    /// daily dates — or a daily and a pro with the same underlying
+    /// `PuzzleDefinition` — can share the same JSON.
+    private func fetchSavedState(for key: String, matching source: PuzzleSource, on dateString: String, proSetNumber: Int) -> GameState? {
+        let sourceRaw = source.rawValue
+        let descriptor: FetchDescriptor<GameState>
+        switch source {
+        case .daily:
+            descriptor = FetchDescriptor<GameState>(
+                predicate: #Predicate {
+                    $0.puzzleJSON == key
+                        && $0.source == sourceRaw
+                        && $0.dateString == dateString
+                }
+            )
+        case .pro:
+            descriptor = FetchDescriptor<GameState>(
+                predicate: #Predicate {
+                    $0.puzzleJSON == key
+                        && $0.source == sourceRaw
+                        && $0.proSetNumber == proSetNumber
+                }
+            )
+        }
+        var d = descriptor
+        d.fetchLimit = 1
+        return (try? modelContext.fetch(d))?.first
     }
 
     private func restoreState(_ saved: GameState, into model: PuzzleModel) {
@@ -735,7 +757,7 @@ struct GameView: View {
             encoder.outputFormatting = .sortedKeys
             guard let data = try? encoder.encode(def),
                   let key = String(data: data, encoding: .utf8) else { return false }
-            guard let saved = fetchSavedState(for: key) else { return false }
+            guard let saved = fetchSavedState(for: key, matching: .daily, on: currentDateString(), proSetNumber: 0) else { return false }
             return saved.solved && saved.hintCount == 0
         }
 
@@ -769,7 +791,7 @@ struct GameView: View {
                 encoder.outputFormatting = .sortedKeys
                 if let data = try? encoder.encode(def),
                    let key = String(data: data, encoding: .utf8) {
-                    if let state = fetchSavedState(for: key), state.solved {
+                    if let state = fetchSavedState(for: key, matching: .daily, on: currentDateString(), proSetNumber: 0), state.solved {
                         solvedCount += 1
                         hintFlags += state.hintCount > 0 ? "1" : "0"
                     } else {
