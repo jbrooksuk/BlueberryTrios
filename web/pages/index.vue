@@ -9,9 +9,7 @@
         <section class="hero">
             <div class="container hero-content">
                 <div class="hero-berries fade-up">
-                    <img src="/berry-smile.svg" alt="" class="hero-berry berry-left" />
-                    <img src="/berry-happy.svg" alt="" class="hero-berry berry-center" />
-                    <img src="/berry-wink.svg" alt="" class="hero-berry berry-right" />
+                    <img src="/berry-cluster.svg" alt="" class="hero-cluster" />
                 </div>
                 <h1 class="fade-up">Berroku</h1>
                 <p class="hero-tagline fade-up">Place 3 berries in every row, column &amp; block.<br>A fresh logic puzzle that's delightfully addictive.</p>
@@ -93,9 +91,7 @@
         <section id="download" class="cta-section">
             <div class="container section-center">
                 <div class="cta-berries fade-up">
-                    <img src="/berry-smile.svg" alt="" class="cta-berry" />
-                    <img src="/berry-happy.svg" alt="" class="cta-berry cta-berry-center" />
-                    <img src="/berry-wink.svg" alt="" class="cta-berry" />
+                    <img src="/berry-cluster.svg" alt="" class="cta-cluster" />
                 </div>
                 <h2 class="fade-up">Ready to pick some 🫐?</h2>
                 <p class="fade-up">Free to play. New puzzles every day.</p>
@@ -188,25 +184,11 @@ section {
     align-items: flex-end;
     margin-bottom: 20px;
 }
-.hero-berry {
+.hero-cluster {
+    width: clamp(180px, 28vw, 240px);
+    height: auto;
     animation: heroFloat 3s ease-in-out infinite;
-}
-.berry-left {
-    width: 56px;
-    transform: rotate(-8deg);
-    margin-right: -8px;
-}
-.berry-center {
-    width: 72px;
-    animation-delay: 0.3s;
-    z-index: 1;
-    filter: drop-shadow(0 8px 20px rgba(53,132,228,0.3));
-}
-.berry-right {
-    width: 56px;
-    transform: rotate(8deg);
-    animation-delay: 0.6s;
-    margin-left: -8px;
+    filter: drop-shadow(0 10px 22px rgba(53,132,228,0.28));
 }
 
 h1 {
@@ -397,8 +379,11 @@ h2 {
     gap: 2px;
     margin-bottom: 24px;
 }
-.cta-berry { width: 32px; opacity: 0.6; }
-.cta-berry-center { width: 40px; opacity: 0.9; }
+.cta-cluster {
+    width: clamp(120px, 22vw, 160px);
+    height: auto;
+    opacity: 0.9;
+}
 
 /* ---- Responsive ---- */
 @media (max-width: 900px) {
