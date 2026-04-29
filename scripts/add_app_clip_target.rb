@@ -56,7 +56,8 @@ MAIN_FOLDER_EXCLUSIONS_FOR_CLIP = [
 # Files from BlueberriesClip/ that are not compiled (Info.plist, entitlements).
 CLIP_FOLDER_EXCLUSIONS = [
   'Info.plist',
-  'BerrokuClip.entitlements'
+  'BerrokuClip.entitlements',
+  'BerrokuClip.Debug.entitlements'
 ].freeze
 
 project = Xcodeproj::Project.open(PROJECT_PATH)
@@ -96,7 +97,6 @@ clip_product.explicit_file_type = 'wrapper.application'
 base_settings = {
   'ASSETCATALOG_COMPILER_APPICON_NAME' => 'AppIcon',
   'ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME' => 'AccentColor',
-  'CODE_SIGN_ENTITLEMENTS' => 'BlueberriesClip/BerrokuClip.entitlements',
   'CODE_SIGN_STYLE' => 'Automatic',
   'CURRENT_PROJECT_VERSION' => '1',
   'DEVELOPMENT_TEAM' => DEVELOPMENT_TEAM,
@@ -112,7 +112,7 @@ base_settings = {
   'INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad' =>
     'UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight',
   'LD_RUNPATH_SEARCH_PATHS' => ['$(inherited)', '@executable_path/Frameworks'],
-  'MARKETING_VERSION' => '1.5.1',
+  'MARKETING_VERSION' => '1.6',
   'PRODUCT_NAME' => '$(TARGET_NAME)',
   'STRING_CATALOG_GENERATE_SYMBOLS' => 'YES',
   'SUPPORTED_PLATFORMS' => 'iphoneos iphonesimulator',
@@ -130,10 +130,14 @@ base_settings = {
 clip_target.build_configurations.each do |config|
   settings = base_settings.dup
   if config.name == 'Debug'
+    # Each entitlements file declares a single parent app identifier
+    # (Apple rejects multiple), so debug + release point at separate files.
+    settings['CODE_SIGN_ENTITLEMENTS'] = 'BlueberriesClip/BerrokuClip.Debug.entitlements'
     settings['PRODUCT_BUNDLE_IDENTIFIER'] = APP_CLIP_BUNDLE_ID_DEBUG
     settings['INFOPLIST_KEY_CFBundleDisplayName'] = 'Berroku Clip Debug'
     settings['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'AppIcon-Debug'
   else
+    settings['CODE_SIGN_ENTITLEMENTS'] = 'BlueberriesClip/BerrokuClip.entitlements'
     settings['PRODUCT_BUNDLE_IDENTIFIER'] = APP_CLIP_BUNDLE_ID_RELEASE
     settings['INFOPLIST_KEY_CFBundleDisplayName'] = 'Berroku Clip'
   end

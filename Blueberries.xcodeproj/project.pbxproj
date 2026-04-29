@@ -62,7 +62,7 @@
 		1A295E772F7A88AE00016082 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		1A72176A2F74765A00B7D285 /* Blueberries.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Blueberries.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8CE2AD836970D5E3EEA0845B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		C0FE97F1398AD2F463BB38DC /* BerrokuClip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = BerrokuClip.app; path = BerrokuClip.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C0FE97F1398AD2F463BB38DC /* BerrokuClip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BerrokuClip.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -83,14 +83,13 @@
 		77AEB95B31AC017655AFBA12 /* Exceptions for "Blueberries" folder in "BerrokuClip" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Blueberries.entitlements,
 				BlueberriesApp.swift,
 				Info.plist,
 				Localizable.xcstrings,
-				Products.storekit,
 				Models/BerrokuSchema.swift,
 				Models/GameState.swift,
 				Models/PlayerStats.swift,
+				Products.storekit,
 				Services/GameCenterService.swift,
 				Services/NotificationService.swift,
 				Services/PuzzleSolver.swift,
@@ -114,7 +113,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				BerrokuClip.entitlements,
 			);
 			target = E0B3767ECE42277CE5645AA4 /* BerrokuClip */;
 		};
@@ -275,8 +273,8 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				416C8F75A3096D4B22F2C157 /* BlueberriesClip */,
 				1A72176C2F74765A00B7D285 /* Blueberries */,
+				416C8F75A3096D4B22F2C157 /* BlueberriesClip */,
 			);
 			name = BerrokuClip;
 			productName = BerrokuClip;
@@ -316,8 +314,8 @@
 			projectRoot = "";
 			targets = (
 				1A7217692F74765A00B7D285 /* Blueberries */,
-				1A295E722F7A88AE00016082 /* BlueberriesWidgetExtension */,
 				E0B3767ECE42277CE5645AA4 /* BerrokuClip */,
+				1A295E722F7A88AE00016082 /* BlueberriesWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -403,7 +401,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.5.1;
+				MARKETING_VERSION = 1.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.altthree.Berroku.debug.BlueberriesWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -438,7 +436,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.5.1;
+				MARKETING_VERSION = 1.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.altthree.Berroku.BlueberriesWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -598,7 +596,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.1;
+				MARKETING_VERSION = 1.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.altthree.Berroku.debug;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -637,7 +635,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.1;
+				MARKETING_VERSION = 1.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.altthree.Berroku;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -659,7 +657,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-Debug";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = BlueberriesClip/BerrokuClip.entitlements;
+				CODE_SIGN_ENTITLEMENTS = BlueberriesClip/BerrokuClip.Debug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 94MWDYL76Q;
@@ -678,7 +676,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.1;
+				MARKETING_VERSION = 1.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.altthree.Berroku.debug.Clip;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -719,7 +717,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.1;
+				MARKETING_VERSION = 1.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.altthree.Berroku.Clip;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
