@@ -73,11 +73,4 @@ export default defineNuxtConfig({
     },
   },
   css: ['~/assets/css/main.css'],
-  nitro: {
-    routeRules: {
-      '/.well-known/apple-app-site-association': {
-        headers: { 'Content-Type': 'application/json' },
-      },
-    },
-  },
 })
