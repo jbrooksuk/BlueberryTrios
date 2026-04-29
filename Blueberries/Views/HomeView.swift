@@ -439,7 +439,7 @@ struct HomeView: View {
                 Divider().padding(.leading, 44)
                 achievementRow(icon: "square.grid.3x3.fill", title: "Expert solver", subtitle: "Complete an Expert puzzle", progress: hasSolvedDifficulty(.expert) ? 1 : 0, target: 1)
                 Divider().padding(.leading, 44)
-                achievementRow(icon: "sparkles", title: "Daily sweep", subtitle: "Complete all 3 daily puzzles", progress: allDailySolved ? 1 : 0, target: 1)
+                achievementRow(icon: "sparkles", title: "Daily sweep", subtitle: "Complete all 3 daily puzzles", progress: hasEverSweptDaily ? 1 : 0, target: 1)
             }
 
             if (stats?.totalHintsUsed ?? 0) >= 1 {
@@ -512,6 +512,21 @@ struct HomeView: View {
         Difficulty.allCases.allSatisfy { isDailySolved($0) }
     }
 
+    /// True if the player has, on any past day, completed all three daily
+    /// difficulties hint-free. Mirrors the Game Center `dailySweep` criterion
+    /// so the local achievement row stays ticked once earned, instead of
+    /// resetting at midnight when today's saved states stop matching.
+    private var hasEverSweptDaily: Bool {
+        let solved = savedStates.filter {
+            $0.source == PuzzleSource.daily.rawValue && $0.solved && $0.hintCount == 0
+        }
+        let requiredDifficulties = Set(Difficulty.allCases.map(\.rawValue))
+        let byDate = Dictionary(grouping: solved, by: \.dateString)
+        return byDate.values.contains { dayStates in
+            Set(dayStates.map(\.difficulty)).isSuperset(of: requiredDifficulties)
+        }
+    }
+
     private func hasSolvedDifficulty(_ difficulty: Difficulty) -> Bool {
         savedStates.contains { $0.difficulty == difficulty.rawValue && $0.solved }
     }
@@ -526,19 +541,36 @@ struct HomeView: View {
         return key
     }
 
+    private func todayString() -> String {
+        let cal = Calendar.current
+        let d = Date.now
+        return "\(cal.component(.day, from: d)) \(cal.component(.month, from: d)) \(cal.component(.year, from: d))"
+    }
+
+    /// The daily puzzle list has fewer entries than there are days, so two
+    /// separate days can legitimately hash to the same `PuzzleDefinition` and
+    /// serialise to the same `puzzleJSON`. Match on the (date, source) tuple
+    /// too so a past-day solve of an identical puzzle doesn't mark today's
+    /// card as completed.
+    private func isTodaysDailyState(_ state: GameState, key: String) -> Bool {
+        state.puzzleJSON == key
+            && state.source == PuzzleSource.daily.rawValue
+            && state.dateString == todayString()
+    }
+
     private func isDailySolved(_ difficulty: Difficulty) -> Bool {
         guard let key = dailyPuzzleKey(difficulty) else { return false }
-        return savedStates.contains { $0.puzzleJSON == key && $0.solved }
+        return savedStates.contains { isTodaysDailyState($0, key: key) && $0.solved }
     }
 
     private func isDailyInProgress(_ difficulty: Difficulty) -> Bool {
         guard let key = dailyPuzzleKey(difficulty) else { return false }
-        return savedStates.contains { $0.puzzleJSON == key && !$0.solved }
+        return savedStates.contains { isTodaysDailyState($0, key: key) && !$0.solved }
     }
 
     private func isDailyHintUsed(_ difficulty: Difficulty) -> Bool {
         guard let key = dailyPuzzleKey(difficulty) else { return false }
-        return savedStates.contains { $0.puzzleJSON == key && $0.solved && $0.hintCount > 0 }
+        return savedStates.contains { isTodaysDailyState($0, key: key) && $0.solved && $0.hintCount > 0 }
     }
 
     private func updateWidgetData() {

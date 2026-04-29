@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 import StoreKit
 
 struct SettingsFormView: View {
@@ -7,6 +8,8 @@ struct SettingsFormView: View {
     @AppStorage("fillHints") private var fillHints: Bool = false
     @AppStorage("hapticsEnabled") private var hapticsEnabled: Bool = true
     @AppStorage("soundEnabled") private var soundEnabled: Bool = true
+
+    @Query private var statsRecords: [PlayerStats]
 
     @State private var notificationService = NotificationService()
     @State private var showOfferCode: Bool = false
@@ -23,7 +26,15 @@ struct SettingsFormView: View {
                 Toggle("Fill hints", isOn: $fillHints)
                 Toggle("Haptics", isOn: $hapticsEnabled)
                 Toggle("Sound", isOn: $soundEnabled)
-                Toggle("Daily reminder", isOn: $notificationService.isEnabled)
+                Toggle("Daily reminder", isOn: Binding(
+                    get: { notificationService.isEnabled },
+                    set: { newValue in
+                        notificationService.setEnabled(
+                            newValue,
+                            currentStreak: statsRecords.first?.effectiveCurrentStreak ?? 0
+                        )
+                    }
+                ))
             }
             Section("Pro puzzles") {
                 if storeService.isProUnlocked {

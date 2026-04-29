@@ -11,12 +11,28 @@ import SwiftData
 @main
 struct BlueberriesApp: App {
     let modelContainer: ModelContainer = BlueberriesApp.makeContainer()
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var notificationService = NotificationService()
 
     var body: some Scene {
         WindowGroup {
             HomeView()
         }
         .modelContainer(modelContainer)
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                notificationService.refreshIfScheduled(currentStreak: currentEffectiveStreak())
+            }
+        }
+    }
+
+    @MainActor
+    private func currentEffectiveStreak() -> Int {
+        let context = ModelContext(modelContainer)
+        var descriptor = FetchDescriptor<PlayerStats>()
+        descriptor.fetchLimit = 1
+        let stats = (try? context.fetch(descriptor))?.first
+        return stats?.effectiveCurrentStreak ?? 0
     }
 
     // MARK: - Container setup
