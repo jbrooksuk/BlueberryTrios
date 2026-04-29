@@ -1,0 +1,21 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "94MWDYL76Q.com.altthree.Berroku",
+          "94MWDYL76Q.com.altthree.Berroku.Clip"
+        ],
+        "components": [
+          { "/": "/play", "comment": "App Clip default landing" },
+          { "/": "/play/*", "comment": "Future difficulty-scoped invocations" }
+        ]
+      }
+    ]
+  },
+  "appclips": {
+    "apps": [
+      "94MWDYL76Q.com.altthree.Berroku.Clip"
+    ]
+  }
+}
