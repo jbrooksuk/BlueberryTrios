@@ -11,12 +11,19 @@ import SwiftData
 @main
 struct BlueberriesApp: App {
     let modelContainer: ModelContainer = BlueberriesApp.makeContainer()
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var notificationService = NotificationService()
 
     var body: some Scene {
         WindowGroup {
             HomeView()
         }
         .modelContainer(modelContainer)
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                notificationService.refreshIfScheduled()
+            }
+        }
     }
 
     // MARK: - Container setup
