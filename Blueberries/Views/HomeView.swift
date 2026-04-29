@@ -439,7 +439,7 @@ struct HomeView: View {
                 Divider().padding(.leading, 44)
                 achievementRow(icon: "square.grid.3x3.fill", title: "Expert solver", subtitle: "Complete an Expert puzzle", progress: hasSolvedDifficulty(.expert) ? 1 : 0, target: 1)
                 Divider().padding(.leading, 44)
-                achievementRow(icon: "sparkles", title: "Daily sweep", subtitle: "Complete all 3 daily puzzles", progress: allDailySolved ? 1 : 0, target: 1)
+                achievementRow(icon: "sparkles", title: "Daily sweep", subtitle: "Complete all 3 daily puzzles", progress: hasEverSweptDaily ? 1 : 0, target: 1)
             }
 
             if (stats?.totalHintsUsed ?? 0) >= 1 {
@@ -510,6 +510,21 @@ struct HomeView: View {
 
     private var allDailySolved: Bool {
         Difficulty.allCases.allSatisfy { isDailySolved($0) }
+    }
+
+    /// True if the player has, on any past day, completed all three daily
+    /// difficulties hint-free. Mirrors the Game Center `dailySweep` criterion
+    /// so the local achievement row stays ticked once earned, instead of
+    /// resetting at midnight when today's saved states stop matching.
+    private var hasEverSweptDaily: Bool {
+        let solved = savedStates.filter {
+            $0.source == PuzzleSource.daily.rawValue && $0.solved && $0.hintCount == 0
+        }
+        let requiredDifficulties = Set(Difficulty.allCases.map(\.rawValue))
+        let byDate = Dictionary(grouping: solved, by: \.dateString)
+        return byDate.values.contains { dayStates in
+            Set(dayStates.map(\.difficulty)).isSuperset(of: requiredDifficulties)
+        }
     }
 
     private func hasSolvedDifficulty(_ difficulty: Difficulty) -> Bool {
