@@ -21,9 +21,18 @@ struct BlueberriesApp: App {
         .modelContainer(modelContainer)
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
-                notificationService.refreshIfScheduled()
+                notificationService.refreshIfScheduled(currentStreak: currentEffectiveStreak())
             }
         }
+    }
+
+    @MainActor
+    private func currentEffectiveStreak() -> Int {
+        let context = ModelContext(modelContainer)
+        var descriptor = FetchDescriptor<PlayerStats>()
+        descriptor.fetchLimit = 1
+        let stats = (try? context.fetch(descriptor))?.first
+        return stats?.effectiveCurrentStreak ?? 0
     }
 
     // MARK: - Container setup
