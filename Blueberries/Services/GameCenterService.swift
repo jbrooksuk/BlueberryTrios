@@ -54,6 +54,42 @@ final class GameCenterService {
         #endif
     }
 
+    /// Reports just the hint achievements (Hint helper, Hint master) so
+    /// they fire the moment the player presses the hint button rather
+    /// than waiting for puzzle completion. Game Center accepts repeat
+    /// reports idempotently, so the redundant report inside
+    /// `reportPuzzleCompleted` is harmless.
+    func reportHintUsed(totalHintsUsed: Int) {
+        guard isAuthenticated else { return }
+
+        var achievements: [GKAchievement] = []
+        let hintMilestones: [(Achievement, Int)] = [
+            (.hintHelper, 1),
+            (.hintMaster, 100),
+        ]
+        for (achievement, target) in hintMilestones {
+            let percent = min(100.0, Double(totalHintsUsed) / Double(target) * 100.0)
+            if percent > 0 {
+                let gkAchievement = GKAchievement(identifier: achievement.rawValue)
+                gkAchievement.percentComplete = percent
+                gkAchievement.showsCompletionBanner = true
+                achievements.append(gkAchievement)
+            }
+        }
+
+        guard !achievements.isEmpty else { return }
+
+        Task {
+            do {
+                try await GKAchievement.report(achievements)
+            } catch {
+                #if DEBUG
+                print("Failed to report hint achievements: \(error)")
+                #endif
+            }
+        }
+    }
+
     func reportPuzzleCompleted(totalCompleted: Int, completionTime: TimeInterval, streak: Int, difficulty: Difficulty? = nil, isDaily: Bool = false, allDailySolved: Bool = false, hintUsed: Bool = false, totalHintsUsed: Int = 0) {
         guard isAuthenticated else { return }
 

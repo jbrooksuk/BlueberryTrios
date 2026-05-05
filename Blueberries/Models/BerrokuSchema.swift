@@ -132,12 +132,13 @@ enum SchemaV2: VersionedSchema {
 
         /// Records a puzzle completion. `hintCount` is the number of hint
         /// actions the player took on the puzzle; fastest-time tracking is
-        /// gated on a fully hint-free run (`hintCount == 0`). Hints only
-        /// contribute to `totalHintsUsed` when the puzzle is completed, so
-        /// the Home stats grid reflects completed-puzzle hint usage only.
+        /// gated on a fully hint-free run (`hintCount == 0`). The running
+        /// `totalHintsUsed` tally is updated at hint-press time (see
+        /// GameView.useHint), so this method intentionally does not touch
+        /// it — that lets the Hint helper achievement fire as soon as the
+        /// hint button is pressed instead of waiting for completion.
         func recordCompletion(time: TimeInterval, date: Date, hintCount: Int = 0) {
             totalPuzzlesCompleted += 1
-            totalHintsUsed += hintCount
 
             // Only record fastest time for hint-free completions
             if hintCount == 0 {

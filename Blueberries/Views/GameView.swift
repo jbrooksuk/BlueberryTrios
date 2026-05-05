@@ -668,6 +668,10 @@ struct GameView: View {
         if let move = solver.findHint() {
             let previousCount = model.hintCount
             model.hintCount += 1
+            if let stats {
+                stats.totalHintsUsed += 1
+                gameCenterService.reportHintUsed(totalHintsUsed: stats.totalHintsUsed)
+            }
             if let (cell, state) = move.knowledge.first {
                 if fillHints {
                     model.applyCell(cell, to: state)
