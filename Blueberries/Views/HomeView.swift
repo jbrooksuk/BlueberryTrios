@@ -379,6 +379,16 @@ struct HomeView: View {
                     statItem(value: "\(totalHints)", label: "Hints used", icon: "lightbulb.fill")
                     statItem(value: avgHintsText, label: "Avg hints / puzzle", icon: "chart.bar.xaxis")
                 }
+
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    ForEach(Difficulty.allCases) { diff in
+                        statItem(
+                            value: "\(completedCount(for: diff))",
+                            label: LocalizedStringKey(diff.rawValue),
+                            icon: "\(diff.displayIndex).circle.fill"
+                        )
+                    }
+                }
             }
         }
         .padding(20)
@@ -529,6 +539,14 @@ struct HomeView: View {
 
     private func hasSolvedDifficulty(_ difficulty: Difficulty) -> Bool {
         savedStates.contains { $0.difficulty == difficulty.rawValue && $0.solved }
+    }
+
+    private func completedCount(for difficulty: Difficulty) -> Int {
+        savedStates.reduce(into: 0) { count, state in
+            if state.difficulty == difficulty.rawValue && state.solved {
+                count += 1
+            }
+        }
     }
 
     private func dailyPuzzleKey(_ difficulty: Difficulty) -> String? {
