@@ -82,10 +82,16 @@ struct GameView: View {
                             model.undo()
                             saveCurrentState()
                             return true
-                        }
+                        },
+                        accessibilityRepeatLabel: String(
+                            localized: "Undo step",
+                            comment: "VoiceOver custom action label for repeated undo")
                     ) {
                         Label("Undo", systemImage: "arrow.uturn.backward")
                     }
+                    .accessibilityHint(String(
+                        localized: "Hold to undo multiple steps",
+                        comment: "Accessibility hint for undo toolbar button"))
 
                     HoldToRepeatButton(
                         isEnabled: model.canRedo && !solved,
@@ -95,20 +101,32 @@ struct GameView: View {
                             model.redo()
                             saveCurrentState()
                             return true
-                        }
+                        },
+                        accessibilityRepeatLabel: String(
+                            localized: "Redo step",
+                            comment: "VoiceOver custom action label for repeated redo")
                     ) {
                         Label("Redo", systemImage: "arrow.uturn.forward")
                     }
+                    .accessibilityHint(String(
+                        localized: "Hold to redo multiple steps",
+                        comment: "Accessibility hint for redo toolbar button"))
 
                     Button { model.erase(); saveCurrentState() } label: {
                         Label("Erase", systemImage: "eraser")
                     }
                     .disabled(solved)
+                    .accessibilityHint(String(
+                        localized: "Clears all cells",
+                        comment: "Accessibility hint for erase toolbar button"))
 
                     Button { useHint(model: model) } label: {
                         Label("Hint", systemImage: "lightbulb")
                     }
                     .disabled(solved)
+                    .accessibilityHint(String(
+                        localized: "Reveals a logical next step",
+                        comment: "Accessibility hint for hint toolbar button"))
 
                     Button { _ = model.checkSolved() } label: {
                         Label("Check", systemImage: "checkmark.circle")
@@ -116,6 +134,9 @@ struct GameView: View {
                     .disabled(solved)
                     .opacity(autoCheck ? 0 : 1)
                     .accessibilityHidden(autoCheck)
+                    .accessibilityHint(String(
+                        localized: "Checks your current solution for errors",
+                        comment: "Accessibility hint for check toolbar button"))
                 }
             }
         }
@@ -858,6 +879,7 @@ private struct HoldToRepeatButton<L: View>: View {
     let isEnabled: Bool
     let onTap: () -> Void
     let onHoldStep: () -> Bool
+    let accessibilityRepeatLabel: String
     @ViewBuilder var label: () -> L
 
     @State private var holdTask: Task<Void, Never>?
@@ -877,6 +899,9 @@ private struct HoldToRepeatButton<L: View>: View {
         .buttonStyle(PressObservingButtonStyle { pressed in
             handlePress(pressed)
         })
+        .accessibilityAction(named: accessibilityRepeatLabel) {
+            _ = onHoldStep()
+        }
     }
 
     private func handlePress(_ pressed: Bool) {
@@ -884,7 +909,7 @@ private struct HoldToRepeatButton<L: View>: View {
             didRepeat = false
             holdTask?.cancel()
             holdTask = Task { @MainActor in
-                try? await Task.sleep(for: .milliseconds(350))
+                try? await Task.sleep(for: .milliseconds(300))
                 if Task.isCancelled { return }
                 didRepeat = true
                 var delay: TimeInterval = 0.18
@@ -907,6 +932,7 @@ private struct PressObservingButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .opacity(configuration.isPressed ? 0.55 : 1)
+            .contentShape(Rectangle())
             .onChange(of: configuration.isPressed) { _, pressed in
                 onPressChange(pressed)
             }
