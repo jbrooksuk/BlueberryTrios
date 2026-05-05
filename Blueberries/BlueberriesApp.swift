@@ -48,10 +48,17 @@ struct BlueberriesApp: App {
         let schema = Schema(versionedSchema: SchemaV2.self)
 
         #if DEBUG
-        // Separate on-disk file for debug builds. "Berroku-Debug.store" lives
-        // alongside the release "default.store" in the same container, so
-        // installing the debug scheme does not touch real user data.
-        let configuration = ModelConfiguration("Berroku-Debug", schema: schema)
+        // Pin the debug store to the debug app's private Application Support
+        // directory. ModelConfiguration's `groupContainer` defaults to
+        // `.automatic`, which would place the store in the shared
+        // `group.com.altthree.berroku` container — where it would survive
+        // a debug-app uninstall, because the release app keeps that group
+        // container alive. An explicit `url:` keeps debug experiments
+        // genuinely isolated and reliably wipeable by deleting the app.
+        let appSupport = URL.applicationSupportDirectory
+        try? FileManager.default.createDirectory(at: appSupport, withIntermediateDirectories: true)
+        let storeURL = appSupport.appendingPathComponent("Berroku-Debug.store")
+        let configuration = ModelConfiguration("Berroku-Debug", schema: schema, url: storeURL)
         #else
         // Default configuration — matches the implicit name SwiftData used
         // prior to introducing this migration plan, so shipped users'
