@@ -130,6 +130,9 @@ struct HomeView: View {
 
                     AdaptiveGlassContainer(spacing: 20) {
                         VStack(spacing: 20) {
+                            if last7DaysCompletion.contains(true) {
+                                streakBanner
+                            }
                             dailyPuzzleCard
                             proPuzzlesCard
                             statsAndCalendarCard
@@ -188,6 +191,71 @@ struct HomeView: View {
             }
         }
         .padding(.top, 16)
+    }
+
+    // MARK: - Streak Banner
+
+    /// Whether the player completed any puzzle on each of the last 7 days,
+    /// from oldest (index 0, 6 days ago) to newest (index 6, today).
+    private var last7DaysCompletion: [Bool] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: .now)
+        let completedDays: Set<Date> = Set(
+            savedStates.compactMap { state in
+                guard state.solved, let date = state.completionDate else { return nil }
+                return calendar.startOfDay(for: date)
+            }
+        )
+        return (0..<7).map { offset in
+            guard let day = calendar.date(byAdding: .day, value: offset - 6, to: today) else {
+                return false
+            }
+            return completedDays.contains(day)
+        }
+    }
+
+    private var streakBanner: some View {
+        let days = last7DaysCompletion
+        let todayFilled = days.last ?? false
+
+        return HStack(spacing: 14) {
+            ZStack {
+                Circle()
+                    .fill(Color.orange.opacity(0.18))
+                    .frame(width: 44, height: 44)
+                Image(systemName: "flame.fill")
+                    .font(.title3)
+                    .foregroundStyle(.orange)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("7-day streak")
+                    .font(.headline)
+                Text(todayFilled ? "Streak going strong!" : "Solve today to keep it going")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer(minLength: 8)
+
+            HStack(spacing: 5) {
+                ForEach(0..<7, id: \.self) { i in
+                    Circle()
+                        .fill(days[6 - i] ? Color.orange : Color.clear)
+                        .overlay(Circle().stroke(Color.orange, lineWidth: 1.5))
+                        .frame(width: 9, height: 9)
+                }
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity)
+        .background(Color.orange.opacity(0.12))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.orange.opacity(0.4), lineWidth: 1.5)
+        )
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: - Daily Puzzle Card
