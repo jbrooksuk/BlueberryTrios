@@ -325,50 +325,55 @@ struct GameView: View {
             VStack(spacing: 0) {
                 Spacer(minLength: 0)
 
-                VStack(spacing: 12) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: solvedIconSize))
-                        .foregroundStyle(.green)
-                        .accessibilityHidden(true)
-                        .symbolEffect(.bounce, isActive: !reduceMotion && model?.isSolved == true)
-                    Text("Solved!")
-                        .font(.title.bold())
-                    TimerDisplayView(timer: gameTimer)
+                VStack(spacing: 6) {
+                    Text("Sweet!")
+                        .font(.system(.largeTitle, design: .serif).weight(.bold))
+                    Text(solvedSubtitle)
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
                 }
 
                 Spacer(minLength: 24)
 
-                VStack(spacing: 10) {
-                    if source == .pro && storeService.isProUnlocked {
-                        HStack(spacing: 10) {
-                            Button { sharePuzzle() } label: {
-                                Label("Share", systemImage: "square.and.arrow.up")
-                            }
-                            .adaptiveSecondaryButton()
-                            Button("New puzzle") { newProPuzzle() }
-                                .adaptiveProminentButton()
-                            Button("Next difficulty") { advanceToNextPuzzle() }
-                                .adaptiveSecondaryButton()
-                        }
-                    } else {
-                        HStack(spacing: 10) {
-                            Button { sharePuzzle() } label: {
-                                Label("Share", systemImage: "square.and.arrow.up")
-                            }
-                            .adaptiveSecondaryButton()
-                            Button("Next puzzle") { advanceToNextPuzzle() }
-                                .adaptiveProminentButton()
-                        }
+                solvedStatsCard
 
-                        if !storeService.isProUnlocked {
-                            Button {
-                                Task { try? await storeService.purchasePro() }
-                            } label: {
-                                Label("Want more? Unlock Pro", systemImage: "infinity")
-                                    .font(.subheadline)
-                            }
-                            .adaptiveSecondaryButton()
+                Spacer(minLength: 20)
+
+                VStack(spacing: 10) {
+                    Button {
+                        if source == .pro && storeService.isProUnlocked {
+                            newProPuzzle()
+                        } else {
+                            advanceToNextPuzzle()
                         }
+                    } label: {
+                        Text("Next puzzle")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .adaptiveProminentButton()
+                    .controlSize(.large)
+
+                    Button { sharePuzzle() } label: {
+                        Text("Share my time")
+                            .font(.subheadline.weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                    }
+                    .adaptiveSecondaryButton()
+                    .controlSize(.large)
+
+                    if source == .pro && storeService.isProUnlocked {
+                        Button("Next difficulty") { advanceToNextPuzzle() }
+                            .adaptiveSecondaryButton()
+                    } else if !storeService.isProUnlocked {
+                        Button {
+                            Task { try? await storeService.purchasePro() }
+                        } label: {
+                            Label("Want more? Unlock Pro", systemImage: "infinity")
+                                .font(.subheadline)
+                        }
+                        .adaptiveSecondaryButton()
                     }
                 }
 
@@ -381,7 +386,7 @@ struct GameView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-        }
+            }
             .padding(.horizontal, 24)
             .padding(.vertical, 32)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -389,6 +394,38 @@ struct GameView: View {
             .shadow(radius: 10)
         }
         .transition(reduceMotion ? .identity : .scale.combined(with: .opacity))
+    }
+
+    private var solvedSubtitle: String {
+        let lower = difficulty.rawValue.lowercased()
+        switch source {
+        case .daily: return "Today's \(lower) puzzle, solved."
+        case .pro: return "Pro \(lower) puzzle, solved."
+        }
+    }
+
+    private var solvedStatsCard: some View {
+        HStack(spacing: 0) {
+            solvedStat(value: gameTimer.elapsedTime.formattedAsTimer, label: "Your time")
+            Divider().frame(height: 36)
+            solvedStat(value: "\(stats?.effectiveCurrentStreak ?? 0)", label: "Streak")
+        }
+        .padding(.vertical, 16)
+        .padding(.horizontal, 12)
+        .frame(maxWidth: .infinity)
+        .adaptiveGlass(in: 16)
+    }
+
+    private func solvedStat(value: String, label: LocalizedStringKey) -> some View {
+        VStack(spacing: 4) {
+            Text(verbatim: value)
+                .font(.system(.title2, design: .serif).weight(.bold))
+                .monospacedDigit()
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: - Restart Prompt Overlay
@@ -705,19 +742,6 @@ struct GameView: View {
     private func sharePuzzle() {
         guard let model else { return }
 
-        let cardView = ShareCardView(
-            model: model,
-            elapsedTime: gameTimer.elapsedTime,
-            difficulty: difficulty,
-            source: source,
-            date: Date.now
-        )
-
-        let renderer = ImageRenderer(content: cardView)
-        renderer.scale = 3
-
-        guard let image = renderer.uiImage else { return }
-
         let hintCount = model.hintCount
         let hintStr = hintCount == 0 ? "No hints" : "\(hintCount) hint\(hintCount == 1 ? "" : "s")"
         let text = """
@@ -727,7 +751,7 @@ struct GameView: View {
         """
 
         let activityVC = UIActivityViewController(
-            activityItems: [image, text],
+            activityItems: [text],
             applicationActivities: nil
         )
 
