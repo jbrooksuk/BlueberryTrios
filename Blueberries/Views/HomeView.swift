@@ -159,11 +159,13 @@ struct HomeView: View {
 
     private var achievementsTab: some View {
         ScrollView {
-            VStack(spacing: 0) {
-                achievementsCard
-                    .frame(maxWidth: 600)
-                    .padding(16)
+            VStack(spacing: 24) {
+                achievementsHero
+                achievementsStatsCard
+                achievementsBadgeGrid
             }
+            .frame(maxWidth: 600)
+            .padding(20)
             .frame(maxWidth: .infinity)
         }
         .background(Theme.backgroundGradient)
@@ -177,7 +179,9 @@ struct HomeView: View {
                 .frame(width: 220, height: 140)
 
             Text("Berroku")
-                .font(.largeTitle.bold())
+                .font(.system(.largeTitle, design: .serif).weight(.bold))
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
 
             if allDailySolved {
                 Label("All daily puzzles complete!", systemImage: "sparkles")
@@ -602,93 +606,158 @@ struct HomeView: View {
 
     // MARK: - Achievements Card
 
-    private var achievementsCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Label("Achievements", systemImage: "trophy.fill")
-                .font(.headline)
-
-            VStack(spacing: 0) {
-                achievementRow(icon: "1.circle.fill", title: "First puzzle", subtitle: "Complete your first puzzle", progress: stats?.totalPuzzlesCompleted ?? 0, target: 1)
-                Divider().padding(.leading, 44)
-                achievementRow(icon: "10.circle.fill", title: "Dedicated", subtitle: "Complete 10 puzzles", progress: stats?.totalPuzzlesCompleted ?? 0, target: 10)
-                Divider().padding(.leading, 44)
-                achievementRow(icon: "star.circle.fill", title: "Centurion", subtitle: "Complete 100 puzzles", progress: stats?.totalPuzzlesCompleted ?? 0, target: 100)
-                Divider().padding(.leading, 44)
-                achievementRow(icon: "crown.fill", title: "Master", subtitle: "Complete 500 puzzles", progress: stats?.totalPuzzlesCompleted ?? 0, target: 500)
-            }
-
-            VStack(spacing: 0) {
-                achievementRow(icon: "flame.fill", title: "On a roll", subtitle: "3-day streak", progress: stats?.longestStreak ?? 0, target: 3)
-                Divider().padding(.leading, 44)
-                achievementRow(icon: "flame.fill", title: "Week warrior", subtitle: "7-day streak", progress: stats?.longestStreak ?? 0, target: 7)
-                Divider().padding(.leading, 44)
-                achievementRow(icon: "flame.fill", title: "Berry committed", subtitle: "30-day streak", progress: stats?.longestStreak ?? 0, target: 30)
-            }
-
-            VStack(spacing: 0) {
-                achievementRow(icon: "bolt.fill", title: "Speed demon", subtitle: "Solve a puzzle in under 1 minute", progress: (stats?.fastestCompletionTime ?? .infinity) < 60 ? 1 : 0, target: 1)
-            }
-
-            VStack(spacing: 0) {
-                achievementRow(icon: "square.grid.3x3.fill", title: "Standard solver", subtitle: "Complete a Standard puzzle", progress: hasSolvedDifficulty(.standard) ? 1 : 0, target: 1)
-                Divider().padding(.leading, 44)
-                achievementRow(icon: "square.grid.3x3.fill", title: "Advanced solver", subtitle: "Complete an Advanced puzzle", progress: hasSolvedDifficulty(.advanced) ? 1 : 0, target: 1)
-                Divider().padding(.leading, 44)
-                achievementRow(icon: "square.grid.3x3.fill", title: "Expert solver", subtitle: "Complete an Expert puzzle", progress: hasSolvedDifficulty(.expert) ? 1 : 0, target: 1)
-                Divider().padding(.leading, 44)
-                achievementRow(icon: "sparkles", title: "Daily sweep", subtitle: "Complete all 3 daily puzzles", progress: hasEverSweptDaily ? 1 : 0, target: 1)
-            }
-
-            if (stats?.totalHintsUsed ?? 0) >= 1 {
-                VStack(spacing: 0) {
-                    achievementRow(icon: "lightbulb.fill", title: "Hint helper", subtitle: "Use a hint", progress: stats?.totalHintsUsed ?? 0, target: 1)
-                    if (stats?.totalHintsUsed ?? 0) >= 100 {
-                        Divider().padding(.leading, 44)
-                        achievementRow(icon: "lightbulb.max.fill", title: "Hint master", subtitle: "Use 100 hints", progress: stats?.totalHintsUsed ?? 0, target: 100)
-                    }
-                }
-            }
-        }
-        .padding(20)
-        .adaptiveGlass(in: 16)
+    private struct AchievementInfo: Identifiable {
+        let id: String
+        let icon: String
+        let title: LocalizedStringKey
+        let subtitle: LocalizedStringKey
+        let progress: Int
+        let target: Int
+        let color: Color
+        var earned: Bool { progress >= target }
     }
 
-    private func achievementRow(icon: String, title: LocalizedStringKey, subtitle: LocalizedStringKey, progress: Int, target: Int) -> some View {
-        let completed = progress >= target
+    private var allAchievements: [AchievementInfo] {
+        let totalPuzzles = stats?.totalPuzzlesCompleted ?? 0
+        let longestStreak = stats?.longestStreak ?? 0
+        let fastest = stats?.fastestCompletionTime ?? .infinity
+        let totalHints = stats?.totalHintsUsed ?? 0
 
-        return HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundStyle(completed ? Color.orange : Color.gray.opacity(0.3))
-                .frame(width: 32, height: 32)
+        return [
+            AchievementInfo(id: "first", icon: "1.circle.fill", title: "First puzzle", subtitle: "Complete your first puzzle", progress: totalPuzzles, target: 1, color: Theme.berryBlue),
+            AchievementInfo(id: "dedicated", icon: "10.circle.fill", title: "Dedicated", subtitle: "Complete 10 puzzles", progress: totalPuzzles, target: 10, color: .teal),
+            AchievementInfo(id: "centurion", icon: "star.circle.fill", title: "Centurion", subtitle: "Complete 100 puzzles", progress: totalPuzzles, target: 100, color: .indigo),
+            AchievementInfo(id: "master", icon: "crown.fill", title: "Master", subtitle: "Complete 500 puzzles", progress: totalPuzzles, target: 500, color: .purple),
+            AchievementInfo(id: "roll", icon: "flame.fill", title: "On a roll", subtitle: "3-day streak", progress: longestStreak, target: 3, color: .pink),
+            AchievementInfo(id: "week", icon: "flame.fill", title: "Week warrior", subtitle: "7-day streak", progress: longestStreak, target: 7, color: .red),
+            AchievementInfo(id: "committed", icon: "flame.fill", title: "Berry committed", subtitle: "30-day streak", progress: longestStreak, target: 30, color: .brown),
+            AchievementInfo(id: "speed", icon: "bolt.fill", title: "Speed demon", subtitle: "Solve a puzzle in under 1 minute", progress: fastest < 60 ? 1 : 0, target: 1, color: .yellow),
+            AchievementInfo(id: "standard", icon: "square.grid.3x3.fill", title: "Standard solver", subtitle: "Complete a Standard puzzle", progress: hasSolvedDifficulty(.standard) ? 1 : 0, target: 1, color: .green),
+            AchievementInfo(id: "advanced", icon: "square.grid.3x3.fill", title: "Advanced solver", subtitle: "Complete an Advanced puzzle", progress: hasSolvedDifficulty(.advanced) ? 1 : 0, target: 1, color: .mint),
+            AchievementInfo(id: "expert", icon: "square.grid.3x3.fill", title: "Expert solver", subtitle: "Complete an Expert puzzle", progress: hasSolvedDifficulty(.expert) ? 1 : 0, target: 1, color: .cyan),
+            AchievementInfo(id: "sweep", icon: "sparkles", title: "Daily sweep", subtitle: "Complete all 3 daily puzzles", progress: hasEverSweptDaily ? 1 : 0, target: 1, color: .pink),
+            AchievementInfo(id: "hintHelper", icon: "lightbulb.fill", title: "Hint helper", subtitle: "Use a hint", progress: totalHints, target: 1, color: .yellow),
+            AchievementInfo(id: "hintMaster", icon: "lightbulb.max.fill", title: "Hint master", subtitle: "Use 100 hints", progress: totalHints, target: 100, color: .brown),
+        ]
+    }
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.subheadline.weight(completed ? .semibold : .regular))
-                Text(subtitle)
-                    .font(.caption)
+    private var achievementsHero: some View {
+        let achievements = allAchievements
+        let earned = achievements.filter(\.earned).count
+        let total = achievements.count
+
+        return HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text("\(earned)")
+                        .font(.system(.largeTitle, design: .serif).weight(.bold))
+                    Text("/ \(total)")
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                }
+                Text("Achievements earned")
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
 
             Spacer()
 
-            if completed {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.title3)
-                    .foregroundStyle(.green)
-            } else {
-                ZStack {
-                    Circle()
-                        .stroke(Color.gray.opacity(0.2), lineWidth: 3)
-                    Circle()
-                        .trim(from: 0, to: min(1, Double(progress) / Double(target)))
-                        .stroke(Theme.berryBlue, style: StrokeStyle(lineWidth: 3, lineCap: .round))
-                        .rotationEffect(.degrees(-90))
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Theme.berryBlue)
+                .frame(width: 64, height: 64)
+                .overlay {
+                    Image(systemName: "trophy.fill")
+                        .font(.title2.weight(.semibold))
+                        .foregroundStyle(.white)
                 }
-                .frame(width: 28, height: 28)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var achievementsStatsCard: some View {
+        let solved = stats?.totalPuzzlesCompleted ?? 0
+        let streak = stats?.effectiveCurrentStreak ?? 0
+        let fastest = stats?.fastestCompletionTime?.formattedAsTimer ?? "—"
+
+        return HStack(spacing: 0) {
+            achievementsStatColumn(value: "\(solved)", label: "Solved")
+            Divider().frame(height: 36)
+            achievementsStatColumn(value: "\(streak)", label: "Day streak")
+            Divider().frame(height: 36)
+            achievementsStatColumn(value: fastest, label: "Fastest")
+        }
+        .padding(.vertical, 18)
+        .padding(.horizontal, 12)
+        .frame(maxWidth: .infinity)
+        .adaptiveGlass(in: 16)
+    }
+
+    private func achievementsStatColumn(value: String, label: LocalizedStringKey) -> some View {
+        VStack(spacing: 4) {
+            Text(verbatim: value)
+                .font(.system(.title2, design: .serif).weight(.bold))
+                .monospacedDigit()
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var achievementsBadgeGrid: some View {
+        let columns = [
+            GridItem(.flexible(), spacing: 12),
+            GridItem(.flexible(), spacing: 12),
+            GridItem(.flexible(), spacing: 12),
+        ]
+
+        return VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("Achievements")
+                    .font(.title3.bold())
+                Spacer()
+                Text("Earn them all")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
+            LazyVGrid(columns: columns, spacing: 12) {
+                ForEach(allAchievements) { info in
+                    achievementBadge(info)
+                }
             }
         }
-        .padding(.vertical, 8)
+    }
+
+    private func achievementBadge(_ info: AchievementInfo) -> some View {
+        VStack(spacing: 10) {
+            Circle()
+                .fill(info.earned ? info.color : Color.secondary.opacity(0.18))
+                .frame(width: 48, height: 48)
+                .overlay {
+                    Image(systemName: info.icon)
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(.white)
+                }
+
+            VStack(spacing: 2) {
+                Text(info.title)
+                    .font(.footnote.weight(.bold))
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(info.earned ? .primary : .secondary)
+                Text(info.subtitle)
+                    .font(.caption2)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 14)
+        .padding(.horizontal, 6)
+        .frame(minHeight: 150, alignment: .top)
+        .adaptiveGlass(in: 14)
+        .opacity(info.earned ? 1 : 0.7)
     }
 
     // MARK: - Settings Sheet
