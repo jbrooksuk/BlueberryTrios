@@ -550,6 +550,7 @@ struct GameView: View {
             existing.hintedCell = hintedCellString
             existing.hintCount = model.hintCount
             existing.solved = model.isSolved
+            existing.lastPlayedAt = Date.now
             if model.isSolved && existing.completionDate == nil {
                 existing.completionDate = Date.now
                 recordCompletion(time: elapsed)
@@ -568,7 +569,8 @@ struct GameView: View {
                 source: source.rawValue,
                 difficulty: difficulty.rawValue,
                 dateString: currentDateString(),
-                proSetNumber: proSetNumber
+                proSetNumber: proSetNumber,
+                lastPlayedAt: Date.now
             )
             modelContext.insert(state)
             if model.isSolved {

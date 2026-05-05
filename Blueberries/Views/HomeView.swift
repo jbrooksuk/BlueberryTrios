@@ -47,7 +47,8 @@ struct HomeView: View {
     }
 
     var body: some View {
-        TabView(selection: $selectedTab) {
+        let inProgressPuzzle = currentInProgressPuzzle
+        return TabView(selection: $selectedTab) {
             homeTab
                 .tabItem { Label("Home", systemImage: "house.fill") }
                 .tag(HomeTab.home)
@@ -57,6 +58,11 @@ struct HomeView: View {
             settingsTab
                 .tabItem { Label("Settings", systemImage: "gearshape") }
                 .tag(HomeTab.settings)
+        }
+        .inProgressGameAccessory(visible: inProgressPuzzle != nil && !navigateToGame) {
+            if let inProgressPuzzle {
+                gameAccessoryContent(for: inProgressPuzzle)
+            }
         }
         .fullScreenCover(isPresented: $showWalkthrough) {
             WalkthroughView(isPresented: $showWalkthrough)
@@ -195,6 +201,59 @@ struct HomeView: View {
             }
         }
         .padding(.top, 16)
+    }
+
+    // MARK: - In-progress Game Accessory (iOS 26+)
+
+    private struct InProgressPuzzleSummary: Equatable {
+        let source: PuzzleSource
+        let difficulty: Difficulty
+        let elapsedTime: TimeInterval
+    }
+
+    /// The most recently played unfinished puzzle to surface in the tab
+    /// bar accessory. Restricted to today's daily puzzles so a stale
+    /// daily from a previous day doesn't dangle in the bar forever; Pro
+    /// is excluded for now because GameView's nav doesn't yet take a
+    /// `proSetNumber` to disambiguate which set to resume.
+    ///
+    /// Sorted by `lastPlayedAt` so swapping between puzzles always
+    /// surfaces the one the player just left, not the one with the
+    /// most accumulated `elapsedTime`. Rows migrated from before V3
+    /// have a `nil` timestamp and sort to the bottom (treated as
+    /// distantPast) until the player touches them again.
+    private var currentInProgressPuzzle: InProgressPuzzleSummary? {
+        let today = todayString()
+        return savedStates
+            .filter { state in
+                !state.solved
+                    && state.elapsedTime > 0
+                    && state.source == PuzzleSource.daily.rawValue
+                    && state.dateString == today
+            }
+            .compactMap { state -> (InProgressPuzzleSummary, Date)? in
+                guard let difficulty = Difficulty(rawValue: state.difficulty) else { return nil }
+                let summary = InProgressPuzzleSummary(source: .daily, difficulty: difficulty, elapsedTime: state.elapsedTime)
+                return (summary, state.lastPlayedAt ?? .distantPast)
+            }
+            .max { $0.1 < $1.1 }?
+            .0
+    }
+
+    @ViewBuilder
+    private func gameAccessoryContent(for puzzle: InProgressPuzzleSummary) -> some View {
+        if #available(iOS 26.0, *) {
+            InProgressGameAccessoryView(
+                displayIndex: puzzle.difficulty.displayIndex,
+                difficultyName: puzzle.difficulty.rawValue,
+                elapsedTime: puzzle.elapsedTime
+            ) {
+                selectedSource = puzzle.source
+                selectedDifficulty = puzzle.difficulty
+                selectedTab = .home
+                navigateToGame = true
+            }
+        }
     }
 
     // MARK: - Streak Banner
@@ -458,10 +517,8 @@ struct HomeView: View {
     private var promotionalProCard: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(spacing: 8) {
-                Image(systemName: "infinity")
-                    .font(.subheadline.weight(.bold))
-                Text("Berroku Pro")
-                    .font(.subheadline.weight(.bold))
+                Label("Berroku Pro", systemImage: "infinity")
+                    .font(.headline)
             }
             .foregroundStyle(.white.opacity(0.92))
 
@@ -881,4 +938,102 @@ struct HomeView: View {
 #Preview {
     HomeView()
         .modelContainer(for: [GameState.self, PlayerStats.self], inMemory: true)
+}
+
+private extension View {
+    /// Attaches a `tabViewBottomAccessory` on iOS 26+ when `visible` is
+    /// true. Older OSes fall through and ignore the accessory entirely.
+    @ViewBuilder
+    func inProgressGameAccessory<Content: View>(visible: Bool, @ViewBuilder content: () -> Content) -> some View {
+        if #available(iOS 26.0, *), visible {
+            self.tabViewBottomAccessory(content: content)
+        } else {
+            self
+        }
+    }
+}
+
+/// In-progress puzzle accessory rendered inside `tabViewBottomAccessory`.
+///
+/// Reads `\.tabViewBottomAccessoryPlacement` so the layout collapses to a
+/// pill (badge + timer) when the system minimises the bar (typically on
+/// scroll), and expands to the full row otherwise.
+@available(iOS 26.0, *)
+private struct InProgressGameAccessoryView: View {
+    let displayIndex: Int
+    let difficultyName: String
+    let elapsedTime: TimeInterval
+    let onTap: () -> Void
+
+    @Environment(\.tabViewBottomAccessoryPlacement) private var placement
+
+    var body: some View {
+        Button(action: onTap) {
+            Group {
+                if placement == .inline {
+                    inlineContent
+                } else {
+                    expandedContent
+                }
+            }
+            .frame(maxWidth: .infinity)
+            // Ensure scrolling content (e.g. the berryBlue Pro card)
+            // doesn't bleed through the bar's translucent glass.
+            .background(Color(.systemBackground))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var expandedContent: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(Theme.berryBlue)
+                    .frame(width: 32, height: 32)
+                Text("\(displayIndex)")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.white)
+            }
+
+            VStack(alignment: .leading, spacing: 0) {
+                Text("Today's \(difficultyName)")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary)
+                Text(elapsedTime.formattedAsTimer)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+            }
+
+            Spacer(minLength: 8)
+
+            Image(systemName: "play.fill")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Theme.berryBlue)
+                .padding(.trailing, 4)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+    }
+
+    private var inlineContent: some View {
+        HStack(spacing: 8) {
+            ZStack {
+                Circle()
+                    .fill(Theme.berryBlue)
+                    .frame(width: 22, height: 22)
+                Text("\(displayIndex)")
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(.white)
+            }
+
+            Text(elapsedTime.formattedAsTimer)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.primary)
+                .monospacedDigit()
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+    }
 }
