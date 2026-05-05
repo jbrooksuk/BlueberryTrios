@@ -730,15 +730,28 @@ struct HomeView: View {
     }
 
     private func achievementBadge(_ info: AchievementInfo) -> some View {
-        VStack(spacing: 10) {
-            Circle()
-                .fill(info.earned ? info.color : Color.secondary.opacity(0.18))
-                .frame(width: 48, height: 48)
-                .overlay {
-                    Image(systemName: info.icon)
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(.white)
+        let progressFraction = info.target > 0 ? min(1, Double(info.progress) / Double(info.target)) : 0
+
+        return VStack(spacing: 10) {
+            ZStack {
+                if info.target > 1 {
+                    Circle()
+                        .stroke(Theme.berryBlue.opacity(0.15), lineWidth: 3)
+                    Circle()
+                        .trim(from: 0, to: progressFraction)
+                        .stroke(Theme.berryBlue, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
                 }
+                Circle()
+                    .fill(info.earned ? info.color : Color.secondary.opacity(0.18))
+                    .padding(6)
+                    .overlay {
+                        Image(systemName: info.icon)
+                            .font(.subheadline.weight(.bold))
+                            .foregroundStyle(.white)
+                    }
+            }
+            .frame(width: 60, height: 60)
 
             VStack(spacing: 2) {
                 Text(info.title)
@@ -750,12 +763,18 @@ struct HomeView: View {
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
+                if !info.earned && info.target > 1 {
+                    Text("\(Int(progressFraction * 100))%")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(Theme.berryBlue)
+                        .padding(.top, 2)
+                }
             }
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 14)
         .padding(.horizontal, 6)
-        .frame(minHeight: 150, alignment: .top)
+        .frame(minHeight: 165, alignment: .top)
         .adaptiveGlass(in: 14)
         .opacity(info.earned ? 1 : 0.7)
     }
