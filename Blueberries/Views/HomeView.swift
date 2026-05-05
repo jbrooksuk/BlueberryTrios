@@ -265,73 +265,18 @@ struct HomeView: View {
             HStack {
                 Label("Today's puzzles", systemImage: "calendar")
                     .font(.headline)
+                    .foregroundStyle(Theme.berryBlue)
                 Spacer()
                 let solvedCount = Difficulty.allCases.filter { isDailySolved($0) }.count
-                let anyHinted = Difficulty.allCases.contains { isDailyHintUsed($0) }
-                Text("\(solvedCount)/3")
-                    .font(.subheadline.bold().monospacedDigit())
-                    .foregroundStyle(solvedCount == 3 ? (anyHinted ? .orange : .green) : .secondary)
+                Text("\(solvedCount) / 3 solved")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
             }
 
-            HStack(spacing: 0) {
+            VStack(spacing: 14) {
                 ForEach(Difficulty.allCases) { diff in
-                    let solved = isDailySolved(diff)
-                    let hinted = isDailyHintUsed(diff)
-                    let inProgress = isDailyInProgress(diff)
-                    Button {
-                        selectedSource = .daily
-                        selectedDifficulty = diff
-                        navigateToGame = true
-                    } label: {
-                        VStack(spacing: 8) {
-                            ZStack {
-                                if solved && hinted {
-                                    Circle()
-                                        .fill(Color.orange)
-                                        .frame(width: 56, height: 56)
-                                        .overlay {
-                                            Image(systemName: "lightbulb.fill")
-                                                .font(.title3.bold())
-                                                .foregroundStyle(.white)
-                                        }
-                                } else if solved {
-                                    Circle()
-                                        .fill(Color.green)
-                                        .frame(width: 56, height: 56)
-                                        .overlay {
-                                            Image(systemName: "checkmark")
-                                                .font(.title3.bold())
-                                                .foregroundStyle(.white)
-                                        }
-                                } else if inProgress {
-                                    Circle()
-                                        .fill(Theme.berryBlue)
-                                        .frame(width: 56, height: 56)
-                                        .overlay {
-                                            Text("\(diff.displayIndex)")
-                                                .font(.title2.bold())
-                                                .foregroundStyle(.white)
-                                        }
-                                        .shadow(color: Theme.berryBlue.opacity(0.3), radius: 4, y: 2)
-                                } else {
-                                    Circle()
-                                        .strokeBorder(Theme.berryBlue.opacity(0.4), lineWidth: 2)
-                                        .frame(width: 56, height: 56)
-                                        .overlay {
-                                            Text("\(diff.displayIndex)")
-                                                .font(.title2.bold())
-                                                .foregroundStyle(Theme.berryBlue.opacity(0.6))
-                                        }
-                                }
-                            }
-
-                            Text(diff.rawValue)
-                                .font(.caption.weight(.medium))
-                                .foregroundStyle(solved ? (hinted ? .orange : .green) : inProgress ? .primary : .secondary)
-                        }
-                        .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.plain)
+                    dailyPuzzleRow(diff)
                 }
             }
         }
@@ -339,69 +284,243 @@ struct HomeView: View {
         .adaptiveGlass(in: 16)
     }
 
+    @ViewBuilder
+    private func dailyPuzzleRow(_ difficulty: Difficulty) -> some View {
+        let solved = isDailySolved(difficulty)
+        let inProgress = isDailyInProgress(difficulty)
+        let hinted = isDailyHintUsed(difficulty)
+        let elapsed = dailyElapsedTime(difficulty)
+
+        let row = HStack(spacing: 14) {
+            dailyRowIcon(difficulty: difficulty, solved: solved, inProgress: inProgress, hinted: hinted)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(difficulty.rawValue)
+                    .font(.headline)
+                Text(dailyRowSubtitle(difficulty: difficulty, solved: solved, inProgress: inProgress, elapsed: elapsed))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer(minLength: 8)
+
+            dailyRowAction(solved: solved, inProgress: inProgress)
+        }
+        .contentShape(Rectangle())
+
+        Button {
+            selectedSource = .daily
+            selectedDifficulty = difficulty
+            navigateToGame = true
+        } label: {
+            row
+        }
+        .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private func dailyRowIcon(difficulty: Difficulty, solved: Bool, inProgress: Bool, hinted: Bool) -> some View {
+        let size: CGFloat = 56
+        let radius: CGFloat = 14
+
+        if solved && hinted {
+            RoundedRectangle(cornerRadius: radius, style: .continuous)
+                .fill(Color.orange)
+                .frame(width: size, height: size)
+                .overlay {
+                    Image(systemName: "lightbulb.fill")
+                        .font(.title3.bold())
+                        .foregroundStyle(.white)
+                }
+        } else if solved {
+            RoundedRectangle(cornerRadius: radius, style: .continuous)
+                .fill(Color.green)
+                .frame(width: size, height: size)
+                .overlay {
+                    Image(systemName: "checkmark.circle")
+                        .font(.title2.weight(.bold))
+                        .foregroundStyle(.white)
+                }
+        } else if inProgress {
+            RoundedRectangle(cornerRadius: radius, style: .continuous)
+                .fill(Theme.berryBlue)
+                .frame(width: size, height: size)
+                .overlay {
+                    Text("\(difficulty.displayIndex)")
+                        .font(.title2.bold())
+                        .foregroundStyle(.white)
+                }
+        } else {
+            RoundedRectangle(cornerRadius: radius, style: .continuous)
+                .fill(Theme.berryBlue.opacity(0.1))
+                .overlay {
+                    RoundedRectangle(cornerRadius: radius, style: .continuous)
+                        .stroke(Theme.berryBlue.opacity(0.3), lineWidth: 1.5)
+                }
+                .frame(width: size, height: size)
+                .overlay {
+                    Text("\(difficulty.displayIndex)")
+                        .font(.title2.weight(.semibold))
+                        .foregroundStyle(Theme.berryBlue)
+                }
+        }
+    }
+
+    @ViewBuilder
+    private func dailyRowAction(solved: Bool, inProgress: Bool) -> some View {
+        if solved {
+            Image(systemName: "chevron.right")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary.opacity(0.5))
+                .padding(.trailing, 6)
+        } else {
+            HStack(spacing: 4) {
+                Text(inProgress ? "Continue" : "Play")
+                Image(systemName: "chevron.right")
+                    .font(.caption2.weight(.bold))
+            }
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 10)
+            .background(Theme.berryBlue)
+            .clipShape(Capsule())
+        }
+    }
+
+    private func dailyRowSubtitle(difficulty: Difficulty, solved: Bool, inProgress: Bool, elapsed: TimeInterval?) -> String {
+        if solved, let elapsed {
+            return "Solved in \(elapsed.formattedAsTimer)"
+        } else if solved {
+            return "Solved"
+        } else if inProgress {
+            return "In progress"
+        } else {
+            switch difficulty {
+            case .standard: return "Easy"
+            case .advanced: return "Medium"
+            case .expert: return "Hard"
+            }
+        }
+    }
+
+    private func dailyElapsedTime(_ difficulty: Difficulty) -> TimeInterval? {
+        guard let key = dailyPuzzleKey(difficulty) else { return nil }
+        return savedStates.first { isTodaysDailyState($0, key: key) && $0.solved }?.elapsedTime
+    }
+
     // MARK: - Pro Puzzles Card
 
+    @ViewBuilder
     private var proPuzzlesCard: some View {
+        if storeService.isProUnlocked {
+            unlockedProCard
+        } else {
+            promotionalProCard
+        }
+    }
+
+    private var unlockedProCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Label("Pro puzzles", systemImage: "infinity")
                     .font(.headline)
                 Spacer()
-                if storeService.isProUnlocked {
-                    Image(systemName: "checkmark.seal.fill")
-                        .foregroundStyle(.green)
-                }
+                Image(systemName: "checkmark.seal.fill")
+                    .foregroundStyle(.green)
             }
 
-            if storeService.isProUnlocked {
-                Text("Unlimited puzzle sets unlocked.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+            Text("Unlimited puzzle sets unlocked.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
 
-                Button {
-                    selectedSource = .pro
-                    selectedDifficulty = .standard
-                    navigateToGame = true
-                } label: {
-                    Label("Play Pro", systemImage: "play.fill")
-                        .font(.subheadline.weight(.semibold))
-                        .frame(maxWidth: .infinity)
-                }
-                .adaptiveProminentButton()
-                .controlSize(.large)
-            } else {
-                Text("Unlock unlimited additional puzzle sets beyond the daily puzzles.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-
-                HStack {
-                    if let product = storeService.proProduct {
-                        Button {
-                            Task { try? await storeService.purchasePro() }
-                        } label: {
-                            Text("Unlock Pro \(product.displayPrice)")
-                                .font(.subheadline.weight(.semibold))
-                        }
-                        .adaptiveProminentButton()
-                    } else {
-                        ProgressView()
-                            .controlSize(.small)
-                        Text("Loading...")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Button("Restore") {
-                        Task { await storeService.restorePurchases() }
-                    }
-                    .adaptiveSecondaryButton()
-                    .font(.subheadline)
-                }
+            Button {
+                selectedSource = .pro
+                selectedDifficulty = .standard
+                navigateToGame = true
+            } label: {
+                Label("Play Pro", systemImage: "play.fill")
+                    .font(.subheadline.weight(.semibold))
+                    .frame(maxWidth: .infinity)
             }
+            .adaptiveProminentButton()
+            .controlSize(.large)
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
         .adaptiveGlass(in: 16)
+    }
+
+    private var promotionalProCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 8) {
+                Image(systemName: "infinity")
+                    .font(.subheadline.weight(.bold))
+                Text("Berroku Pro")
+                    .font(.subheadline.weight(.bold))
+            }
+            .foregroundStyle(.white.opacity(0.92))
+
+            Text("An endless berry patch")
+                .font(.system(.largeTitle, design: .serif).weight(.bold))
+                .foregroundStyle(.white)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Text("Unlimited puzzle sets beyond the daily three. One-time purchase.")
+                .font(.subheadline)
+                .foregroundStyle(.white.opacity(0.85))
+                .fixedSize(horizontal: false, vertical: true)
+
+            HStack(spacing: 10) {
+                if let product = storeService.proProduct {
+                    Button {
+                        Task { try? await storeService.purchasePro() }
+                    } label: {
+                        Text("Unlock for \(product.displayPrice)")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(Theme.berryBlue)
+                            .padding(.horizontal, 22)
+                            .padding(.vertical, 12)
+                            .background(Color.white)
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    ProgressView()
+                        .controlSize(.small)
+                        .tint(.white)
+                        .padding(.horizontal, 22)
+                        .padding(.vertical, 12)
+                }
+
+                Button {
+                    Task { await storeService.restorePurchases() }
+                } label: {
+                    Text("Restore")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 22)
+                        .padding(.vertical, 12)
+                        .overlay {
+                            Capsule()
+                                .stroke(Color.white.opacity(0.55), lineWidth: 1.5)
+                        }
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.top, 4)
+        }
+        .padding(24)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            LinearGradient(
+                colors: [Theme.berryBlue.opacity(0.95), Theme.berryBlue],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 
     // MARK: - Stats Card
