@@ -7,12 +7,35 @@
 
 import SwiftUI
 import SwiftData
+import SiriusRating
 
 @main
 struct BlueberriesApp: App {
     let modelContainer: ModelContainer = BlueberriesApp.makeContainer()
     @Environment(\.scenePhase) private var scenePhase
     @State private var notificationService = NotificationService()
+
+    init() {
+        SiriusRating.setup { config in
+            // A "significant event" is one solved puzzle. Wait until the
+            // player has solved enough to know they're sticking around,
+            // and lean on event count over session count so we don't
+            // pester someone who opens the app and bounces.
+            config.daysUntilPrompt = 3
+            config.appSessionsUntilPrompt = 3
+            config.significantEventsUntilPrompt = 5
+
+            // If they decline or pick "remind me later", back off hard.
+            config.daysBeforeReminding = 14
+            config.daysAfterDecliningToPromptAgain = 60
+            config.declineBackOffFactor = 2.0
+            config.maxPromptsAfterDeclining = 2
+
+            // Only ask after a positive moment (i.e. solving), never
+            // unsolicited on launch.
+            config.canPromptUserToRateOnLaunch = false
+        }
+    }
 
     var body: some Scene {
         WindowGroup {
