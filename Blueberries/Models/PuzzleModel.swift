@@ -75,6 +75,18 @@ final class PuzzleModel {
     // Stored set for quick lookup (avoid recomputing)
     let clueCells: Set<CellID>
 
+    /// The puzzle's solution as a per-cell lookup, computed once at init so
+    /// `applyCell` can detect mistakes without rescanning the solution string
+    /// on every placement. `nil` for puzzles that ship without a solution.
+    let solutionByCell: [CellID: CellState]?
+
+    /// Sticky flag set the first time the player places a berry/empty that
+    /// contradicts the solution. Stays `true` for the rest of the run even if
+    /// the offending cell is later corrected — a flawless solve must never
+    /// have had a wrong placement. Reset only by `restart()`. Persisted via
+    /// `GameState.madeMistake`.
+    var madeMistake: Bool = false
+
     /// Running tally of hint actions the player has taken on this puzzle.
     /// Persisted via `GameState.hintCount` and preserved across a restart
     /// so a puzzle stays flagged as hint-assisted.
@@ -212,7 +224,35 @@ final class PuzzleModel {
         self.neighborsOfCell = neighborsOfCell
         self.cells = cells
         self.clueCells = Set(clueForCell.keys)
+
+        // Build the solution lookup once (used for mistake detection).
+        if let solutionString = definition.solution {
+            var lookup: [CellID: CellState] = [:]
+            for (i, char) in solutionString.enumerated() where i < allCells.count {
+                switch char {
+                case "x": lookup[allCells[i]] = .empty
+                case "o": lookup[allCells[i]] = .berry
+                default: lookup[allCells[i]] = .undecided
+                }
+            }
+            self.solutionByCell = lookup
+        } else {
+            self.solutionByCell = nil
+        }
+
         self.lastCheck = checkSolved()
+    }
+
+    /// Whether setting `cell` to `state` contradicts the known solution.
+    /// A berry where the solution is empty (or vice versa) is a mistake;
+    /// `.undecided` and unknown solutions are never mistakes.
+    private func isMistake(_ cell: CellID, _ state: CellState) -> Bool {
+        guard let correct = solutionByCell?[cell] else { return false }
+        switch state {
+        case .berry: return correct != .berry
+        case .empty: return correct != .empty
+        case .undecided: return false
+        }
     }
 
     // MARK: - Cell State Management
@@ -229,6 +269,10 @@ final class PuzzleModel {
         undoStack.append(CellCommand(cell: cell, oldState: oldState, newState: newState))
         redoStack.removeAll()
         eraseBatch = nil
+
+        if !madeMistake && isMistake(cell, newState) {
+            madeMistake = true
+        }
 
         // Track berry placement for animation
         if newState == .berry {
@@ -302,6 +346,7 @@ final class PuzzleModel {
         hintedCell = nil
         recentlyPlacedBerries.removeAll()
         showErrors = false
+        madeMistake = false
         isSolved = false
         showSolvedOverlay = false
         celebrationProgress = 0

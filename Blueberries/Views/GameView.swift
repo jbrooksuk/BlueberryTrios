@@ -609,6 +609,7 @@ struct GameView: View {
             existing.hintCount = model.hintCount
             existing.solved = model.isSolved
             existing.lastPlayedAt = Date.now
+            existing.madeMistake = model.madeMistake
             if model.isSolved && existing.completionDate == nil {
                 existing.completionDate = Date.now
                 recordCompletion(time: elapsed)
@@ -628,7 +629,8 @@ struct GameView: View {
                 difficulty: difficulty.rawValue,
                 dateString: currentDateString(),
                 proSetNumber: proSetNumber,
-                lastPlayedAt: Date.now
+                lastPlayedAt: Date.now,
+                madeMistake: model.madeMistake
             )
             modelContext.insert(state)
             if model.isSolved {
@@ -690,6 +692,7 @@ struct GameView: View {
             }
         }
         model.hintCount = saved.hintCount
+        model.madeMistake = saved.madeMistake
         model.isSolved = saved.solved
         if !model.isSolved {
             if !saved.undoHistory.isEmpty {
@@ -799,7 +802,9 @@ struct GameView: View {
     private func recordCompletion(time: TimeInterval) {
         let hintCount = model?.hintCount ?? 0
         let hintUsed = hintCount > 0
-        stats?.recordCompletion(time: time, date: Date.now, hintCount: hintCount)
+        let madeMistake = model?.madeMistake ?? false
+        let isPro = source == .pro
+        stats?.recordCompletion(time: time, date: Date.now, hintCount: hintCount, isPro: isPro, madeMistake: madeMistake)
 
         // Check if all daily puzzles are now solved (hint-free only for daily sweep)
         let allDailySolved = source == .daily && Difficulty.allCases.allSatisfy { diff in
@@ -812,6 +817,15 @@ struct GameView: View {
             return saved.solved && saved.hintCount == 0
         }
 
+        // A hint-free sweep of all three dailies extends the Marathon streak.
+        // `allDailySolved` only flips true on the completion of the third
+        // daily, so this records the sweep exactly once per day.
+        if allDailySolved {
+            stats?.recordDailySweep(date: Date.now)
+        }
+
+        let isEarlyBird = Calendar.current.component(.hour, from: Date.now) < 6
+
         gameCenterService.reportPuzzleCompleted(
             totalCompleted: stats?.totalPuzzlesCompleted ?? 0,
             completionTime: time,
@@ -820,7 +834,11 @@ struct GameView: View {
             isDaily: source == .daily,
             allDailySolved: allDailySolved,
             hintUsed: hintUsed,
-            totalHintsUsed: stats?.totalHintsUsed ?? 0
+            totalHintsUsed: stats?.totalHintsUsed ?? 0,
+            isEarlyBird: isEarlyBird,
+            flawlessStreak: stats?.flawlessStreak ?? 0,
+            dailySweepStreak: stats?.dailySweepStreak ?? 0,
+            proPuzzlesCompleted: stats?.proPuzzlesCompleted ?? 0
         )
         updateWidgetData()
     }

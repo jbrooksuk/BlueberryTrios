@@ -4,12 +4,12 @@ import Foundation
 
 @Suite("PlayerStats")
 struct PlayerStatsTests {
-    private func makeDate(day: Int, month: Int, year: Int) -> Date {
+    private func makeDate(day: Int, month: Int, year: Int, hour: Int = 12) -> Date {
         var components = DateComponents()
         components.day = day
         components.month = month
         components.year = year
-        components.hour = 12
+        components.hour = hour
         return Calendar.current.date(from: components)!
     }
 
@@ -97,5 +97,99 @@ struct PlayerStatsTests {
         let date = makeDate(day: 15, month: 6, year: 2026)
         stats.recordCompletion(time: 60, date: date)
         #expect(stats.lastPlayedDate != nil)
+    }
+
+    // MARK: - New achievement tracking (SchemaV4)
+
+    @Test("New stat fields default to zero / false")
+    func newDefaults() {
+        let stats = PlayerStats()
+        #expect(stats.proPuzzlesCompleted == 0)
+        #expect(stats.flawlessStreak == 0)
+        #expect(stats.bestFlawlessStreak == 0)
+        #expect(stats.hasSolvedEarly == false)
+        #expect(stats.dailySweepStreak == 0)
+        #expect(stats.bestDailySweepStreak == 0)
+        #expect(stats.lastSweepDate == nil)
+    }
+
+    @Test("Pro puzzles counted only for Pro completions")
+    func proPuzzleCount() {
+        let stats = PlayerStats()
+        let date = makeDate(day: 1, month: 1, year: 2026)
+        stats.recordCompletion(time: 60, date: date, isPro: true)
+        stats.recordCompletion(time: 60, date: date, isPro: false)
+        stats.recordCompletion(time: 60, date: date, isPro: true)
+        #expect(stats.proPuzzlesCompleted == 2)
+        #expect(stats.totalPuzzlesCompleted == 3)
+    }
+
+    @Test("Flawless streak grows on clean solves")
+    func flawlessStreakGrows() {
+        let stats = PlayerStats()
+        let date = makeDate(day: 1, month: 1, year: 2026)
+        stats.recordCompletion(time: 60, date: date)
+        stats.recordCompletion(time: 60, date: date)
+        #expect(stats.flawlessStreak == 2)
+        #expect(stats.bestFlawlessStreak == 2)
+    }
+
+    @Test("A hint breaks the flawless streak")
+    func flawlessStreakBreaksOnHint() {
+        let stats = PlayerStats()
+        let date = makeDate(day: 1, month: 1, year: 2026)
+        stats.recordCompletion(time: 60, date: date)
+        stats.recordCompletion(time: 60, date: date)
+        stats.recordCompletion(time: 60, date: date, hintCount: 1)
+        #expect(stats.flawlessStreak == 0)
+        #expect(stats.bestFlawlessStreak == 2) // best preserved
+    }
+
+    @Test("A mistake breaks the flawless streak")
+    func flawlessStreakBreaksOnMistake() {
+        let stats = PlayerStats()
+        let date = makeDate(day: 1, month: 1, year: 2026)
+        stats.recordCompletion(time: 60, date: date)
+        stats.recordCompletion(time: 60, date: date, madeMistake: true)
+        #expect(stats.flawlessStreak == 0)
+        #expect(stats.bestFlawlessStreak == 1)
+    }
+
+    @Test("Early bird set only before 6am")
+    func earlyBird() {
+        let stats = PlayerStats()
+        stats.recordCompletion(time: 60, date: makeDate(day: 1, month: 1, year: 2026, hour: 9))
+        #expect(stats.hasSolvedEarly == false)
+        stats.recordCompletion(time: 60, date: makeDate(day: 1, month: 1, year: 2026, hour: 5))
+        #expect(stats.hasSolvedEarly == true)
+    }
+
+    @Test("Daily sweep streak counts consecutive days")
+    func sweepStreakConsecutive() {
+        let stats = PlayerStats()
+        stats.recordDailySweep(date: makeDate(day: 1, month: 1, year: 2026))
+        stats.recordDailySweep(date: makeDate(day: 2, month: 1, year: 2026))
+        stats.recordDailySweep(date: makeDate(day: 3, month: 1, year: 2026))
+        #expect(stats.dailySweepStreak == 3)
+        #expect(stats.bestDailySweepStreak == 3)
+    }
+
+    @Test("Repeating a sweep on the same day does not double count")
+    func sweepStreakSameDay() {
+        let stats = PlayerStats()
+        let date = makeDate(day: 1, month: 1, year: 2026)
+        stats.recordDailySweep(date: date)
+        stats.recordDailySweep(date: date)
+        #expect(stats.dailySweepStreak == 1)
+    }
+
+    @Test("Skipping a day resets the sweep streak")
+    func sweepStreakResets() {
+        let stats = PlayerStats()
+        stats.recordDailySweep(date: makeDate(day: 1, month: 1, year: 2026))
+        stats.recordDailySweep(date: makeDate(day: 2, month: 1, year: 2026))
+        stats.recordDailySweep(date: makeDate(day: 5, month: 1, year: 2026)) // gap
+        #expect(stats.dailySweepStreak == 1)
+        #expect(stats.bestDailySweepStreak == 2)
     }
 }
