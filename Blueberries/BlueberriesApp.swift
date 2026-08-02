@@ -68,7 +68,7 @@ struct BlueberriesApp: App {
     /// the release store. Release builds continue to use the default store
     /// name to preserve data from previously shipped versions.
     private static func makeContainer() -> ModelContainer {
-        let schema = Schema(versionedSchema: SchemaV4.self)
+        let schema = Schema(versionedSchema: SchemaV5.self)
 
         #if DEBUG
         // Pin the debug store to the debug app's private Application Support

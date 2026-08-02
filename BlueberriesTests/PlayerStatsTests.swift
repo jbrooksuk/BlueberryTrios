@@ -192,4 +192,58 @@ struct PlayerStatsTests {
         #expect(stats.dailySweepStreak == 1)
         #expect(stats.bestDailySweepStreak == 2)
     }
+
+    // MARK: - Streak revival (SchemaV5)
+
+    @Test("Restore sets a lapsed streak to 7 days")
+    func restoreLapsedStreak() {
+        let stats = PlayerStats()
+        stats.recordCompletion(time: 60, date: makeDate(day: 1, month: 1, year: 2026))
+        // Streak is dead by day 5 (last play was day 1)
+        stats.restoreStreak(date: makeDate(day: 5, month: 1, year: 2026))
+        #expect(stats.currentStreak == 7)
+        #expect(stats.streaksRestored == 1)
+    }
+
+    @Test("Restored streak continues with next-day completion")
+    func restoredStreakContinues() {
+        let stats = PlayerStats()
+        stats.recordCompletion(time: 60, date: makeDate(day: 1, month: 1, year: 2026))
+        stats.restoreStreak(date: makeDate(day: 5, month: 1, year: 2026))
+        stats.recordCompletion(time: 60, date: makeDate(day: 6, month: 1, year: 2026))
+        #expect(stats.currentStreak == 8)
+    }
+
+    @Test("Restore never lowers a live streak")
+    func restoreKeepsLargerLiveStreak() {
+        let stats = PlayerStats()
+        for day in 1...10 {
+            stats.recordCompletion(time: 60, date: makeDate(day: day, month: 1, year: 2026))
+        }
+        #expect(stats.currentStreak == 10)
+        stats.restoreStreak(date: makeDate(day: 10, month: 1, year: 2026))
+        #expect(stats.currentStreak == 10)
+        #expect(stats.streaksRestored == 1)
+    }
+
+    @Test("Restore does not raise longest streak")
+    func restoreDoesNotTouchLongest() {
+        let stats = PlayerStats()
+        stats.recordCompletion(time: 60, date: makeDate(day: 1, month: 1, year: 2026))
+        stats.recordCompletion(time: 60, date: makeDate(day: 2, month: 1, year: 2026))
+        stats.recordCompletion(time: 60, date: makeDate(day: 3, month: 1, year: 2026))
+        #expect(stats.longestStreak == 3)
+        stats.restoreStreak(date: makeDate(day: 10, month: 1, year: 2026))
+        #expect(stats.currentStreak == 7)
+        #expect(stats.longestStreak == 3)
+    }
+
+    @Test("Restore counts as playing today for streak liveness")
+    func restoreKeepsStreakAlive() {
+        let stats = PlayerStats()
+        stats.recordCompletion(time: 60, date: makeDate(day: 1, month: 1, year: 2026))
+        let revivalDate = makeDate(day: 5, month: 1, year: 2026)
+        stats.restoreStreak(date: revivalDate)
+        #expect(stats.lastPlayedDate == revivalDate)
+    }
 }

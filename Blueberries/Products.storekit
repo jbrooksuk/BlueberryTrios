@@ -26,6 +26,29 @@
       "productID" : "com.altthree.Berroku.pro",
       "referenceName" : "Pro Puzzles",
       "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "1.00",
+      "familyShareable" : false,
+      "internalID" : "D4F8B6A2-7C3E-4B9D-8A1F-5E0C2D6B4A8E",
+      "localizations" : [
+        {
+          "description" : "Bring a lapsed daily streak back to life at 7 days.",
+          "displayName" : "Berry Revival",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "Bring a lapsed daily streak back to life at 7 days.",
+          "displayName" : "Berry Revival",
+          "locale" : "en_GB"
+        }
+      ],
+      "locale_prices" : {
+        "en_GB" : "1.00"
+      },
+      "productID" : "com.altthree.Berroku.streakrevival",
+      "referenceName" : "Berry Revival",
+      "type" : "Consumable"
     }
   ],
   "settings" : {
