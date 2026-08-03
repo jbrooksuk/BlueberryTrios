@@ -504,9 +504,12 @@ enum SchemaV4: VersionedSchema {
 
 /// Version 5 of the Berroku persistent schema.
 ///
-/// Adds `streaksRestored: Int = 0` to `PlayerStats` so the Berry Revival
-/// purchase (restore a lapsed streak to 7 days) can be counted for the
-/// "Back from the brink" achievement.
+/// Adds Berry Revival tracking to `PlayerStats`:
+/// - `streaksRestored: Int = 0` — how many revivals the player has applied,
+///   for the "Back from the brink" achievement.
+/// - `lastRevivalDate: Date?` — when the most recent revival was applied,
+///   so streak displays (the 7-dot banner) can show revival-covered days
+///   as filled alongside days with real completions.
 enum SchemaV5: VersionedSchema {
     static var versionIdentifier = Schema.Version(5, 0, 0)
 
@@ -581,6 +584,7 @@ enum SchemaV5: VersionedSchema {
         var bestDailySweepStreak: Int = 0
         var lastSweepDate: Date?
         var streaksRestored: Int = 0
+        var lastRevivalDate: Date?
 
         init(
             totalPuzzlesCompleted: Int = 0,
@@ -596,7 +600,8 @@ enum SchemaV5: VersionedSchema {
             dailySweepStreak: Int = 0,
             bestDailySweepStreak: Int = 0,
             lastSweepDate: Date? = nil,
-            streaksRestored: Int = 0
+            streaksRestored: Int = 0,
+            lastRevivalDate: Date? = nil
         ) {
             self.totalPuzzlesCompleted = totalPuzzlesCompleted
             self.fastestCompletionTime = fastestCompletionTime
@@ -612,6 +617,7 @@ enum SchemaV5: VersionedSchema {
             self.bestDailySweepStreak = bestDailySweepStreak
             self.lastSweepDate = lastSweepDate
             self.streaksRestored = streaksRestored
+            self.lastRevivalDate = lastRevivalDate
         }
 
         /// Records a puzzle completion. `hintCount` is the number of hint
@@ -703,10 +709,12 @@ enum SchemaV5: VersionedSchema {
         /// relevant when a pending Ask to Buy purchase is approved days
         /// later) and stamps `lastPlayedDate` so the revived streak counts
         /// as current today and continues normally from the next day's
-        /// completion. `longestStreak` is deliberately left alone: the
-        /// best-streak stat reflects streaks the player actually built,
-        /// though completions that extend the revived streak feed it as
-        /// usual via `recordCompletion`.
+        /// completion. `lastRevivalDate` marks the revival day so streak
+        /// displays can treat it and the 6 days before it as streak days.
+        /// `longestStreak` is deliberately left alone: the best-streak
+        /// stat reflects streaks the player actually built, though
+        /// completions that extend the revived streak feed it as usual
+        /// via `recordCompletion`.
         func restoreStreak(days: Int = 7, date: Date = .now) {
             let calendar = Calendar.current
             let liveStreak: Int = {
@@ -718,6 +726,7 @@ enum SchemaV5: VersionedSchema {
             }()
             currentStreak = max(liveStreak, days)
             lastPlayedDate = date
+            lastRevivalDate = date
             streaksRestored += 1
         }
     }
@@ -767,9 +776,10 @@ enum BerrokuMigrationPlan: SchemaMigrationPlan {
         // zero, which is correct — past play does not retroactively earn the
         // new achievements.
         //
-        // V4 -> V5 adds `streaksRestored: Int = 0` to PlayerStats. The
-        // default satisfies lightweight migration; existing rows start
-        // at zero revivals.
+        // V4 -> V5 adds `streaksRestored: Int = 0` and
+        // `lastRevivalDate: Date?` to PlayerStats. The default and the
+        // optional satisfy lightweight migration; existing rows start at
+        // zero revivals with no revival date.
         [
             .lightweight(fromVersion: SchemaV1.self, toVersion: SchemaV2.self),
             .lightweight(fromVersion: SchemaV2.self, toVersion: SchemaV3.self),

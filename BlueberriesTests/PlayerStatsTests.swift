@@ -195,6 +195,13 @@ struct PlayerStatsTests {
 
     // MARK: - Streak revival (SchemaV5)
 
+    @Test("Revival fields default to zero / nil")
+    func revivalDefaults() {
+        let stats = PlayerStats()
+        #expect(stats.streaksRestored == 0)
+        #expect(stats.lastRevivalDate == nil)
+    }
+
     @Test("Restore sets a lapsed streak to 7 days")
     func restoreLapsedStreak() {
         let stats = PlayerStats()
@@ -245,5 +252,6 @@ struct PlayerStatsTests {
         let revivalDate = makeDate(day: 5, month: 1, year: 2026)
         stats.restoreStreak(date: revivalDate)
         #expect(stats.lastPlayedDate == revivalDate)
+        #expect(stats.lastRevivalDate == revivalDate)
     }
 }

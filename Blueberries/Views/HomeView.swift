@@ -266,8 +266,11 @@ struct HomeView: View {
 
     // MARK: - Streak Banner
 
-    /// Whether the player completed any puzzle on each of the last 7 days,
-    /// from oldest (index 0, 6 days ago) to newest (index 6, today).
+    /// Whether each of the last 7 days counts as a streak day, from oldest
+    /// (index 0, 6 days ago) to newest (index 6, today). A day is filled
+    /// when the player completed any puzzle on it, or when it falls in the
+    /// window covered by a Berry Revival purchase — the revival day and
+    /// the 6 days before it, matching the 7-day streak the purchase grants.
     private var last7DaysCompletion: [Bool] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: .now)
@@ -277,11 +280,16 @@ struct HomeView: View {
                 return calendar.startOfDay(for: date)
             }
         )
+        let revivalDays: Set<Date> = {
+            guard let revival = stats?.lastRevivalDate else { return [] }
+            let revivalDay = calendar.startOfDay(for: revival)
+            return Set((0..<7).compactMap { calendar.date(byAdding: .day, value: -$0, to: revivalDay) })
+        }()
         return (0..<7).map { offset in
             guard let day = calendar.date(byAdding: .day, value: offset - 6, to: today) else {
                 return false
             }
-            return completedDays.contains(day)
+            return completedDays.contains(day) || revivalDays.contains(day)
         }
     }
 
