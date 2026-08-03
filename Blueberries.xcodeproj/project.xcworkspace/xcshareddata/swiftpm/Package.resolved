@@ -1,0 +1,15 @@
+{
+  "originHash" : "de3a9ee2c95045a0faf00402a22572613e103a35399a300fc43994c70c9fa328",
+  "pins" : [
+    {
+      "identity" : "siriusrating-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/theappcapital/SiriusRating-iOS.git",
+      "state" : {
+        "revision" : "484075528becef8c43b628e3732c99dc52828fa2",
+        "version" : "2.0.0"
+      }
+    }
+  ],
+  "version" : 3
+}

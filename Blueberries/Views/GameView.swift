@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 import StoreKit
 import WidgetKit
+import SiriusRating
 
 struct GameView: View {
     @Environment(\.modelContext) private var modelContext
@@ -50,7 +51,6 @@ struct GameView: View {
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.requestReview) private var requestReview
 
     var body: some View {
         VStack(spacing: 0) {
@@ -826,10 +826,7 @@ struct GameView: View {
     }
 
     private func promptReviewIfNeeded() {
-        let total = stats?.totalPuzzlesCompleted ?? 0
-        if total == 3 {
-            requestReview()
-        }
+        SiriusRating.shared.userDidSignificantEvent()
     }
 
     private func updateWidgetData() {

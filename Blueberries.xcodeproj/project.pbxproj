@@ -10,6 +10,7 @@
 		1A295E762F7A88AE00016082 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A295E752F7A88AE00016082 /* WidgetKit.framework */; };
 		1A295E782F7A88AE00016082 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A295E772F7A88AE00016082 /* SwiftUI.framework */; };
 		1A295E872F7A88AF00016082 /* BlueberriesWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 1A295E732F7A88AE00016082 /* BlueberriesWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		1AB10100000000000B11A003 /* SiriusRating in Frameworks */ = {isa = PBXBuildFile; productRef = 1AB10100000000000B11A002 /* SiriusRating */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,6 +94,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1AB10100000000000B11A003 /* SiriusRating in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -171,6 +173,7 @@
 			);
 			name = Blueberries;
 			packageProductDependencies = (
+				1AB10100000000000B11A002 /* SiriusRating */,
 			);
 			productName = Blueberries;
 			productReference = 1A72176A2F74765A00B7D285 /* Blueberries.app */;
@@ -203,6 +206,9 @@
 			);
 			mainGroup = 1A7217612F74765A00B7D285;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				1AB10100000000000B11A001 /* XCRemoteSwiftPackageReference "SiriusRating-iOS" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1A72176B2F74765A00B7D285 /* Products */;
 			projectDirPath = "";
@@ -557,6 +563,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1AB10100000000000B11A001 /* XCRemoteSwiftPackageReference "SiriusRating-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/theappcapital/SiriusRating-iOS.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1AB10100000000000B11A002 /* SiriusRating */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1AB10100000000000B11A001 /* XCRemoteSwiftPackageReference "SiriusRating-iOS" */;
+			productName = SiriusRating;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1A7217622F74765A00B7D285 /* Project object */;
 }
