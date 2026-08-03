@@ -110,6 +110,11 @@ struct HomeView: View {
         .task {
             ensureStats()
             gameCenterService.authenticate()
+            // Attach the grant handler before any purchase can start, so
+            // both direct purchases and transactions redelivered by
+            // StoreKit (pending approvals, prior-launch interruptions)
+            // land in the same place.
+            storeService.onStreakRevivalPurchased = { applyStreakRevival() }
             updateWidgetData()
 
             // Existing users who already saw the walkthrough skip the tutorial
@@ -138,6 +143,9 @@ struct HomeView: View {
                         VStack(spacing: 20) {
                             if last7DaysCompletion.contains(true) {
                                 streakBanner
+                            }
+                            if shouldOfferStreakRevival {
+                                streakRevivalCard
                             }
                             dailyPuzzleCard
                             proPuzzlesCard
@@ -319,6 +327,85 @@ struct HomeView: View {
                 .stroke(Color.orange.opacity(0.4), lineWidth: 1.5)
         )
         .accessibilityElement(children: .combine)
+    }
+
+    // MARK: - Streak Revival Card
+
+    /// Offer Berry Revival only when there is actually a dead streak to
+    /// revive: the player has completed a puzzle before, but the streak
+    /// has lapsed (no completion today or yesterday). Hidden while the
+    /// product hasn't loaded — there's nothing to sell without a price.
+    private var shouldOfferStreakRevival: Bool {
+        guard let stats, stats.lastPlayedDate != nil else { return false }
+        return stats.effectiveCurrentStreak == 0 && storeService.streakRevivalProduct != nil
+    }
+
+    @ViewBuilder
+    private var streakRevivalCard: some View {
+        if let product = storeService.streakRevivalProduct {
+            HStack(spacing: 14) {
+                ZStack {
+                    Circle()
+                        .fill(Color.orange.opacity(0.18))
+                        .frame(width: 44, height: 44)
+                    Image(systemName: "arrow.clockwise.heart.fill")
+                        .font(.title3)
+                        .foregroundStyle(.orange)
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Berry Revival")
+                        .font(.headline)
+                    Text("Your streak went cold. Revive it at 7 days.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: 8)
+
+                Button {
+                    Task { try? await storeService.purchaseStreakRevival() }
+                } label: {
+                    Text(verbatim: product.displayPrice)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 10)
+                        .background(Color.orange)
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Buy Berry Revival for \(product.displayPrice)")
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity)
+            .background(Color.orange.opacity(0.12))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.orange.opacity(0.4), lineWidth: 1.5)
+            )
+        }
+    }
+
+    /// Grants a purchased Berry Revival: bumps the streak back to 7 days,
+    /// persists, reports the Game Center achievement, and refreshes the
+    /// widget's streak snapshot. Idempotent enough that a double delivery
+    /// of the same transaction only re-sets an already-revived streak.
+    private func applyStreakRevival() {
+        ensureStats()
+        var descriptor = FetchDescriptor<PlayerStats>()
+        descriptor.fetchLimit = 1
+        guard let stats = ((try? modelContext.fetch(descriptor)) ?? []).first else { return }
+        stats.restoreStreak()
+        do {
+            try modelContext.save()
+        } catch {
+            assertionFailure("Failed to save streak revival: \(error)")
+        }
+        gameCenterService.reportStreakRevival()
+        updateWidgetData()
     }
 
     // MARK: - Daily Puzzle Card
@@ -683,6 +770,7 @@ struct HomeView: View {
         let bestSweep = stats?.bestDailySweepStreak ?? 0
         let proCompleted = stats?.proPuzzlesCompleted ?? 0
         let solvedEarly = stats?.hasSolvedEarly ?? false
+        let streaksRestored = stats?.streaksRestored ?? 0
 
         return [
             AchievementInfo(id: "first", icon: "1.circle.fill", title: "First puzzle", subtitle: "Complete your first puzzle", progress: totalPuzzles, target: 1, color: Theme.berryBlue),
@@ -692,6 +780,7 @@ struct HomeView: View {
             AchievementInfo(id: "roll", icon: "flame.fill", title: "On a roll", subtitle: "3-day streak", progress: longestStreak, target: 3, color: .pink),
             AchievementInfo(id: "week", icon: "flame.fill", title: "Week warrior", subtitle: "7-day streak", progress: longestStreak, target: 7, color: .red),
             AchievementInfo(id: "committed", icon: "flame.fill", title: "Berry committed", subtitle: "30-day streak", progress: longestStreak, target: 30, color: .brown),
+            AchievementInfo(id: "revival", icon: "arrow.clockwise.heart.fill", title: "Back from the brink", subtitle: "Revive a lost streak with Berry Revival", progress: streaksRestored, target: 1, color: .orange),
             AchievementInfo(id: "speed", icon: "bolt.fill", title: "Speed demon", subtitle: "Solve a puzzle in under 1 minute", progress: fastest < 60 ? 1 : 0, target: 1, color: .yellow),
             AchievementInfo(id: "lightning", icon: "hare.fill", title: "Lightning", subtitle: "Solve a puzzle in under 30 seconds", progress: fastest < 30 ? 1 : 0, target: 1, color: .orange),
             AchievementInfo(id: "standard", icon: "square.grid.3x3.fill", title: "Standard solver", subtitle: "Complete a Standard puzzle", progress: hasSolvedDifficulty(.standard) ? 1 : 0, target: 1, color: .green),

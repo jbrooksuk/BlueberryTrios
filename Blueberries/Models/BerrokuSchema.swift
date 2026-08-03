@@ -502,11 +502,232 @@ enum SchemaV4: VersionedSchema {
     }
 }
 
+/// Version 5 of the Berroku persistent schema.
+///
+/// Adds `streaksRestored: Int = 0` to `PlayerStats` so the Berry Revival
+/// purchase (restore a lapsed streak to 7 days) can be counted for the
+/// "Back from the brink" achievement.
+enum SchemaV5: VersionedSchema {
+    static var versionIdentifier = Schema.Version(5, 0, 0)
+
+    static var models: [any PersistentModel.Type] {
+        [SchemaV5.GameState.self, SchemaV5.PlayerStats.self]
+    }
+
+    @Model final class GameState {
+        var puzzleJSON: String
+        var cellStates: String
+        var undoHistory: String
+        var redoHistory: String = ""
+        var elapsedTime: TimeInterval
+        var hintedCell: String = ""
+        var hintCount: Int = 0
+        var solved: Bool = false
+        var completionDate: Date?
+        var source: String
+        var difficulty: String
+        var dateString: String
+        var proSetNumber: Int
+        var lastPlayedAt: Date?
+        var madeMistake: Bool = false
+
+        init(
+            puzzleJSON: String,
+            cellStates: String,
+            undoHistory: String = "",
+            redoHistory: String = "",
+            elapsedTime: TimeInterval = 0,
+            hintedCell: String = "",
+            hintCount: Int = 0,
+            solved: Bool = false,
+            completionDate: Date? = nil,
+            source: String = "Daily",
+            difficulty: String = "Standard",
+            dateString: String = "",
+            proSetNumber: Int = 0,
+            lastPlayedAt: Date? = nil,
+            madeMistake: Bool = false
+        ) {
+            self.puzzleJSON = puzzleJSON
+            self.cellStates = cellStates
+            self.undoHistory = undoHistory
+            self.redoHistory = redoHistory
+            self.elapsedTime = elapsedTime
+            self.hintedCell = hintedCell
+            self.hintCount = hintCount
+            self.solved = solved
+            self.completionDate = completionDate
+            self.source = source
+            self.difficulty = difficulty
+            self.dateString = dateString
+            self.proSetNumber = proSetNumber
+            self.lastPlayedAt = lastPlayedAt
+            self.madeMistake = madeMistake
+        }
+    }
+
+    @Model final class PlayerStats {
+        var totalPuzzlesCompleted: Int
+        var fastestCompletionTime: TimeInterval?
+        var currentStreak: Int
+        var longestStreak: Int
+        var lastPlayedDate: Date?
+        var totalHintsUsed: Int = 0
+        var proPuzzlesCompleted: Int = 0
+        var flawlessStreak: Int = 0
+        var bestFlawlessStreak: Int = 0
+        var hasSolvedEarly: Bool = false
+        var dailySweepStreak: Int = 0
+        var bestDailySweepStreak: Int = 0
+        var lastSweepDate: Date?
+        var streaksRestored: Int = 0
+
+        init(
+            totalPuzzlesCompleted: Int = 0,
+            fastestCompletionTime: TimeInterval? = nil,
+            currentStreak: Int = 0,
+            longestStreak: Int = 0,
+            lastPlayedDate: Date? = nil,
+            totalHintsUsed: Int = 0,
+            proPuzzlesCompleted: Int = 0,
+            flawlessStreak: Int = 0,
+            bestFlawlessStreak: Int = 0,
+            hasSolvedEarly: Bool = false,
+            dailySweepStreak: Int = 0,
+            bestDailySweepStreak: Int = 0,
+            lastSweepDate: Date? = nil,
+            streaksRestored: Int = 0
+        ) {
+            self.totalPuzzlesCompleted = totalPuzzlesCompleted
+            self.fastestCompletionTime = fastestCompletionTime
+            self.currentStreak = currentStreak
+            self.longestStreak = longestStreak
+            self.lastPlayedDate = lastPlayedDate
+            self.totalHintsUsed = totalHintsUsed
+            self.proPuzzlesCompleted = proPuzzlesCompleted
+            self.flawlessStreak = flawlessStreak
+            self.bestFlawlessStreak = bestFlawlessStreak
+            self.hasSolvedEarly = hasSolvedEarly
+            self.dailySweepStreak = dailySweepStreak
+            self.bestDailySweepStreak = bestDailySweepStreak
+            self.lastSweepDate = lastSweepDate
+            self.streaksRestored = streaksRestored
+        }
+
+        /// Records a puzzle completion. `hintCount` is the number of hint
+        /// actions taken; `madeMistake` is whether the player ever placed a
+        /// cell that contradicted the solution. Fastest-time tracking and the
+        /// flawless streak both require a fully hint-free run; the flawless
+        /// streak additionally requires no mistakes. The running
+        /// `totalHintsUsed` tally is updated at hint-press time (see
+        /// GameView.useHint), so this method intentionally does not touch it.
+        func recordCompletion(
+            time: TimeInterval,
+            date: Date,
+            hintCount: Int = 0,
+            isPro: Bool = false,
+            madeMistake: Bool = false
+        ) {
+            totalPuzzlesCompleted += 1
+
+            if isPro {
+                proPuzzlesCompleted += 1
+            }
+
+            if hintCount == 0 {
+                if let fastest = fastestCompletionTime {
+                    if time < fastest {
+                        fastestCompletionTime = time
+                    }
+                } else {
+                    fastestCompletionTime = time
+                }
+            }
+
+            // Flawless streak — consecutive hint-free, mistake-free solves.
+            // Any hint or mistake breaks it back to zero.
+            if hintCount == 0 && !madeMistake {
+                flawlessStreak += 1
+                bestFlawlessStreak = max(bestFlawlessStreak, flawlessStreak)
+            } else {
+                flawlessStreak = 0
+            }
+
+            // Early bird — solved before 6am local time.
+            if Calendar.current.component(.hour, from: date) < 6 {
+                hasSolvedEarly = true
+            }
+
+            let calendar = Calendar.current
+            if let lastDate = lastPlayedDate {
+                if calendar.isDate(date, inSameDayAs: lastDate) {
+                    // Same day — streak unchanged
+                } else if let yesterday = calendar.date(byAdding: .day, value: -1, to: date),
+                          calendar.isDate(yesterday, inSameDayAs: lastDate) {
+                    currentStreak += 1
+                    longestStreak = max(longestStreak, currentStreak)
+                } else {
+                    currentStreak = 1
+                }
+            } else {
+                currentStreak = 1
+            }
+
+            lastPlayedDate = date
+        }
+
+        /// Records that the player swept all three daily puzzles (hint-free)
+        /// on `date`. Maintains a consecutive-day sweep streak with the same
+        /// same-day / consecutive / broken logic as the play streak. Call at
+        /// most once per day, when the third daily is completed.
+        func recordDailySweep(date: Date) {
+            let calendar = Calendar.current
+            if let last = lastSweepDate {
+                if calendar.isDate(date, inSameDayAs: last) {
+                    // Already counted today — leave the streak as is.
+                } else if let yesterday = calendar.date(byAdding: .day, value: -1, to: date),
+                          calendar.isDate(yesterday, inSameDayAs: last) {
+                    dailySweepStreak += 1
+                } else {
+                    dailySweepStreak = 1
+                }
+            } else {
+                dailySweepStreak = 1
+            }
+            bestDailySweepStreak = max(bestDailySweepStreak, dailySweepStreak)
+            lastSweepDate = date
+        }
+
+        /// Applies a Berry Revival purchase: brings the streak back to
+        /// life at `days` (never lowering a streak that is still alive —
+        /// relevant when a pending Ask to Buy purchase is approved days
+        /// later) and stamps `lastPlayedDate` so the revived streak counts
+        /// as current today and continues normally from the next day's
+        /// completion. `longestStreak` is deliberately left alone: the
+        /// best-streak stat reflects streaks the player actually built,
+        /// though completions that extend the revived streak feed it as
+        /// usual via `recordCompletion`.
+        func restoreStreak(days: Int = 7, date: Date = .now) {
+            let calendar = Calendar.current
+            let liveStreak: Int = {
+                guard let lastPlayed = lastPlayedDate else { return 0 }
+                let lastDay = calendar.startOfDay(for: lastPlayed)
+                let today = calendar.startOfDay(for: date)
+                let daysSince = calendar.dateComponents([.day], from: lastDay, to: today).day ?? Int.max
+                return daysSince <= 1 ? currentStreak : 0
+            }()
+            currentStreak = max(liveStreak, days)
+            lastPlayedDate = date
+            streaksRestored += 1
+        }
+    }
+}
+
 // Typealiases so app code can keep referring to bare `GameState` /
 // `PlayerStats` while the canonical definitions live inside the current
 // schema version.
-typealias GameState = SchemaV4.GameState
-typealias PlayerStats = SchemaV4.PlayerStats
+typealias GameState = SchemaV5.GameState
+typealias PlayerStats = SchemaV5.PlayerStats
 
 // MARK: - Migration plan
 
@@ -522,7 +743,7 @@ typealias PlayerStats = SchemaV4.PlayerStats
 /// backfilling from another model) use `.custom` instead.
 enum BerrokuMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [SchemaV1.self, SchemaV2.self, SchemaV3.self, SchemaV4.self]
+        [SchemaV1.self, SchemaV2.self, SchemaV3.self, SchemaV4.self, SchemaV5.self]
     }
 
     static var stages: [MigrationStage] {
@@ -545,10 +766,15 @@ enum BerrokuMigrationPlan: SchemaMigrationPlan {
         // lightweight. Existing rows start the new achievement counters at
         // zero, which is correct — past play does not retroactively earn the
         // new achievements.
+        //
+        // V4 -> V5 adds `streaksRestored: Int = 0` to PlayerStats. The
+        // default satisfies lightweight migration; existing rows start
+        // at zero revivals.
         [
             .lightweight(fromVersion: SchemaV1.self, toVersion: SchemaV2.self),
             .lightweight(fromVersion: SchemaV2.self, toVersion: SchemaV3.self),
             .lightweight(fromVersion: SchemaV3.self, toVersion: SchemaV4.self),
+            .lightweight(fromVersion: SchemaV4.self, toVersion: SchemaV5.self),
         ]
     }
 }

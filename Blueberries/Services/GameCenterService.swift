@@ -16,6 +16,7 @@ final class GameCenterService {
         case onARoll = "com.altthree.berroku.streak_3"
         case weekWarrior = "com.altthree.berroku.streak_7"
         case berryCommitted = "com.altthree.berroku.streak_30"
+        case backFromTheBrink = "com.altthree.berroku.streak_revival"
         case speedDemon = "com.altthree.berroku.speed_demon"
         case lightning = "com.altthree.berroku.lightning"
         case flawless = "com.altthree.berroku.flawless"
@@ -91,6 +92,26 @@ final class GameCenterService {
             } catch {
                 #if DEBUG
                 print("Failed to report hint achievements: \(error)")
+                #endif
+            }
+        }
+    }
+
+    /// Reports the "Back from the brink" achievement the moment a Berry
+    /// Revival purchase is applied to the player's streak.
+    func reportStreakRevival() {
+        guard isAuthenticated else { return }
+
+        let achievement = GKAchievement(identifier: Achievement.backFromTheBrink.rawValue)
+        achievement.percentComplete = 100.0
+        achievement.showsCompletionBanner = true
+
+        Task {
+            do {
+                try await GKAchievement.report([achievement])
+            } catch {
+                #if DEBUG
+                print("Failed to report streak revival achievement: \(error)")
                 #endif
             }
         }
