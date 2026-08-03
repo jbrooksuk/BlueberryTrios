@@ -28,7 +28,7 @@
       "type" : "NonConsumable"
     },
     {
-      "displayPrice" : "1.00",
+      "displayPrice" : "0.99",
       "familyShareable" : false,
       "internalID" : "D4F8B6A2-7C3E-4B9D-8A1F-5E0C2D6B4A8E",
       "localizations" : [
@@ -44,7 +44,7 @@
         }
       ],
       "locale_prices" : {
-        "en_GB" : "1.00"
+        "en_GB" : "0.99"
       },
       "productID" : "com.altthree.Berroku.streakrevival",
       "referenceName" : "Berry Revival",
