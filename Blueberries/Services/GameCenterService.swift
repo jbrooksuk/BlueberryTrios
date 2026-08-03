@@ -17,6 +17,12 @@ final class GameCenterService {
         case weekWarrior = "com.altthree.berroku.streak_7"
         case berryCommitted = "com.altthree.berroku.streak_30"
         case speedDemon = "com.altthree.berroku.speed_demon"
+        case lightning = "com.altthree.berroku.lightning"
+        case flawless = "com.altthree.berroku.flawless"
+        case perfectionist = "com.altthree.berroku.perfectionist"
+        case earlyBird = "com.altthree.berroku.early_bird"
+        case marathon = "com.altthree.berroku.marathon"
+        case proExplorer = "com.altthree.berroku.pro_explorer"
         case standardComplete = "com.altthree.berroku.standard_complete"
         case advancedComplete = "com.altthree.berroku.advanced_complete"
         case expertComplete = "com.altthree.berroku.expert_complete"
@@ -90,7 +96,20 @@ final class GameCenterService {
         }
     }
 
-    func reportPuzzleCompleted(totalCompleted: Int, completionTime: TimeInterval, streak: Int, difficulty: Difficulty? = nil, isDaily: Bool = false, allDailySolved: Bool = false, hintUsed: Bool = false, totalHintsUsed: Int = 0) {
+    func reportPuzzleCompleted(
+        totalCompleted: Int,
+        completionTime: TimeInterval,
+        streak: Int,
+        difficulty: Difficulty? = nil,
+        isDaily: Bool = false,
+        allDailySolved: Bool = false,
+        hintUsed: Bool = false,
+        totalHintsUsed: Int = 0,
+        isEarlyBird: Bool = false,
+        flawlessStreak: Int = 0,
+        dailySweepStreak: Int = 0,
+        proPuzzlesCompleted: Int = 0
+    ) {
         guard isAuthenticated else { return }
 
         var achievements: [GKAchievement] = []
@@ -147,6 +166,22 @@ final class GameCenterService {
             speedAchievement.showsCompletionBanner = true
             achievements.append(speedAchievement)
 
+            // Lightning — sub 30 seconds
+            let lightningAchievement = GKAchievement(identifier: Achievement.lightning.rawValue)
+            lightningAchievement.percentComplete = completionTime < 30 ? 100.0 : 0.0
+            lightningAchievement.showsCompletionBanner = true
+            achievements.append(lightningAchievement)
+
+            // Pro explorer — 50 completed Pro puzzles. Counts all Pro
+            // completions (the tally lives in PlayerStats); like the other
+            // count achievements it is only *reported* on a hint-free solve.
+            if proPuzzlesCompleted > 0 {
+                let proAchievement = GKAchievement(identifier: Achievement.proExplorer.rawValue)
+                proAchievement.percentComplete = min(100.0, Double(proPuzzlesCompleted) / 50.0 * 100.0)
+                proAchievement.showsCompletionBanner = true
+                achievements.append(proAchievement)
+            }
+
             // Difficulty achievements
             if let difficulty {
                 let diffAchievement: Achievement? = switch difficulty {
@@ -169,6 +204,40 @@ final class GameCenterService {
                 sweepAchievement.showsCompletionBanner = true
                 achievements.append(sweepAchievement)
             }
+        }
+
+        // Early bird is about *when* you played, not skill, so it is reported
+        // regardless of hint usage.
+        if isEarlyBird {
+            let earlyAchievement = GKAchievement(identifier: Achievement.earlyBird.rawValue)
+            earlyAchievement.percentComplete = 100.0
+            earlyAchievement.showsCompletionBanner = true
+            achievements.append(earlyAchievement)
+        }
+
+        // Flawless solver (1) and Perfectionist (10) share the flawless
+        // streak, which only advances on hint-free, mistake-free solves — so
+        // these are safe to report regardless of the current run's hint usage
+        // (a hinted run resets the streak to zero before we get here).
+        if flawlessStreak > 0 {
+            let flawlessAchievement = GKAchievement(identifier: Achievement.flawless.rawValue)
+            flawlessAchievement.percentComplete = 100.0
+            flawlessAchievement.showsCompletionBanner = true
+            achievements.append(flawlessAchievement)
+
+            let perfectionistAchievement = GKAchievement(identifier: Achievement.perfectionist.rawValue)
+            perfectionistAchievement.percentComplete = min(100.0, Double(flawlessStreak) / 10.0 * 100.0)
+            perfectionistAchievement.showsCompletionBanner = true
+            achievements.append(perfectionistAchievement)
+        }
+
+        // Marathon — sweep the dailies 7 days running. The sweep streak only
+        // advances on hint-free sweeps, so reporting it here is always valid.
+        if dailySweepStreak > 0 {
+            let marathonAchievement = GKAchievement(identifier: Achievement.marathon.rawValue)
+            marathonAchievement.percentComplete = min(100.0, Double(dailySweepStreak) / 7.0 * 100.0)
+            marathonAchievement.showsCompletionBanner = true
+            achievements.append(marathonAchievement)
         }
 
         Task {

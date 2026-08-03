@@ -679,6 +679,10 @@ struct HomeView: View {
         let longestStreak = stats?.longestStreak ?? 0
         let fastest = stats?.fastestCompletionTime ?? .infinity
         let totalHints = stats?.totalHintsUsed ?? 0
+        let bestFlawless = stats?.bestFlawlessStreak ?? 0
+        let bestSweep = stats?.bestDailySweepStreak ?? 0
+        let proCompleted = stats?.proPuzzlesCompleted ?? 0
+        let solvedEarly = stats?.hasSolvedEarly ?? false
 
         return [
             AchievementInfo(id: "first", icon: "1.circle.fill", title: "First puzzle", subtitle: "Complete your first puzzle", progress: totalPuzzles, target: 1, color: Theme.berryBlue),
@@ -689,12 +693,18 @@ struct HomeView: View {
             AchievementInfo(id: "week", icon: "flame.fill", title: "Week warrior", subtitle: "7-day streak", progress: longestStreak, target: 7, color: .red),
             AchievementInfo(id: "committed", icon: "flame.fill", title: "Berry committed", subtitle: "30-day streak", progress: longestStreak, target: 30, color: .brown),
             AchievementInfo(id: "speed", icon: "bolt.fill", title: "Speed demon", subtitle: "Solve a puzzle in under 1 minute", progress: fastest < 60 ? 1 : 0, target: 1, color: .yellow),
+            AchievementInfo(id: "lightning", icon: "hare.fill", title: "Lightning", subtitle: "Solve a puzzle in under 30 seconds", progress: fastest < 30 ? 1 : 0, target: 1, color: .orange),
             AchievementInfo(id: "standard", icon: "square.grid.3x3.fill", title: "Standard solver", subtitle: "Complete a Standard puzzle", progress: hasSolvedDifficulty(.standard) ? 1 : 0, target: 1, color: .green),
             AchievementInfo(id: "advanced", icon: "square.grid.3x3.fill", title: "Advanced solver", subtitle: "Complete an Advanced puzzle", progress: hasSolvedDifficulty(.advanced) ? 1 : 0, target: 1, color: .mint),
             AchievementInfo(id: "expert", icon: "square.grid.3x3.fill", title: "Expert solver", subtitle: "Complete an Expert puzzle", progress: hasSolvedDifficulty(.expert) ? 1 : 0, target: 1, color: .cyan),
             AchievementInfo(id: "sweep", icon: "sparkles", title: "Daily sweep", subtitle: "Complete all 3 daily puzzles", progress: hasEverSweptDaily ? 1 : 0, target: 1, color: .pink),
             AchievementInfo(id: "hintHelper", icon: "lightbulb.fill", title: "Hint helper", subtitle: "Use a hint", progress: totalHints, target: 1, color: .yellow),
             AchievementInfo(id: "hintMaster", icon: "lightbulb.max.fill", title: "Hint master", subtitle: "Use 100 hints", progress: totalHints, target: 100, color: .brown),
+            AchievementInfo(id: "flawless", icon: "checkmark.seal.fill", title: "Flawless solver", subtitle: "Solve a puzzle with no hints or mistakes", progress: bestFlawless, target: 1, color: .green),
+            AchievementInfo(id: "perfectionist", icon: "rosette", title: "Perfectionist", subtitle: "10 flawless solves in a row", progress: bestFlawless, target: 10, color: .indigo),
+            AchievementInfo(id: "earlyBird", icon: "sunrise.fill", title: "Early bird", subtitle: "Solve a puzzle before 6 AM", progress: solvedEarly ? 1 : 0, target: 1, color: .yellow),
+            AchievementInfo(id: "marathon", icon: "figure.run", title: "Marathon", subtitle: "Sweep the daily puzzles 7 days running", progress: bestSweep, target: 7, color: .red),
+            AchievementInfo(id: "proExplorer", icon: "map.fill", title: "Pro explorer", subtitle: "Complete 50 Pro puzzles", progress: proCompleted, target: 50, color: .purple),
         ]
     }
 
