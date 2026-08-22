@@ -1,7 +1,6 @@
 package com.altthree.berroku.game
 
 import android.app.Application
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
@@ -190,7 +189,7 @@ fun GameScreen(
                                 onPaintEnd = gameViewModel::endPaint,
                                 onCellClick = gameViewModel::tap,
                             )
-                            AnimatedVisibility(
+                            androidx.compose.animation.AnimatedVisibility(
                                 visible = solved,
                                 enter = fadeIn(),
                                 exit = fadeOut(),
