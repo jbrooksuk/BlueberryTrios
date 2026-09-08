@@ -49,6 +49,7 @@
                         <p>{{ rule.desc }}</p>
                     </div>
                 </div>
+                <NuxtLink to="/how-to-play" class="learn-link">Learn how to play →</NuxtLink>
             </div>
         </section>
 
@@ -110,6 +111,7 @@ import { onMounted } from 'vue'
 const rules = [
     { number: '3', title: 'Three per row', desc: 'Place exactly 3 berries in every row of the 9×9 grid.' },
     { number: '3', title: 'Three per column', desc: 'Every column must also contain exactly 3 berries.' },
+    { number: '3', title: 'Three per block', desc: 'Each block outlined by the thicker lines needs exactly 3 berries, too.' },
     { number: '?', title: 'Follow the clues', desc: 'Numbers tell you how many of the 8 surrounding cells contain berries.' },
 ]
 
@@ -142,6 +144,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.learn-link { display: inline-block; margin-top: 32px; padding: 12px; }
 /* ---- Atmosphere ---- */
 .atmosphere {
     position: fixed;
@@ -239,7 +242,7 @@ h2 {
 /* ---- Rules ---- */
 .rules-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
 }
 .rule-card {

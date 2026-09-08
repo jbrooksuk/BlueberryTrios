@@ -181,3 +181,7 @@ a { color: var(--berry-glow); text-decoration: none; }
     .phone-frame.side { display: none; }
     .phone-frame.hero-phone img { width: 240px; }
 }
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+}
