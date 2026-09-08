@@ -5,7 +5,7 @@ const step = ref(0)
 const lessons = [
     { title: 'Three in every row', text: 'Every horizontal row needs exactly three berries. Once you have all three, the remaining cells in that row cannot contain a berry.', short: 'Row' },
     { title: 'Three in every column', text: 'The same rule runs from top to bottom: exactly three berries in each column. Every berry you place counts towards both its row and its column.', short: 'Column' },
-    { title: 'Three in every block', text: 'The thicker lines divide the board into blocks. Each block also needs exactly three berries. Follow its outline carefully: blocks can be irregular shapes, not just squares.', short: 'Block' },
+    { title: 'Three in every block', text: 'The thicker lines divide this board into nine 3 × 3 blocks. Each block needs exactly three berries, just like each row and column.', short: 'Block' },
     { title: 'Numbers look all around', text: 'A number tells you how many berries are in the surrounding cells, including diagonals. The numbered cell itself never holds a berry. At the edge or a corner, only neighbours inside the grid count.', short: 'Clues' },
     { title: 'Start with a zero', text: 'A zero means none of its neighbours can hold a berry. Cross those cells out. Each cell you eliminate brings you closer to finding where the three berries must go.', short: 'Zero' },
 ]
@@ -63,7 +63,7 @@ function reset() { practice.value = Array<string>(9).fill('_'); touched.value = 
         </div>
         <figure class="example-grid">
             <PuzzleBoard :blocks="example.blocks" :clues="example.cellClues" :cells="cells" :highlighted="highlighted" :label="boardLabel" />
-            <figcaption>{{ boardLabel }} <span>Example from the game’s puzzle library.</span></figcaption>
+            <figcaption>{{ boardLabel }} <span>{{ example.difficulty }} puzzle from the game’s library.</span></figcaption>
         </figure>
     </section>
 
