@@ -4,10 +4,61 @@
     --berry-glow: #5ca8ff;
     --leaf: #2fce51;
     --bg-dark: #0b1628;
+    --nav-background: rgba(11,22,40,0.82);
     --bg-card: rgba(255,255,255,0.06);
+    --surface-raised: #15233a;
+    --border: #2a3850;
     --text: #f0f4ff;
     --text-muted: #8899bb;
+    --button-text: #f6f8ff;
+    --accent-shadow: rgba(53,132,228,0.28);
+    --accent-border: rgba(53,132,228,0.2);
+    --accent-border-strong: rgba(53,132,228,0.3);
+    --accent-surface: rgba(53,132,228,0.06);
+    --accent-surface-hover: rgba(53,132,228,0.12);
+    --accent-surface-strong: rgba(53,132,228,0.15);
+    --atmosphere-primary: rgba(53,132,228,0.15);
+    --atmosphere-secondary: rgba(47,206,81,0.06);
     --radius: 20px;
+}
+
+[data-theme="halloween"] {
+    --berry: rgb(235, 99, 20);
+    --berry-deep: rgb(164, 58, 8);
+    --berry-glow: rgb(255, 151, 67);
+    --bg-dark: #1a100d;
+    --nav-background: rgba(26,16,13,0.84);
+    --surface-raised: #2b1b15;
+    --border: #4b3024;
+    --text-muted: #b9a096;
+    --accent-shadow: rgba(235,99,20,0.28);
+    --accent-border: rgba(235,99,20,0.22);
+    --accent-border-strong: rgba(235,99,20,0.34);
+    --accent-surface: rgba(235,99,20,0.07);
+    --accent-surface-hover: rgba(235,99,20,0.13);
+    --accent-surface-strong: rgba(235,99,20,0.16);
+    --atmosphere-primary: rgba(235,99,20,0.14);
+    --atmosphere-secondary: rgba(235,99,20,0.05);
+}
+
+[data-theme="christmas"] {
+    --berry: rgb(194, 31, 41);
+    --berry-deep: rgb(137, 18, 27);
+    --berry-glow: rgb(238, 102, 110);
+    --leaf: rgb(31, 122, 71);
+    --bg-dark: #0b1a18;
+    --nav-background: rgba(11,26,24,0.84);
+    --surface-raised: rgb(17, 50, 42);
+    --border: rgb(38, 91, 67);
+    --text-muted: #95aaa5;
+    --accent-shadow: rgba(194,31,41,0.28);
+    --accent-border: rgba(194,31,41,0.24);
+    --accent-border-strong: rgba(194,31,41,0.36);
+    --accent-surface: rgba(194,31,41,0.07);
+    --accent-surface-hover: rgba(194,31,41,0.13);
+    --accent-surface-strong: rgba(194,31,41,0.17);
+    --atmosphere-primary: rgba(194,31,41,0.13);
+    --atmosphere-secondary: rgba(31,122,71,0.16);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -19,6 +70,11 @@ body {
     color: var(--text);
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+}
+
+.site-shell {
+    min-height: 100vh;
+    background: var(--bg-dark);
 }
 
 .container {
@@ -99,11 +155,11 @@ a { color: var(--berry-glow); text-decoration: none; }
 .feature-card:hover {
     background: rgba(255,255,255,0.09);
     transform: translateY(-4px);
-    border-color: rgba(53,132,228,0.2);
+    border-color: var(--accent-border);
 }
 .feature-icon {
     width: 48px; height: 48px;
-    background: linear-gradient(135deg, rgba(53,132,228,0.18), rgba(53,132,228,0.08));
+    background: var(--accent-surface-strong);
     border-radius: 14px;
     display: flex;
     align-items: center;
@@ -123,7 +179,7 @@ a { color: var(--berry-glow); text-decoration: none; }
     font-family: 'Fraunces', serif;
     font-size: 1.5rem;
     margin: 0 auto 16px;
-    box-shadow: 0 4px 20px rgba(53,132,228,0.3);
+    box-shadow: 0 4px 20px var(--accent-shadow);
 }
 
 /* ---- CTA Buttons ---- */
@@ -141,7 +197,7 @@ a { color: var(--berry-glow); text-decoration: none; }
     transition: all 0.3s ease;
     box-shadow: 0 4px 24px rgba(0,0,0,0.2);
 }
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 20px rgba(53,132,228,0.15); color: var(--bg-dark); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 20px var(--accent-shadow); color: var(--bg-dark); }
 
 .btn-nav {
     display: inline-flex;
@@ -167,6 +223,16 @@ a { color: var(--berry-glow); text-decoration: none; }
 .fade-up.visible {
     opacity: 1;
     transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .berry-float { animation: none; }
+    .fade-up {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
 }
 
 /* ---- Legal Pages ---- */

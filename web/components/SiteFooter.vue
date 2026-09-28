@@ -1,7 +1,7 @@
 <template>
     <footer>
         <div class="container">
-            <p>&copy; 2026 Berroku. Made with 🫐 by <a href="https://x.com/jbrooksuk">James Brooks</a>.</p>
+            <p>&copy; 2026 Berroku. {{ attribution.prefix }} <a href="https://x.com/jbrooksuk">James Brooks</a> {{ attribution.symbol }}.</p>
             <p style="margin-top: 4px;">Inspired by <a href="https://circle9puzzle.com/bbtrio/" target="_blank" rel="noopener">Blueberry Trio</a> by Circle Moon Puzzles.</p>
             <p class="legal-links">
                 <NuxtLink to="/privacy">Privacy Policy</NuxtLink>
@@ -11,6 +11,16 @@
         </div>
     </footer>
 </template>
+
+<script setup>
+import { computed } from 'vue'
+
+const { activeSeason, activeTheme } = useSeasonalTheme()
+const attribution = computed(() => {
+    if (activeTheme.value !== 'default' && activeSeason.value) return activeSeason.value.attribution
+    return { prefix: 'Made with berries by', symbol: '🫐' }
+})
+</script>
 
 <style scoped>
 footer {

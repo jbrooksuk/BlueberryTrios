@@ -5,6 +5,7 @@ const siteImage = `${siteUrl}/og.png`
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
+  devtools: { enabled: false },
   app: {
     head: {
       htmlAttrs: { lang: 'en' },

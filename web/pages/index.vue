@@ -9,10 +9,15 @@
         <section class="hero">
             <div class="container hero-content">
                 <div class="hero-berries fade-up">
-                    <img src="/berry-cluster.svg" alt="" class="hero-cluster" />
+                    <img v-if="activeTheme === 'default'" src="/berry-cluster.svg" alt="" class="hero-cluster" />
+                    <div v-else class="seasonal-cluster" aria-hidden="true">
+                        <span>{{ activeSeason?.symbol }}</span>
+                        <span>{{ activeSeason?.symbol }}</span>
+                        <span>{{ activeSeason?.symbol }}</span>
+                    </div>
                 </div>
                 <h1 class="fade-up">Berroku</h1>
-                <p class="hero-tagline fade-up">Place 3 berries in every row, column &amp; block.<br>A fresh logic puzzle that's delightfully addictive.</p>
+                <p class="hero-tagline fade-up">Place 3 {{ markerPlural }} in every row, column &amp; block.<br>A fresh logic puzzle that's delightfully addictive.</p>
                 <a href="https://apps.apple.com/us/app/berroku/id6761375301" class="btn-primary fade-up">
                     <AppleIcon />
                     Download on the App Store
@@ -41,7 +46,7 @@
         <section class="how-it-works">
             <div class="container section-center">
                 <h2 class="fade-up">Simple rules, deep logic</h2>
-                <p class="section-sub fade-up">A berry-themed logic puzzle inspired by Sudoku. Easy to learn, endlessly satisfying.</p>
+                <p class="section-sub fade-up">A Berroku logic puzzle inspired by Sudoku. Easy to learn, endlessly satisfying.</p>
                 <div class="rules-grid">
                     <div v-for="(rule, i) in rules" :key="rule.title" class="rule-card fade-up" :style="{ transitionDelay: `${i * 0.1}s` }">
                         <div class="rule-number">{{ rule.number }}</div>
@@ -91,9 +96,10 @@
         <section id="download" class="cta-section">
             <div class="container section-center">
                 <div class="cta-berries fade-up">
-                    <img src="/berry-cluster.svg" alt="" class="cta-cluster" />
+                    <img v-if="activeTheme === 'default'" src="/berry-cluster.svg" alt="" class="cta-cluster" />
+                    <span v-else class="cta-seasonal-mark" aria-hidden="true">{{ activeSeason?.symbol }}</span>
                 </div>
-                <h2 class="fade-up">Ready to pick some 🫐?</h2>
+                <h2 class="fade-up">Ready for today’s Berroku?</h2>
                 <p class="fade-up">Free to play. New puzzles every day.</p>
                 <a href="https://apps.apple.com/us/app/berroku/id6761375301" class="btn-primary fade-up">
                     <AppleIcon />
@@ -105,13 +111,16 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 
-const rules = [
-    { number: '3', title: 'Three per row', desc: 'Place exactly 3 berries in every row of the 9×9 grid.' },
-    { number: '3', title: 'Three per column', desc: 'Every column must also contain exactly 3 berries.' },
-    { number: '?', title: 'Follow the clues', desc: 'Numbers tell you how many of the 8 surrounding cells contain berries.' },
-]
+const { activeSeason, activeTheme } = useSeasonalTheme()
+const markerPlural = computed(() => activeTheme.value === 'default' ? 'berries' : activeSeason.value?.markers ?? 'berries')
+
+const rules = computed(() => [
+    { number: '3', title: 'Three per row', desc: `Place exactly 3 ${markerPlural.value} in every row of the 9×9 grid.` },
+    { number: '3', title: 'Three per column', desc: `Every column must also contain exactly 3 ${markerPlural.value}.` },
+    { number: '?', title: 'Follow the clues', desc: `Numbers tell you how many of the 8 surrounding cells contain ${markerPlural.value}.` },
+])
 
 const proPerks = [
     { icon: '♾️', title: 'Unlimited puzzles', desc: 'Access our full library of 6,000+ puzzles across all three difficulty levels.' },
@@ -156,7 +165,7 @@ onMounted(() => {
     width: 800px; height: 800px;
     top: -200px; left: 50%;
     transform: translateX(-50%);
-    background: radial-gradient(circle, rgba(53,132,228,0.15) 0%, transparent 70%);
+    background: radial-gradient(circle, var(--atmosphere-primary) 0%, transparent 70%);
     border-radius: 50%;
 }
 .atmosphere::after {
@@ -164,7 +173,7 @@ onMounted(() => {
     position: absolute;
     width: 600px; height: 600px;
     bottom: 10%; right: -100px;
-    background: radial-gradient(circle, rgba(47,206,81,0.06) 0%, transparent 70%);
+    background: radial-gradient(circle, var(--atmosphere-secondary) 0%, transparent 70%);
     border-radius: 50%;
 }
 
@@ -181,16 +190,54 @@ section {
 .hero-berries {
     display: flex;
     justify-content: center;
-    align-items: flex-end;
+    align-items: center;
+    height: clamp(120px, 18.67vw, 160px);
     margin-bottom: 20px;
 }
 .hero-cluster {
     width: clamp(180px, 28vw, 240px);
+    aspect-ratio: 3 / 2;
     height: auto;
     animation: heroFloat 3s ease-in-out infinite;
-    filter: drop-shadow(0 10px 22px rgba(53,132,228,0.28));
+    filter: drop-shadow(0 10px 22px var(--accent-shadow));
 }
-
+.seasonal-cluster {
+    position: relative;
+    width: clamp(180px, 28vw, 240px);
+    aspect-ratio: 3 / 2;
+    filter: drop-shadow(0 10px 22px var(--accent-shadow));
+}
+.seasonal-cluster span {
+    position: absolute;
+    line-height: 1;
+    transform: var(--symbol-transform);
+    animation: seasonalFloat 3.2s ease-in-out infinite;
+}
+.seasonal-cluster span:nth-child(1) {
+    left: 4%;
+    bottom: 4%;
+    font-size: clamp(4rem, 9vw, 5.6rem);
+    --symbol-transform: rotate(-8deg);
+    animation-delay: -0.5s;
+}
+.seasonal-cluster span:nth-child(2) {
+    right: 3%;
+    bottom: 6%;
+    font-size: clamp(3.8rem, 8.5vw, 5.2rem);
+    --symbol-transform: rotate(8deg);
+    animation-delay: -1.2s;
+}
+.seasonal-cluster span:nth-child(3) {
+    left: 50%;
+    top: 2%;
+    z-index: 1;
+    font-size: clamp(5rem, 11.5vw, 6.8rem);
+    --symbol-transform: translateX(-50%);
+}
+@keyframes seasonalFloat {
+    0%, 100% { transform: var(--symbol-transform) translateY(0); }
+    50% { transform: var(--symbol-transform) translateY(-8px); }
+}
 h1 {
     font-family: 'Fraunces', serif;
     font-size: clamp(3.5rem, 8vw, 5.5rem);
@@ -203,7 +250,7 @@ h1 {
     font-size: clamp(1rem, 2.2vw, 1.2rem);
     color: var(--text-muted);
     margin-bottom: 36px;
-    max-width: 440px;
+    max-width: 1000px;
     margin-left: auto;
     margin-right: auto;
     line-height: 1.8;
@@ -253,7 +300,7 @@ h2 {
 .rule-card:hover {
     background: rgba(255,255,255,0.09);
     transform: translateY(-3px);
-    border-color: rgba(53,132,228,0.2);
+    border-color: var(--accent-border);
 }
 .rule-card h3 {
     font-family: 'Fraunces', serif;
@@ -309,20 +356,20 @@ h2 {
     margin-bottom: 48px;
 }
 .pro-card {
-    background: rgba(53, 132, 228, 0.06);
-    border: 1px solid rgba(53, 132, 228, 0.12);
+    background: var(--accent-surface);
+    border: 1px solid var(--accent-border);
     border-radius: var(--radius);
     padding: 28px 24px;
     transition: all 0.3s ease;
 }
 .pro-card:hover {
-    background: rgba(53, 132, 228, 0.12);
+    background: var(--accent-surface-hover);
     transform: translateY(-3px);
-    border-color: rgba(53, 132, 228, 0.25);
+    border-color: var(--accent-border-strong);
 }
 .pro-icon {
     width: 44px; height: 44px;
-    background: rgba(53, 132, 228, 0.15);
+    background: var(--accent-surface-strong);
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -351,10 +398,7 @@ h2 {
     font-family: 'Fraunces', serif;
     font-size: 2.5rem;
     font-weight: 900;
-    background: linear-gradient(135deg, var(--text), var(--berry-glow));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--berry-glow);
 }
 .price-note {
     color: var(--text-muted);
@@ -384,6 +428,11 @@ h2 {
     height: auto;
     opacity: 0.9;
 }
+.cta-seasonal-mark {
+    font-size: clamp(5rem, 16vw, 7rem);
+    line-height: 1;
+    filter: drop-shadow(0 8px 18px var(--accent-shadow));
+}
 
 /* ---- Responsive ---- */
 @media (max-width: 900px) {
@@ -395,5 +444,10 @@ h2 {
     .features-grid,
     .pro-grid { grid-template-columns: 1fr; }
     .rules-grid { max-width: 340px; margin: 0 auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-cluster,
+    .seasonal-cluster span { animation: none; }
 }
 </style>
