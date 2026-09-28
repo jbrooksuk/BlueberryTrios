@@ -1,20 +1,16 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "%@ · %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ · %2$@"
-          }
-        }
-      }
+    "/ %lld" : {
+
     },
     "%lld" : {
 
     },
-    "%lld/3" : {
+    "%lld / 3 solved" : {
+
+    },
+    "%lld%%" : {
 
     },
     "3" : {
@@ -26,11 +22,18 @@
     "7-day streak" : {
 
     },
+    "10 flawless solves in a row" : {
+
+    },
     "30-day streak" : {
+
+    },
+    "A **0** means none of its neighbors are %@. Cross them out with ✕!" : {
 
     },
     "A **0** means none of its neighbors are berries. Cross them out with ✕!" : {
       "comment" : "Tutorial: explain zero step",
+      "extractionState" : "stale",
       "localizations" : {
         "en-GB" : {
           "stringUnit" : {
@@ -40,16 +43,30 @@
         }
       }
     },
-    "A berry logic puzzle inspired by Sudoku" : {
+    "A %@ logic puzzle inspired by Sudoku" : {
       "comment" : "Walkthrough page 1 subtitle"
     },
-    "A number tells you how many of the 8 surrounding cells contain a berry. Use logic to work out where each berry goes." : {
-      "comment" : "Walkthrough page 3 description"
+    "A new day, a new puzzle. Don't break your streak!" : {
+
+    },
+    "A number tells you how many of the 8 surrounding cells contain a %@. Use logic to work out where each %@ goes." : {
+      "comment" : "Walkthrough page 3 description",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "A number tells you how many of the 8 surrounding cells contain a %1$@. Use logic to work out where each %2$@ goes."
+          }
+        }
+      }
     },
     "About" : {
 
     },
     "Achievements" : {
+
+    },
+    "Achievements earned" : {
 
     },
     "Activity" : {
@@ -79,32 +96,47 @@
     "Auto check" : {
 
     },
+    "Automatic" : {
+
+    },
     "Avg hints / puzzle" : {
 
     },
     "Back" : {
       "comment" : "Walkthrough back button"
     },
-    "Berroku" : {
-
-    },
-    "berry" : {
+    "Back from the brink" : {
 
     },
     "berries" : {
 
     },
-    "Berry" : {
-      "comment" : "Walkthrough berry state label"
+    "Berroku" : {
+
+    },
+    "Berroku Pro" : {
+
+    },
+    "berry" : {
+
     },
     "Berry committed" : {
+
+    },
+    "Berry Revival" : {
 
     },
     "Best streak" : {
 
     },
+    "Blueberry" : {
+
+    },
     "Build your streak" : {
       "comment" : "Walkthrough page 5 title"
+    },
+    "Buy Berry Revival for %@" : {
+
     },
     "Centurion" : {
 
@@ -112,10 +144,28 @@
     "Check" : {
 
     },
+    "Checks your current solution for errors" : {
+      "comment" : "Accessibility hint for check toolbar button"
+    },
+    "Choosing a theme saves it as your preference, even when a later update has a new seasonal look." : {
+
+    },
+    "Christmas" : {
+
+    },
+    "Clears all cells" : {
+      "comment" : "Accessibility hint for erase toolbar button"
+    },
     "Come back every day" : {
       "comment" : "Walkthrough page 5 subtitle"
     },
+    "Coming soon" : {
+
+    },
     "Complete 10 puzzles" : {
+
+    },
+    "Complete 50 Pro puzzles" : {
 
     },
     "Complete 100 puzzles" : {
@@ -136,9 +186,6 @@
     "Complete an Expert puzzle" : {
 
     },
-    "Couldn't change app icon" : {
-
-    },
     "Complete row 4" : {
 
     },
@@ -146,6 +193,12 @@
 
     },
     "Complete your first puzzle" : {
+
+    },
+    "Continue" : {
+
+    },
+    "Couldn't change app icon" : {
 
     },
     "crossed" : {
@@ -163,17 +216,33 @@
     "Daily sweep" : {
 
     },
+    "Day streak" : {
+
+    },
     "Dedicated" : {
 
     },
     "Done" : {
 
     },
-    "Each **row**, **column**, and **3×3 block** needs exactly 3 berries. Numbers tell you how many of the 8 surrounding cells have berries." : {
-
+    "Each **row**, **column**, and **3×3 block** needs exactly 3 %@. Numbers tell you how many of the 8 surrounding cells have %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Each **row**, **column**, and **3×3 block** needs exactly 3 %1$@. Numbers tell you how many of the 8 surrounding cells have %2$@."
+          }
+        }
+      }
     },
     "Each day brings three new puzzles across Standard, Advanced, and Expert difficulties." : {
       "comment" : "Walkthrough page 1 description"
+    },
+    "Early bird" : {
+
+    },
+    "Earn them all" : {
+
     },
     "empty" : {
 
@@ -185,6 +254,9 @@
 
     },
     "Expert solver" : {
+
+    },
+    "Fastest" : {
 
     },
     "Fastest time" : {
@@ -199,11 +271,17 @@
     "First puzzle" : {
 
     },
+    "Flawless solver" : {
+
+    },
     "Follow @jbrooksuk" : {
 
     },
     "Follow the clues" : {
       "comment" : "Walkthrough page 3 title"
+    },
+    "Fresh berries have arrived. Time to sort them out." : {
+
     },
     "Fresh start?" : {
 
@@ -212,6 +290,9 @@
 
     },
     "Got it" : {
+
+    },
+    "Halloween" : {
 
     },
     "Haptics" : {
@@ -232,14 +313,27 @@
     "Hints used" : {
 
     },
+    "Hold to redo multiple steps" : {
+      "comment" : "Accessibility hint for redo toolbar button"
+    },
+    "Hold to undo multiple steps" : {
+      "comment" : "Accessibility hint for undo toolbar button"
+    },
     "Home" : {
+
+    },
+    "Hungry for a puzzle? Today's batch is ready." : {
 
     },
     "In every row, column, and block" : {
       "comment" : "Walkthrough page 2 subtitle"
     },
+    "It has only one empty neighbor — that cell must be a %@! Tap it **twice**." : {
+
+    },
     "It has only one empty neighbor — that cell must be a berry! Tap it **twice**." : {
       "comment" : "Tutorial: corner berry explanation",
+      "extractionState" : "stale",
       "localizations" : {
         "en-GB" : {
           "stringUnit" : {
@@ -264,10 +358,13 @@
     "Let's solve your first puzzle!" : {
 
     },
+    "Lightning" : {
+
+    },
     "Loading products…" : {
 
     },
-    "Loading..." : {
+    "Locked" : {
 
     },
     "Look at the **1** in the corner" : {
@@ -280,6 +377,9 @@
 
     },
     "Made with pumpkin spice by James Brooks 🎃" : {
+
+    },
+    "Marathon" : {
 
     },
     "Master" : {
@@ -303,22 +403,35 @@
     "Numbers guide your way" : {
       "comment" : "Walkthrough page 3 subtitle"
     },
+    "OK" : {
+
+    },
     "On a roll" : {
 
     },
-    "Place 3 berries" : {
+    "Perfectionist" : {
+
+    },
+    "Place 3 %@" : {
       "comment" : "Walkthrough page 2 title"
     },
-    "Place 3 berries in every row, column & block" : {
+    "Place 3 %@ in every row, column & block" : {
 
     },
-    "Place 3 berries in every row, column, and 3×3 block." : {
+    "Place 3 %@ in every row, column, and 3×3 block." : {
 
     },
-    "Place 3 berries into each row, column, and block. Surround each number with the specified number of berries." : {
-
+    "Place 3 %@ into each row, column, and block. Surround each number with the specified number of %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Place 3 %1$@ into each row, column, and block. Surround each number with the specified number of %2$@."
+          }
+        }
+      }
     },
-    "Please try again." : {
+    "Play" : {
 
     },
     "Play Pro" : {
@@ -327,7 +440,13 @@
     "Play today's puzzle" : {
 
     },
+    "Please try again." : {
+
+    },
     "Pro" : {
+
+    },
+    "Pro explorer" : {
 
     },
     "Pro puzzles" : {
@@ -351,11 +470,17 @@
     "Quick and intuitive controls" : {
       "comment" : "Walkthrough page 4 subtitle"
     },
+    "Raspberry" : {
+
+    },
     "Redeem code" : {
 
     },
     "Redo" : {
 
+    },
+    "Redo step" : {
+      "comment" : "VoiceOver custom action label for repeated redo"
     },
     "Restart puzzle" : {
 
@@ -364,6 +489,12 @@
 
     },
     "Restore purchases" : {
+
+    },
+    "Reveals a logical next step" : {
+      "comment" : "Accessibility hint for hint toolbar button"
+    },
+    "Revive a lost streak with Berry Revival" : {
 
     },
     "Row %lld, column %lld, %@" : {
@@ -376,12 +507,6 @@
         }
       }
     },
-    "snowflake" : {
-
-    },
-    "snowflakes" : {
-
-    },
     "Row %lld, column %lld, clue %lld" : {
       "localizations" : {
         "en" : {
@@ -392,7 +517,7 @@
         }
       }
     },
-    "Row 2 has 3 berries!" : {
+    "Row 2 has 3 %@!" : {
 
     },
     "Ruled out" : {
@@ -401,10 +526,13 @@
     "Seasonal icons are available during their matching theme." : {
 
     },
+    "Selected" : {
+
+    },
     "Settings" : {
 
     },
-    "Share" : {
+    "Share my time" : {
 
     },
     "Show timer" : {
@@ -425,13 +553,31 @@
     "Show walkthrough" : {
       "comment" : "Settings button to replay walkthrough"
     },
+    "snowflake" : {
+
+    },
+    "snowflakes" : {
+
+    },
+    "Solve a puzzle before 6 AM" : {
+
+    },
     "Solve a puzzle in under 1 minute" : {
+
+    },
+    "Solve a puzzle in under 30 seconds" : {
+
+    },
+    "Solve a puzzle with no hints or mistakes" : {
 
     },
     "Solve puzzles daily to build your streak. Earn achievements and compete on the leaderboard." : {
       "comment" : "Walkthrough page 5 description"
     },
-    "Solved!" : {
+    "Solve today to keep it going" : {
+
+    },
+    "Solved" : {
 
     },
     "Sound" : {
@@ -452,7 +598,19 @@
     "Statistics" : {
 
     },
-    "Tap a cell to cycle: empty, crossed out, or berry. Use crossed to mark cells you've ruled out. Drag to paint multiple cells at once." : {
+    "Streak" : {
+
+    },
+    "Streak going strong!" : {
+
+    },
+    "Sweep the daily puzzles 7 days running" : {
+
+    },
+    "Sweet!" : {
+
+    },
+    "Tap a cell to cycle: empty, crossed out, or %@. Use crossed to mark cells you've ruled out. Drag to paint multiple cells at once." : {
       "comment" : "Walkthrough page 4 description"
     },
     "Tap and drag" : {
@@ -464,22 +622,41 @@
     "That row is full — cross out the remaining cells." : {
 
     },
-    "The 9×9 grid is divided into blocks. Each row, column, and block must contain exactly 3 berries." : {
+    "The 9×9 grid is divided into blocks. Each row, column, and block must contain exactly 3 %@." : {
       "comment" : "Walkthrough page 2 description"
     },
     "The grid" : {
 
     },
-    "The last column has 1 berry. Place the other 2 to complete it! Tap each **twice**." : {
+    "The grid is set. The berries await." : {
 
     },
-    "This block needs 3 berries and has exactly 3 empty cells. They must all be berries! Tap each one **twice**." : {
+    "The last column has 1 %@. Place the other 2 to complete it! Tap each **twice**." : {
 
     },
-    "This row already has 1 berry. Place the other 2 to finish it!" : {
+    "Theme" : {
+
+    },
+    "This block needs 3 %@ and has exactly 3 empty cells. They must all be %@! Tap each one **twice**." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This block needs 3 %1$@ and has exactly 3 empty cells. They must all be %2$@! Tap each one **twice**."
+          }
+        }
+      }
+    },
+    "This row already has 1 %@. Place the other 2 to finish it!" : {
+
+    },
+    "Three berries per row, column, and block. Ready to play?" : {
 
     },
     "Three hints in — sometimes a clean slate helps a puzzle click. Your hint count stays the same either way." : {
+
+    },
+    "Today's %@" : {
 
     },
     "Today's puzzles" : {
@@ -488,25 +665,34 @@
     "Today's puzzles are ready! Can you keep your streak going?" : {
 
     },
+    "Today's puzzles just dropped. Care to pick them?" : {
+
+    },
     "Undo" : {
+
+    },
+    "Undo step" : {
+      "comment" : "VoiceOver custom action label for repeated undo"
+    },
+    "Unlimited puzzle sets beyond the daily three. One-time purchase." : {
 
     },
     "Unlimited puzzle sets unlocked." : {
 
     },
-    "Unlock Pro %@" : {
+    "Unlock for %@" : {
 
     },
     "Unlock Pro puzzles" : {
-
-    },
-    "Unlock unlimited additional puzzle sets beyond the daily puzzles." : {
 
     },
     "Use 100 hints" : {
 
     },
     "Use a hint" : {
+
+    },
+    "Uses the theme chosen for this release" : {
 
     },
     "View grid" : {
@@ -528,6 +714,15 @@
 
     },
     "You've got the hang of it!" : {
+
+    },
+    "Your daily puzzles are ripe and waiting." : {
+
+    },
+    "Your streak went cold. Revive it at 7 days." : {
+
+    },
+    "Your time" : {
 
     }
   },
