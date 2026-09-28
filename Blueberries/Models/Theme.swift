@@ -26,6 +26,27 @@ enum AppTheme: String, CaseIterable, Identifiable {
         }
     }
 
+    /// The asset-catalog app icon name passed to UIApplication. The primary
+    /// blueberry icon uses nil; future paid themes unlock their icon through
+    /// the same product entitlement as the theme.
+    var alternateIconName: String? {
+        switch self {
+        case .blueberry: nil
+        case .halloween: "AppIcon-Halloween"
+        case .christmas: "AppIcon-Christmas"
+        case .raspberry: nil
+        }
+    }
+
+    var iconPreviewName: String? {
+        switch self {
+        case .blueberry: "IconPreview-Blueberry"
+        case .halloween: "IconPreview-Halloween"
+        case .christmas: "IconPreview-Christmas"
+        case .raspberry: nil
+        }
+    }
+
     /// Add a product identifier here when a theme should be sold separately.
     /// Free and seasonal themes leave this nil.
     var productID: String? {
@@ -50,6 +71,9 @@ enum AppTheme: String, CaseIterable, Identifiable {
                 backgroundAccent: Color(red: 0.92, green: 0.39, blue: 0.08),
                 hintHighlight: Color.orange.opacity(0.32),
                 berrySymbol: "🎃",
+                markerName: String(localized: "pumpkin"),
+                markerNamePlural: String(localized: "pumpkins"),
+                proTagline: "An endless pumpkin patch",
                 attribution: "Made with pumpkin spice by James Brooks 🎃"
             )
         case .christmas:
@@ -59,6 +83,9 @@ enum AppTheme: String, CaseIterable, Identifiable {
                 backgroundAccent: Color(red: 0.12, green: 0.48, blue: 0.28),
                 hintHighlight: Color.green.opacity(0.28),
                 berrySymbol: "❄️",
+                markerName: String(localized: "snowflake"),
+                markerNamePlural: String(localized: "snowflakes"),
+                proTagline: "An endless flurry of snowflakes",
                 attribution: "Made with gingerbread by James Brooks 🎅"
             )
         case .raspberry:
@@ -75,9 +102,48 @@ enum AppTheme: String, CaseIterable, Identifiable {
 enum ThemeSelection {
     static let storageKey = "selectedThemeID"
 
-    /// Change this value for a seasonal release. Players with no explicit
-    /// selection receive it automatically; an explicit selection always wins.
+    /// The non-seasonal fallback used outside the automatic date windows.
     static let releaseDefault: AppTheme = .blueberry
+
+    static func automaticTheme(
+        on date: Date = .now,
+        calendar: Calendar = .current
+    ) -> AppTheme {
+        let components = calendar.dateComponents([.month, .day], from: date)
+        guard let month = components.month, let day = components.day else {
+            return releaseDefault
+        }
+
+        if month == 10 && day >= 26 {
+            return .halloween
+        }
+        if month == 12 && day >= 23 {
+            return .christmas
+        }
+        return releaseDefault
+    }
+
+    static func isAvailable(
+        _ theme: AppTheme,
+        on date: Date = .now,
+        calendar: Calendar = .current
+    ) -> Bool {
+        switch theme {
+        case .blueberry:
+            true
+        case .halloween, .christmas:
+            theme == automaticTheme(on: date, calendar: calendar)
+        case .raspberry:
+            false
+        }
+    }
+
+    static func availableThemes(
+        on date: Date = .now,
+        calendar: Calendar = .current
+    ) -> [AppTheme] {
+        AppTheme.allCases.filter { isAvailable($0, on: date, calendar: calendar) }
+    }
 
     static func resolve(
         overrideRawValue: String?,
@@ -87,6 +153,21 @@ enum ThemeSelection {
               !overrideRawValue.isEmpty,
               let theme = AppTheme(rawValue: overrideRawValue) else {
             return fallback
+        }
+        return theme
+    }
+
+    static func resolve(
+        overrideRawValue: String?,
+        on date: Date,
+        calendar: Calendar = .current
+    ) -> AppTheme {
+        let automaticTheme = automaticTheme(on: date, calendar: calendar)
+        guard let overrideRawValue,
+              !overrideRawValue.isEmpty,
+              let theme = AppTheme(rawValue: overrideRawValue),
+              isAvailable(theme, on: date, calendar: calendar) else {
+            return automaticTheme
         }
         return theme
     }
@@ -107,6 +188,9 @@ struct Theme {
     let satisfiedClueOpacity: Double
     let errorAnimationDelay: TimeInterval
     let berrySymbol: String?
+    let markerName: String
+    let markerNamePlural: String
+    let proTagline: LocalizedStringResource
     let attribution: LocalizedStringResource
 
     init(
@@ -124,6 +208,9 @@ struct Theme {
         satisfiedClueOpacity: Double = 0.25,
         errorAnimationDelay: TimeInterval = 1.0,
         berrySymbol: String? = nil,
+        markerName: String = String(localized: "berry"),
+        markerNamePlural: String = String(localized: "berries"),
+        proTagline: LocalizedStringResource = "An endless berry patch",
         attribution: LocalizedStringResource = "Made with berries by James Brooks 🫐"
     ) {
         self.accent = accent
@@ -140,6 +227,9 @@ struct Theme {
         self.satisfiedClueOpacity = satisfiedClueOpacity
         self.errorAnimationDelay = errorAnimationDelay
         self.berrySymbol = berrySymbol
+        self.markerName = markerName
+        self.markerNamePlural = markerNamePlural
+        self.proTagline = proTagline
         self.attribution = attribution
     }
 

@@ -205,7 +205,7 @@ struct TutorialView: View {
                         .foregroundStyle(theme.berry)
                     Text("Let's solve your first puzzle!")
                         .font(.title3.bold())
-                    Text("Place 3 berries in every row, column, and 3×3 block.")
+                    Text("Place 3 \(theme.markerNamePlural) in every row, column, and 3×3 block.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -220,7 +220,7 @@ struct TutorialView: View {
                 VStack(spacing: 8) {
                     Text("The grid")
                         .font(.title3.bold())
-                    Text("Each **row**, **column**, and **3×3 block** needs exactly 3 berries. Numbers tell you how many of the 8 surrounding cells have berries.")
+                    Text("Each **row**, **column**, and **3×3 block** needs exactly 3 \(theme.markerNamePlural). Numbers tell you how many of the 8 surrounding cells have \(theme.markerNamePlural).")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -235,7 +235,7 @@ struct TutorialView: View {
                 VStack(spacing: 8) {
                     Text("Start with the **0**")
                         .font(.title3.bold())
-                    Text("A **0** means none of its neighbors are berries. Cross them out with ✕!")
+                    Text("A **0** means none of its neighbors are \(theme.markerNamePlural). Cross them out with ✕!")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -267,7 +267,7 @@ struct TutorialView: View {
                         Text("Fill the block!")
                             .font(.subheadline.weight(.medium))
                     }
-                    Text("This block needs 3 berries and has exactly 3 empty cells. They must all be berries! Tap each one **twice**.")
+                    Text("This block needs 3 \(theme.markerNamePlural) and has exactly 3 empty cells. They must all be \(theme.markerNamePlural)! Tap each one **twice**.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -278,7 +278,7 @@ struct TutorialView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "arrow.right.circle")
                             .foregroundStyle(theme.berry)
-                        Text("Row 2 has 3 berries!")
+                        Text("Row 2 has 3 \(theme.markerNamePlural)!")
                             .font(.subheadline.weight(.medium))
                     }
                     Text("That row is full — cross out the remaining cells.")
@@ -295,7 +295,7 @@ struct TutorialView: View {
                         Text("Look at the **1** in the corner")
                             .font(.subheadline.weight(.medium))
                     }
-                    Text("It has only one empty neighbor — that cell must be a berry! Tap it **twice**.")
+                    Text("It has only one empty neighbor — that cell must be a \(theme.markerName)! Tap it **twice**.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -309,7 +309,7 @@ struct TutorialView: View {
                         Text("Complete the column")
                             .font(.subheadline.weight(.medium))
                     }
-                    Text("The last column has 1 berry. Place the other 2 to complete it! Tap each **twice**.")
+                    Text("The last column has 1 \(theme.markerName). Place the other 2 to complete it! Tap each **twice**.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -323,7 +323,7 @@ struct TutorialView: View {
                         Text("Complete row 4")
                             .font(.subheadline.weight(.medium))
                     }
-                    Text("This row already has 1 berry. Place the other 2 to finish it!")
+                    Text("This row already has 1 \(theme.markerName). Place the other 2 to finish it!")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)

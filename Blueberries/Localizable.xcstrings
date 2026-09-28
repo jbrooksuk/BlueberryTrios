@@ -61,7 +61,19 @@
     "All daily puzzles complete!" : {
 
     },
+    "An endless berry patch" : {
+
+    },
+    "An endless flurry of snowflakes" : {
+
+    },
+    "An endless pumpkin patch" : {
+
+    },
     "Another three hints down. A fresh start might help this puzzle click. Your hint count stays the same either way." : {
+
+    },
+    "App icon" : {
 
     },
     "Auto check" : {
@@ -77,6 +89,9 @@
 
     },
     "berry" : {
+
+    },
+    "berries" : {
 
     },
     "Berry" : {
@@ -119,6 +134,9 @@
 
     },
     "Complete an Expert puzzle" : {
+
+    },
+    "Couldn't change app icon" : {
 
     },
     "Complete row 4" : {
@@ -300,6 +318,9 @@
     "Place 3 berries into each row, column, and block. Surround each number with the specified number of berries." : {
 
     },
+    "Please try again." : {
+
+    },
     "Play Pro" : {
 
     },
@@ -313,6 +334,12 @@
 
     },
     "Pro unlocked" : {
+
+    },
+    "pumpkin" : {
+
+    },
+    "pumpkins" : {
 
     },
     "Puzzle solved!" : {
@@ -349,6 +376,12 @@
         }
       }
     },
+    "snowflake" : {
+
+    },
+    "snowflakes" : {
+
+    },
     "Row %lld, column %lld, clue %lld" : {
       "localizations" : {
         "en" : {
@@ -364,6 +397,9 @@
     },
     "Ruled out" : {
       "comment" : "Walkthrough crossed state label"
+    },
+    "Seasonal icons are available during their matching theme." : {
+
     },
     "Settings" : {
 

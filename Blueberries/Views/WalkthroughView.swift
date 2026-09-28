@@ -6,38 +6,40 @@ struct WalkthroughView: View {
     @State private var currentPage = 0
     @State private var sessionID = UUID()
 
-    private let pages: [WalkthroughPage] = [
-        WalkthroughPage(
-            title: String(localized: "Welcome to Berroku", comment: "Walkthrough page 1 title"),
-            subtitle: String(localized: "A berry logic puzzle inspired by Sudoku", comment: "Walkthrough page 1 subtitle"),
-            illustration: .berries,
-            description: String(localized: "Each day brings three new puzzles across Standard, Advanced, and Expert difficulties.", comment: "Walkthrough page 1 description")
-        ),
-        WalkthroughPage(
-            title: String(localized: "Place 3 berries", comment: "Walkthrough page 2 title"),
-            subtitle: String(localized: "In every row, column, and block", comment: "Walkthrough page 2 subtitle"),
-            illustration: .grid,
-            description: String(localized: "The 9×9 grid is divided into blocks. Each row, column, and block must contain exactly 3 berries.", comment: "Walkthrough page 2 description")
-        ),
-        WalkthroughPage(
-            title: String(localized: "Follow the clues", comment: "Walkthrough page 3 title"),
-            subtitle: String(localized: "Numbers guide your way", comment: "Walkthrough page 3 subtitle"),
-            illustration: .clue,
-            description: String(localized: "A number tells you how many of the 8 surrounding cells contain a berry. Use logic to work out where each berry goes.", comment: "Walkthrough page 3 description")
-        ),
-        WalkthroughPage(
-            title: String(localized: "Tap and drag", comment: "Walkthrough page 4 title"),
-            subtitle: String(localized: "Quick and intuitive controls", comment: "Walkthrough page 4 subtitle"),
-            illustration: .interaction,
-            description: String(localized: "Tap a cell to cycle: empty, crossed out, or berry. Use crossed to mark cells you've ruled out. Drag to paint multiple cells at once.", comment: "Walkthrough page 4 description")
-        ),
-        WalkthroughPage(
-            title: String(localized: "Build your streak", comment: "Walkthrough page 5 title"),
-            subtitle: String(localized: "Come back every day", comment: "Walkthrough page 5 subtitle"),
-            illustration: .streak,
-            description: String(localized: "Solve puzzles daily to build your streak. Earn achievements and compete on the leaderboard.", comment: "Walkthrough page 5 description")
-        ),
-    ]
+    private var pages: [WalkthroughPage] {
+        [
+            WalkthroughPage(
+                title: String(localized: "Welcome to Berroku", comment: "Walkthrough page 1 title"),
+                subtitle: String(localized: "A \(theme.markerName) logic puzzle inspired by Sudoku", comment: "Walkthrough page 1 subtitle"),
+                illustration: .berries,
+                description: String(localized: "Each day brings three new puzzles across Standard, Advanced, and Expert difficulties.", comment: "Walkthrough page 1 description")
+            ),
+            WalkthroughPage(
+                title: String(localized: "Place 3 \(theme.markerNamePlural)", comment: "Walkthrough page 2 title"),
+                subtitle: String(localized: "In every row, column, and block", comment: "Walkthrough page 2 subtitle"),
+                illustration: .grid,
+                description: String(localized: "The 9×9 grid is divided into blocks. Each row, column, and block must contain exactly 3 \(theme.markerNamePlural).", comment: "Walkthrough page 2 description")
+            ),
+            WalkthroughPage(
+                title: String(localized: "Follow the clues", comment: "Walkthrough page 3 title"),
+                subtitle: String(localized: "Numbers guide your way", comment: "Walkthrough page 3 subtitle"),
+                illustration: .clue,
+                description: String(localized: "A number tells you how many of the 8 surrounding cells contain a \(theme.markerName). Use logic to work out where each \(theme.markerName) goes.", comment: "Walkthrough page 3 description")
+            ),
+            WalkthroughPage(
+                title: String(localized: "Tap and drag", comment: "Walkthrough page 4 title"),
+                subtitle: String(localized: "Quick and intuitive controls", comment: "Walkthrough page 4 subtitle"),
+                illustration: .interaction,
+                description: String(localized: "Tap a cell to cycle: empty, crossed out, or \(theme.markerName). Use crossed to mark cells you've ruled out. Drag to paint multiple cells at once.", comment: "Walkthrough page 4 description")
+            ),
+            WalkthroughPage(
+                title: String(localized: "Build your streak", comment: "Walkthrough page 5 title"),
+                subtitle: String(localized: "Come back every day", comment: "Walkthrough page 5 subtitle"),
+                illustration: .streak,
+                description: String(localized: "Solve puzzles daily to build your streak. Earn achievements and compete on the leaderboard.", comment: "Walkthrough page 5 description")
+            ),
+        ]
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -398,7 +400,7 @@ private struct WalkthroughPageView: View {
                     .foregroundStyle(.tertiary)
                 VStack(spacing: 4) {
                     cellStateView(.berryState, active: phase == 2)
-                    Text(String(localized: "Berry", comment: "Walkthrough berry state label"))
+                    Text(theme.markerName.localizedCapitalized)
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }

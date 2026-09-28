@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import SiriusRating
+import UIKit
 
 @main
 struct BlueberriesApp: App {
@@ -15,11 +16,20 @@ struct BlueberriesApp: App {
     @Environment(\.scenePhase) private var scenePhase
     @State private var notificationService = NotificationService()
     @State private var storeService = StoreKitService()
+    @State private var themeDate = Date.now
     @AppStorage(ThemeSelection.storageKey) private var selectedThemeID: String = ""
 
     private var selectedTheme: AppTheme {
-        let preferredTheme = ThemeSelection.resolve(overrideRawValue: selectedThemeID)
-        return storeService.isThemeUnlocked(preferredTheme) ? preferredTheme : ThemeSelection.releaseDefault
+        let automaticTheme = ThemeSelection.automaticTheme(on: themeDate)
+        let preferredTheme = ThemeSelection.resolve(
+            overrideRawValue: selectedThemeID,
+            on: themeDate
+        )
+        return storeService.isThemeUnlocked(preferredTheme) ? preferredTheme : automaticTheme
+    }
+
+    private var themeDay: Date {
+        Calendar.current.startOfDay(for: themeDate)
     }
 
     init() {
@@ -49,13 +59,51 @@ struct BlueberriesApp: App {
             HomeView(storeService: storeService)
                 .environment(\.appTheme, selectedTheme.palette)
                 .tint(selectedTheme.palette.accent)
+                .task(id: themeDay) {
+                    clearUnavailableThemeSelection()
+                    clearUnavailableAppIcon()
+                    let calendar = Calendar.current
+                    let now = Date.now
+                    let nextMidnight = calendar.nextDate(
+                        after: now,
+                        matching: DateComponents(hour: 0, minute: 0, second: 0),
+                        matchingPolicy: .nextTime
+                    ) ?? now.addingTimeInterval(86400)
+                    try? await Task.sleep(for: .seconds(max(1, nextMidnight.timeIntervalSince(now))))
+                    if !Task.isCancelled {
+                        themeDate = .now
+                        clearUnavailableThemeSelection()
+                        clearUnavailableAppIcon()
+                    }
+                }
         }
         .modelContainer(modelContainer)
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
+                themeDate = .now
+                clearUnavailableThemeSelection()
+                clearUnavailableAppIcon()
                 notificationService.refreshIfScheduled(currentStreak: currentEffectiveStreak())
             }
         }
+    }
+
+    private func clearUnavailableThemeSelection() {
+        guard !selectedThemeID.isEmpty else { return }
+        guard let selectedTheme = AppTheme(rawValue: selectedThemeID),
+              ThemeSelection.isAvailable(selectedTheme, on: themeDate) else {
+            selectedThemeID = ""
+            return
+        }
+    }
+
+    private func clearUnavailableAppIcon() {
+        guard let iconName = UIApplication.shared.alternateIconName,
+              let iconTheme = AppTheme.allCases.first(where: { $0.alternateIconName == iconName }),
+              !ThemeSelection.isAvailable(iconTheme, on: themeDate) else {
+            return
+        }
+        UIApplication.shared.setAlternateIconName(nil)
     }
 
     @MainActor

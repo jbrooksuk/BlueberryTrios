@@ -133,7 +133,7 @@ struct PuzzleGridView: View {
         let stateDesc: String = switch state {
         case .undecided: String(localized: "empty")
         case .empty: String(localized: "crossed")
-        case .berry: String(localized: "berry")
+        case .berry: theme.markerName
         }
         return String(localized: "Row \(row), column \(col), \(stateDesc)")
     }

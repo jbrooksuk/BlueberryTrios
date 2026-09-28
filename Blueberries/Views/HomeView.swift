@@ -210,7 +210,7 @@ struct HomeView: View {
                     .foregroundStyle(.orange)
                     .transition(.scale.combined(with: .opacity))
             } else {
-                Text("Place 3 berries in every row, column & block")
+                Text("Place 3 \(theme.markerNamePlural) in every row, column & block")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -533,15 +533,17 @@ struct HomeView: View {
         } else {
             HStack(spacing: 4) {
                 Text(inProgress ? "Continue" : "Play")
+                    .lineLimit(1)
                 Image(systemName: "chevron.right")
                     .font(.caption2.weight(.bold))
             }
             .font(.subheadline.weight(.semibold))
             .foregroundStyle(.white)
-            .padding(.horizontal, 18)
+            .padding(.horizontal, 16)
             .padding(.vertical, 10)
             .background(theme.berry)
             .clipShape(Capsule())
+            .fixedSize(horizontal: true, vertical: false)
         }
     }
 
@@ -616,7 +618,7 @@ struct HomeView: View {
             }
             .foregroundStyle(.white.opacity(0.92))
 
-            Text("An endless berry patch")
+            Text(theme.proTagline)
                 .font(.system(.largeTitle, design: .serif).weight(.bold))
                 .foregroundStyle(.white)
                 .lineLimit(2)

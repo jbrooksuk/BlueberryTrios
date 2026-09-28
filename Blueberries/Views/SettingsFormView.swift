@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import StoreKit
+import UIKit
 
 struct SettingsFormView: View {
     @Environment(\.appTheme) private var theme
@@ -15,6 +16,8 @@ struct SettingsFormView: View {
 
     @State private var notificationService = NotificationService()
     @State private var showOfferCode: Bool = false
+    @State private var selectedIconName = UIApplication.shared.alternateIconName
+    @State private var showIconChangeError = false
 
     var storeService: StoreKitService
     var onShowWalkthrough: (() -> Void)?
@@ -43,19 +46,26 @@ struct SettingsFormView: View {
                     name: String(localized: "Automatic"),
                     subtitle: String(localized: "Uses the theme chosen for this release"),
                     symbolName: "wand.and.stars",
-                    palette: ThemeSelection.releaseDefault.palette,
+                    palette: ThemeSelection.automaticTheme().palette,
                     isSelected: selectedThemeID.isEmpty
                 ) {
                     selectedThemeID = ""
                 }
 
-                ForEach(AppTheme.allCases) { theme in
+                ForEach(ThemeSelection.availableThemes()) { theme in
                     appThemeRow(theme)
                 }
             } header: {
                 Text("Theme")
             } footer: {
                 Text("Choosing a theme saves it as your preference, even when a later update has a new seasonal look.")
+            }
+            Section("App icon") {
+                ForEach(ThemeSelection.availableThemes().filter { $0.iconPreviewName != nil }) { appTheme in
+                    appIconRow(appTheme)
+                }
+            } footer: {
+                Text("Seasonal icons are available during their matching theme.")
             }
             Section("Pro puzzles") {
                 if storeService.isProUnlocked {
@@ -104,7 +114,7 @@ struct SettingsFormView: View {
                         Label(String(localized: "Show tutorial", comment: "Settings button to replay tutorial"), systemImage: "puzzlepiece")
                     }
                 }
-                Text("Place 3 berries into each row, column, and block. Surround each number with the specified number of berries.")
+                Text("Place 3 \(theme.markerNamePlural) into each row, column, and block. Surround each number with the specified number of \(theme.markerNamePlural).")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -137,6 +147,11 @@ struct SettingsFormView: View {
             }
         }
         .offerCodeRedemption(isPresented: $showOfferCode)
+        .alert("Couldn't change app icon", isPresented: $showIconChangeError) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Please try again.")
+        }
     }
 
     @ViewBuilder
@@ -162,6 +177,55 @@ struct SettingsFormView: View {
             }
         }
         .disabled(!isUnlocked && product == nil)
+    }
+
+    @ViewBuilder
+    private func appIconRow(_ appTheme: AppTheme) -> some View {
+        if let previewName = appTheme.iconPreviewName {
+            let isUnlocked = storeService.isThemeUnlocked(appTheme)
+            let isSelected = selectedIconName == appTheme.alternateIconName
+
+            Button {
+                guard isUnlocked, UIApplication.shared.supportsAlternateIcons else { return }
+                let iconName = appTheme.alternateIconName
+                UIApplication.shared.setAlternateIconName(iconName) { error in
+                    Task { @MainActor in
+                        if error == nil {
+                            selectedIconName = iconName
+                        } else {
+                            showIconChangeError = true
+                        }
+                    }
+                }
+            } label: {
+                HStack(spacing: 12) {
+                    Image(previewName)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 44, height: 44)
+                        .clipShape(.rect(cornerRadius: 10))
+                        .accessibilityHidden(true)
+
+                    Text(appTheme.name)
+                        .foregroundStyle(.primary)
+
+                    Spacer()
+
+                    if isSelected {
+                        Image(systemName: "checkmark")
+                            .fontWeight(.semibold)
+                            .accessibilityLabel("Selected")
+                    } else if !isUnlocked {
+                        Image(systemName: "lock.fill")
+                            .foregroundStyle(.secondary)
+                            .accessibilityLabel("Locked")
+                    }
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .disabled(!isUnlocked || !UIApplication.shared.supportsAlternateIcons)
+        }
     }
 
     private func themeRow(
