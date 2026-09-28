@@ -23,6 +23,14 @@ struct SettingsFormView: View {
     var onShowWalkthrough: (() -> Void)?
     var onShowTutorial: (() -> Void)?
 
+    private var displayedThemes: [AppTheme] {
+        ThemeSelection.themesForCurrentBuild()
+    }
+
+    private var displayedIconThemes: [AppTheme] {
+        displayedThemes.filter { $0.iconPreviewName != nil }
+    }
+
     var body: some View {
         Form {
             Section("Gameplay") {
@@ -52,7 +60,7 @@ struct SettingsFormView: View {
                     selectedThemeID = ""
                 }
 
-                ForEach(ThemeSelection.availableThemes()) { theme in
+                ForEach(displayedThemes) { theme in
                     appThemeRow(theme)
                 }
             } header: {
@@ -60,14 +68,16 @@ struct SettingsFormView: View {
             } footer: {
                 Text("Choosing a theme saves it as your preference, even when a later update has a new seasonal look.")
             }
-            Section {
-                ForEach(ThemeSelection.availableThemes().filter { $0.iconPreviewName != nil }) { appTheme in
-                    appIconRow(appTheme)
+            if displayedIconThemes.count > 1 {
+                Section {
+                    ForEach(displayedIconThemes) { appTheme in
+                        appIconRow(appTheme)
+                    }
+                } header: {
+                    Text("App icon")
+                } footer: {
+                    Text("Seasonal icons are available during their matching theme.")
                 }
-            } header: {
-                Text("App icon")
-            } footer: {
-                Text("Seasonal icons are available during their matching theme.")
             }
             Section("Pro puzzles") {
                 if storeService.isProUnlocked {

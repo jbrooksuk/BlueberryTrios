@@ -84,6 +84,18 @@ struct ThemeSelectionTests {
         ) == .blueberry)
     }
 
+    #if DEBUG
+    @Test("Debug builds expose inactive themes")
+    func debugBuildExposesInactiveThemes() {
+        #expect(ThemeSelection.themesForCurrentBuild(on: date(2026, 9, 1), calendar: calendar) == AppTheme.allCases)
+        #expect(ThemeSelection.resolveForCurrentBuild(
+            overrideRawValue: AppTheme.raspberry.rawValue,
+            on: date(2026, 9, 1),
+            calendar: calendar
+        ) == .raspberry)
+    }
+    #endif
+
     @Test("Seasonal themes provide distinct puzzle markers")
     func seasonalPuzzleMarkers() {
         #expect(AppTheme.blueberry.palette.berrySymbol == nil)

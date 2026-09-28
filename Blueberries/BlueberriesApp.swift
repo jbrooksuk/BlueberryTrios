@@ -21,7 +21,7 @@ struct BlueberriesApp: App {
 
     private var selectedTheme: AppTheme {
         let automaticTheme = ThemeSelection.automaticTheme(on: themeDate)
-        let preferredTheme = ThemeSelection.resolve(
+        let preferredTheme = ThemeSelection.resolveForCurrentBuild(
             overrideRawValue: selectedThemeID,
             on: themeDate
         )
@@ -91,7 +91,7 @@ struct BlueberriesApp: App {
     private func clearUnavailableThemeSelection() {
         guard !selectedThemeID.isEmpty else { return }
         guard let selectedTheme = AppTheme(rawValue: selectedThemeID),
-              ThemeSelection.isAvailable(selectedTheme, on: themeDate) else {
+              ThemeSelection.isAvailableInCurrentBuild(selectedTheme, on: themeDate) else {
             selectedThemeID = ""
             return
         }
@@ -100,7 +100,7 @@ struct BlueberriesApp: App {
     private func clearUnavailableAppIcon() {
         guard let iconName = UIApplication.shared.alternateIconName,
               let iconTheme = AppTheme.allCases.first(where: { $0.alternateIconName == iconName }),
-              !ThemeSelection.isAvailable(iconTheme, on: themeDate) else {
+              !ThemeSelection.isAvailableInCurrentBuild(iconTheme, on: themeDate) else {
             return
         }
         UIApplication.shared.setAlternateIconName(nil)

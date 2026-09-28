@@ -34,16 +34,22 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .blueberry: nil
         case .halloween: "AppIcon-Halloween"
         case .christmas: "AppIcon-Christmas"
-        case .raspberry: nil
+        case .raspberry: "AppIcon-Raspberry"
         }
     }
 
     var iconPreviewName: String? {
+        #if DEBUG
+        if self == .blueberry {
+            return "IconPreview-Debug"
+        }
+        #endif
+
         switch self {
         case .blueberry: "IconPreview-Blueberry"
         case .halloween: "IconPreview-Halloween"
         case .christmas: "IconPreview-Christmas"
-        case .raspberry: nil
+        case .raspberry: "IconPreview-Raspberry"
         }
     }
 
@@ -145,6 +151,29 @@ enum ThemeSelection {
         AppTheme.allCases.filter { isAvailable($0, on: date, calendar: calendar) }
     }
 
+    static func themesForCurrentBuild(
+        on date: Date = .now,
+        calendar: Calendar = .current
+    ) -> [AppTheme] {
+        #if DEBUG
+        AppTheme.allCases
+        #else
+        availableThemes(on: date, calendar: calendar)
+        #endif
+    }
+
+    static func isAvailableInCurrentBuild(
+        _ theme: AppTheme,
+        on date: Date = .now,
+        calendar: Calendar = .current
+    ) -> Bool {
+        #if DEBUG
+        true
+        #else
+        isAvailable(theme, on: date, calendar: calendar)
+        #endif
+    }
+
     static func resolve(
         overrideRawValue: String?,
         releaseDefault fallback: AppTheme = ThemeSelection.releaseDefault
@@ -170,6 +199,21 @@ enum ThemeSelection {
             return automaticTheme
         }
         return theme
+    }
+
+    static func resolveForCurrentBuild(
+        overrideRawValue: String?,
+        on date: Date,
+        calendar: Calendar = .current
+    ) -> AppTheme {
+        #if DEBUG
+        resolve(
+            overrideRawValue: overrideRawValue,
+            releaseDefault: automaticTheme(on: date, calendar: calendar)
+        )
+        #else
+        resolve(overrideRawValue: overrideRawValue, on: date, calendar: calendar)
+        #endif
     }
 }
 

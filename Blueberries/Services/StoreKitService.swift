@@ -71,8 +71,12 @@ final class StoreKitService {
     }
 
     func isThemeUnlocked(_ theme: AppTheme) -> Bool {
+        #if DEBUG
+        return true
+        #else
         guard let productID = theme.productID else { return true }
         return unlockedThemeIDs.contains(productID)
+        #endif
     }
 
     @discardableResult
