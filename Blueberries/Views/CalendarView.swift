@@ -4,11 +4,11 @@ import SwiftData
 struct PuzzleCalendarView: View {
     let savedStates: [GameState]
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appTheme) private var theme
     @State private var displayedMonth: Date = .now
 
     private let calendar = Calendar.current
     private let weekdaySymbols = Calendar.current.shortWeekdaySymbols
-    private let berryBlue = Color("BerryBlue")
 
     var body: some View {
         VStack(spacing: 12) {
@@ -58,7 +58,7 @@ struct PuzzleCalendarView: View {
                         ZStack {
                             if isToday {
                                 Circle()
-                                    .strokeBorder(berryBlue, lineWidth: 1.5)
+                                    .strokeBorder(theme.berry, lineWidth: 1.5)
                                     .frame(width: 32, height: 32)
                             }
 
@@ -108,9 +108,9 @@ struct PuzzleCalendarView: View {
         if isFuture { return .clear }
         return switch count {
         case 0: .clear
-        case 1: berryBlue.opacity(0.2)
-        case 2: berryBlue.opacity(0.5)
-        default: berryBlue
+        case 1: theme.berry.opacity(0.2)
+        case 2: theme.berry.opacity(0.5)
+        default: theme.berry
         }
     }
 

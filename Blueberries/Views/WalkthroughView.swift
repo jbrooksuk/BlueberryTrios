@@ -2,6 +2,7 @@ import SwiftUI
 
 struct WalkthroughView: View {
     @Binding var isPresented: Bool
+    @Environment(\.appTheme) private var theme
     @State private var currentPage = 0
     @State private var sessionID = UUID()
 
@@ -54,7 +55,7 @@ struct WalkthroughView: View {
                 HStack(spacing: 8) {
                     ForEach(pages.indices, id: \.self) { index in
                         Circle()
-                            .fill(index == currentPage ? Theme.berryBlue : Color.gray.opacity(0.3))
+                            .fill(index == currentPage ? theme.berry : Color.gray.opacity(0.3))
                             .frame(width: 8, height: 8)
                             .scaleEffect(index == currentPage ? 1.2 : 1)
                             .animation(.spring(duration: 0.3), value: currentPage)
@@ -128,7 +129,7 @@ private struct WalkthroughPageView: View {
 
                 Text(page.subtitle)
                     .font(.subheadline)
-                    .foregroundStyle(Theme.berryBlue)
+                    .foregroundStyle(theme.berry)
                     .multilineTextAlignment(.center)
             }
 
@@ -251,39 +252,39 @@ private struct WalkthroughPageView: View {
 
                             ZStack {
                                 Rectangle()
-                                    .fill(Theme.cellBackground)
+                                    .fill(theme.cellBackground)
 
                                 // Block borders
                                 Rectangle()
                                     .fill(.clear)
                                     .overlay(alignment: .leading) {
                                         if isBlockBorder(r: row, c: col, dr: 0, dc: -1) {
-                                            Rectangle().fill(Theme.gridLineThick).frame(width: 1.5)
+                                            Rectangle().fill(theme.gridLineThick).frame(width: 1.5)
                                         }
                                     }
                                     .overlay(alignment: .top) {
                                         if isBlockBorder(r: row, c: col, dr: -1, dc: 0) {
-                                            Rectangle().fill(Theme.gridLineThick).frame(height: 1.5)
+                                            Rectangle().fill(theme.gridLineThick).frame(height: 1.5)
                                         }
                                     }
                                     .overlay(alignment: .trailing) {
                                         if isBlockBorder(r: row, c: col, dr: 0, dc: 1) {
-                                            Rectangle().fill(Theme.gridLineThick).frame(width: 1.5)
+                                            Rectangle().fill(theme.gridLineThick).frame(width: 1.5)
                                         }
                                     }
                                     .overlay(alignment: .bottom) {
                                         if isBlockBorder(r: row, c: col, dr: 1, dc: 0) {
-                                            Rectangle().fill(Theme.gridLineThick).frame(height: 1.5)
+                                            Rectangle().fill(theme.gridLineThick).frame(height: 1.5)
                                         }
                                     }
 
                                 if let clue {
                                     Text("\(clue)")
                                         .font(.system(.caption2, design: .rounded, weight: .medium))
-                                        .foregroundStyle(Theme.clueText.opacity(0.6))
+                                        .foregroundStyle(theme.clueText.opacity(0.6))
                                 } else if hasBerry {
                                     Circle()
-                                        .fill(Theme.berryBlue)
+                                        .fill(theme.berry)
                                         .padding(3)
                                         .transition(.scale.combined(with: .opacity))
                                 } else if hasCross {
@@ -296,7 +297,7 @@ private struct WalkthroughPageView: View {
                                         xPath.addLine(to: CGPoint(x: mid.x + s, y: mid.y + s))
                                         xPath.move(to: CGPoint(x: mid.x + s, y: mid.y - s))
                                         xPath.addLine(to: CGPoint(x: mid.x - s, y: mid.y + s))
-                                        context.stroke(xPath, with: .color(Theme.emptyDot),
+                                        context.stroke(xPath, with: .color(theme.emptyDot),
                                                        style: StrokeStyle(lineWidth: 1, lineCap: .round))
                                     }
                                     .transition(.opacity)
@@ -338,16 +339,16 @@ private struct WalkthroughPageView: View {
 
                             ZStack {
                                 RoundedRectangle(cornerRadius: 4)
-                                    .fill(isHinted ? Theme.hintHighlight : Theme.cellBackground)
+                                    .fill(isHinted ? theme.hintHighlight : theme.cellBackground)
                                     .frame(width: 52, height: 52)
 
                                 if isClue {
                                     Text("3")
                                         .font(.system(.title2, design: .rounded, weight: .bold))
-                                        .foregroundStyle(phase >= 3 ? Theme.clueText.opacity(0.25) : Theme.clueText)
+                                        .foregroundStyle(phase >= 3 ? theme.clueText.opacity(0.25) : theme.clueText)
                                 } else if isBerry {
                                     Circle()
-                                        .fill(Theme.berryBlue)
+                                        .fill(theme.berry)
                                         .frame(width: 28, height: 28)
                                         .transition(.scale)
                                 } else if isCrossed {
@@ -359,7 +360,7 @@ private struct WalkthroughPageView: View {
                                         xPath.addLine(to: CGPoint(x: mid.x + s, y: mid.y + s))
                                         xPath.move(to: CGPoint(x: mid.x + s, y: mid.y - s))
                                         xPath.addLine(to: CGPoint(x: mid.x - s, y: mid.y + s))
-                                        context.stroke(xPath, with: .color(Theme.emptyDot),
+                                        context.stroke(xPath, with: .color(theme.emptyDot),
                                                        style: StrokeStyle(lineWidth: 1.5, lineCap: .round))
                                     }
                                     .frame(width: 52, height: 52)
@@ -413,7 +414,7 @@ private struct WalkthroughPageView: View {
                 VStack(spacing: 6) {
                     ZStack {
                         Circle()
-                            .fill(day < 5 ? Theme.berryBlue : Color.gray.opacity(0.2))
+                            .fill(day < 5 ? theme.berry : Color.gray.opacity(0.2))
                             .frame(width: 36, height: 36)
                         if day < 5 {
                             Image(systemName: "checkmark")
@@ -442,12 +443,12 @@ private struct WalkthroughPageView: View {
     private func cellStateView(_ state: CellDisplay, active: Bool) -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: 6)
-                .fill(Theme.cellBackground)
+                .fill(theme.cellBackground)
                 .frame(width: 56, height: 56)
                 .overlay {
                     if active {
                         RoundedRectangle(cornerRadius: 6)
-                            .stroke(Theme.berryBlue, lineWidth: 2)
+                            .stroke(theme.berry, lineWidth: 2)
                     }
                 }
 
@@ -464,13 +465,13 @@ private struct WalkthroughPageView: View {
                     xPath.addLine(to: CGPoint(x: mid.x + xSize, y: mid.y + xSize))
                     xPath.move(to: CGPoint(x: mid.x + xSize, y: mid.y - xSize))
                     xPath.addLine(to: CGPoint(x: mid.x - xSize, y: mid.y + xSize))
-                    context.stroke(xPath, with: .color(Theme.emptyDot),
+                    context.stroke(xPath, with: .color(theme.emptyDot),
                                    style: StrokeStyle(lineWidth: 1.5, lineCap: .round))
                 }
                 .frame(width: 56, height: 56)
             case .berryState:
                 Circle()
-                    .fill(Theme.berryBlue)
+                    .fill(theme.berry)
                     .frame(width: 28, height: 28)
             }
         }

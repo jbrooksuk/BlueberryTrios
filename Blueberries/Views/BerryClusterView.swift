@@ -3,6 +3,7 @@ import SwiftUI
 /// Three kawaii berries matching the app icon layout.
 struct BerryClusterView: View {
     var animated: Bool = true
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
         if animated {
@@ -26,7 +27,7 @@ struct BerryClusterView: View {
 
             BlueberryView(size: 64, expression: .happy)
                 .offset(x: 0, y: phase ? 4 : -4)
-                .shadow(color: Theme.berryBlue.opacity(0.3), radius: 8, y: 4)
+                .shadow(color: theme.berry.opacity(0.3), radius: 8, y: 4)
         }
     }
 }

@@ -8,6 +8,7 @@ struct SettingsFormView: View {
     @AppStorage("fillHints") private var fillHints: Bool = false
     @AppStorage("hapticsEnabled") private var hapticsEnabled: Bool = true
     @AppStorage("soundEnabled") private var soundEnabled: Bool = true
+    @AppStorage(ThemeSelection.storageKey) private var selectedThemeID: String = ""
 
     @Query private var statsRecords: [PlayerStats]
 
@@ -36,6 +37,25 @@ struct SettingsFormView: View {
                     }
                 ))
             }
+            Section {
+                themeRow(
+                    name: String(localized: "Automatic"),
+                    subtitle: String(localized: "Uses the theme chosen for this release"),
+                    symbolName: "wand.and.stars",
+                    palette: ThemeSelection.releaseDefault.palette,
+                    isSelected: selectedThemeID.isEmpty
+                ) {
+                    selectedThemeID = ""
+                }
+
+                ForEach(AppTheme.allCases) { theme in
+                    appThemeRow(theme)
+                }
+            } header: {
+                Text("Theme")
+            } footer: {
+                Text("Choosing a theme saves it as your preference, even when a later update has a new seasonal look.")
+            }
             Section("Pro puzzles") {
                 if storeService.isProUnlocked {
                     Label("Pro unlocked", systemImage: "checkmark.seal.fill")
@@ -60,12 +80,12 @@ struct SettingsFormView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    Button("Restore purchases") {
-                        Task { await storeService.restorePurchases() }
-                    }
-                    Button("Redeem code") {
-                        showOfferCode = true
-                    }
+                }
+                Button("Restore purchases") {
+                    Task { await storeService.restorePurchases() }
+                }
+                Button("Redeem code") {
+                    showOfferCode = true
                 }
             }
             Section("Help") {
@@ -116,5 +136,77 @@ struct SettingsFormView: View {
             }
         }
         .offerCodeRedemption(isPresented: $showOfferCode)
+    }
+
+    @ViewBuilder
+    private func appThemeRow(_ appTheme: AppTheme) -> some View {
+        let isUnlocked = storeService.isThemeUnlocked(appTheme)
+        let product = storeService.product(for: appTheme)
+        themeRow(
+            name: String(localized: appTheme.name),
+            subtitle: isUnlocked ? nil : product?.displayPrice ?? String(localized: "Coming soon"),
+            symbolName: appTheme.symbolName,
+            palette: appTheme.palette,
+            isSelected: selectedThemeID == appTheme.rawValue,
+            isLocked: !isUnlocked
+        ) {
+            if isUnlocked {
+                selectedThemeID = appTheme.rawValue
+            } else if product != nil {
+                Task {
+                    if (try? await storeService.purchaseTheme(appTheme)) == true {
+                        selectedThemeID = appTheme.rawValue
+                    }
+                }
+            }
+        }
+        .disabled(!isUnlocked && product == nil)
+    }
+
+    private func themeRow(
+        name: String,
+        subtitle: String?,
+        symbolName: String,
+        palette: Theme,
+        isSelected: Bool,
+        isLocked: Bool = false,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(palette.backgroundAccent.opacity(0.18))
+                    Image(systemName: symbolName)
+                        .foregroundStyle(palette.berry)
+                }
+                .frame(width: 32, height: 32)
+                .accessibilityHidden(true)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(name)
+                        .foregroundStyle(.primary)
+                    if let subtitle {
+                        Text(subtitle)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Spacer()
+
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .fontWeight(.semibold)
+                        .accessibilityLabel("Selected")
+                } else if isLocked {
+                    Image(systemName: "lock.fill")
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel("Locked")
+                }
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }

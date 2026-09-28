@@ -61,7 +61,7 @@ ships with explicit light **and** dark variants — never use a flat
 
 | Token              | Light (sRGB)              | Dark (sRGB)                | Role                                                     |
 | ------------------ | ------------------------- | -------------------------- | -------------------------------------------------------- |
-| `BerryBlue`        | `0.208, 0.518, 0.894`     | `0.353, 0.624, 0.910`      | Brand accent. Berries, headlines, primary CTAs, badges.  |
+| `Berry`            | `0.208, 0.518, 0.894`     | `0.353, 0.624, 0.910`      | Default berry accent. Berries, headlines, CTAs, badges.  |
 | `CellBackground`   | `0.961, 0.961, 0.961`     | `0.173, 0.173, 0.180`      | Grid cell fill (subtle off-white / near-black).          |
 | `GridLineThin`     | `0.533, 0.533, 0.533`     | `0.333, 0.333, 0.333`      | Hairline lines between cells (drawn at 50% opacity).     |
 | `GridLineThick`    | `0.000, 0.000, 0.000`     | `1.000, 1.000, 1.000`      | Block boundaries and outer border (2–2.5pt).             |
@@ -79,7 +79,7 @@ Constants on `Theme` you should reuse rather than redefine:
 - `Theme.errorAnimationDelay = 1.0` — seconds between a cell change and
   errors becoming visible (`PuzzleModel.showErrors`).
 - `Theme.backgroundGradient` — the standard page background:
-  `LinearGradient` from `BerryBlue.opacity(0.08)` at top to
+  `LinearGradient` from `Theme.backgroundAccent.opacity(0.10)` at top to
   `Color(.systemGroupedBackground)` at centre.
 
 ### 3.2 Mascot illustration palette
@@ -125,10 +125,10 @@ semantic colours so things adapt to Dark Mode for free:
 
 ### 3.4 Usage rules
 
-- Berries: always `Theme.berryBlue`, with a `.white.opacity(0.25)`
+- Berries: always `Theme.berry`, with a `.white.opacity(0.25)`
   highlight spot in the upper-left third for dimensional shading.
-- Headlines and the brand mark: `Theme.berryBlue`.
-- Primary CTA pills: `Theme.berryBlue` background with white label.
+- Headlines and the brand mark: `Theme.berry`.
+- Primary CTA pills: `Theme.berry` background with white label.
 - Errors: surface them only after the player has stopped editing —
   `PuzzleGridView` schedules `showErrors = true` after ~1 second of
   inactivity. Don't flash them mid-drag.
@@ -201,7 +201,7 @@ gets glass treatments and older iOS stays bordered:
 - `.adaptiveSecondaryButton()` → `.glass` / `.bordered`
 
 Pill-style CTAs (Daily row "Play"/"Continue", Pro purchase) use
-`Capsule()` clip with `Theme.berryBlue` fill and white `.semibold`
+`Capsule()` clip with `Theme.berry` fill and white `.semibold`
 labels at `.subheadline`. Vertical padding 10–12, horizontal 18–22.
 
 The toolbar at the bottom of `GameView` is the OS `.bottomBar` — undo,
@@ -268,7 +268,7 @@ agent touching it should preserve:
   layered over the cell background.
 - **Celebration cascade.** On solve, `celebrationProgress` ramps 0→1
   over ~900ms in 18 steps; each row fills with
-  `Theme.berryBlue.opacity(0.2)` as the cascade reaches it (top to
+  `Theme.berry.opacity(0.2)` as the cascade reaches it (top to
   bottom). Suppressed under Reduce Motion.
 - **Outer shadow.** `Color.black.opacity(0.08), radius: 8, y: 2`.
 
@@ -326,22 +326,22 @@ A 56×56 rounded square (radius 14):
 
 - Solved + hint used → orange fill with `lightbulb.fill` glyph in white.
 - Solved hint-free → green fill with `checkmark.circle` in white.
-- In-progress → `Theme.berryBlue` fill with the difficulty index in
+- In-progress → `Theme.berry` fill with the difficulty index in
   white bold.
-- Untouched → 10% berryBlue tint, 30% berryBlue stroke, difficulty
-  index in `Theme.berryBlue` semibold.
+- Untouched → 10% berry tint, 30% berry stroke, difficulty
+  index in `Theme.berry` semibold.
 
 ### 8.2 Stat tile
 
 `statItem(value:label:icon:)` in `HomeView`. A vertical stack of
-`{icon (BerryBlue, .caption)} / {value (.title2 bold monospacedDigit)}
-/ {label (.caption secondary)}`, padded 12pt, on a `BerryBlue.opacity(0.06)`
+`{icon (Theme.berry, .caption)} / {value (.title2 bold monospacedDigit)}
+/ {label (.caption secondary)}`, padded 12pt, on a `Theme.berry.opacity(0.06)`
 background, clipped to a 10pt rounded rect.
 
 ### 8.3 Achievement badge
 
 A 60×60 stack: progress ring (`Circle().trim` stroked at 3pt rounded
-with `BerryBlue` over a `BerryBlue.opacity(0.15)` track) only shown for
+with `Theme.berry` over a `Theme.berry.opacity(0.15)` track) only shown for
 multi-step achievements; a coloured fill circle inset 6pt with the
 achievement's symbol in white. Below: title (`.footnote.weight(.bold)`),
 subtitle (`.caption2 secondary`), and percentage if unearned and
@@ -361,7 +361,7 @@ Banner background `Color.orange.opacity(0.12)`, stroked 1.5pt at 40%.
 unfinished daily puzzle. Two layouts driven by
 `\.tabViewBottomAccessoryPlacement`:
 
-- `.inline` (collapsed): 22pt berryBlue circle with index, then
+- `.inline` (collapsed): 22pt berry-coloured circle with index, then
   `mm:ss` monospaced.
 - Expanded: 32pt circle, "Today's {Difficulty}" + timer, trailing
   `play.fill`. Backed by `Color(.systemBackground)` so scrolling
@@ -459,7 +459,7 @@ is `Berroku` — that's intentional and registered in App Store Connect.
 - Don't introduce a third-party dependency. The app is intentionally
   zero-dep.
 - Don't replace the X mark with a dot, the rounded clue glyphs with
-  default SF, or `Theme.berryBlue` with `.blue`.
+  default SF, or `Theme.berry` with `.blue`.
 - Don't surface errors instantly — keep the ~1s delay so dragging
   isn't punishing.
 - Don't animate on the main path without a Reduce Motion fallback.

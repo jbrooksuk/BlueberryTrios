@@ -49,6 +49,29 @@
       "productID" : "com.altthree.Berroku.streakrevival",
       "referenceName" : "Berry Revival",
       "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "0.99",
+      "familyShareable" : true,
+      "internalID" : "A21C7494-B8B7-4A89-8A04-E30D29C2438F",
+      "localizations" : [
+        {
+          "description" : "Give Berroku a bright raspberry look.",
+          "displayName" : "Raspberry Theme",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "Give Berroku a bright raspberry look.",
+          "displayName" : "Raspberry Theme",
+          "locale" : "en_GB"
+        }
+      ],
+      "locale_prices" : {
+        "en_GB" : "0.99"
+      },
+      "productID" : "com.altthree.Berroku.theme.raspberry",
+      "referenceName" : "Raspberry Theme",
+      "type" : "NonConsumable"
     }
   ],
   "settings" : {

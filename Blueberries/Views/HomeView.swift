@@ -7,10 +7,11 @@ struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.appTheme) private var theme
     @Query private var savedStates: [GameState]
     @Query private var statsRecords: [PlayerStats]
 
-    @State private var storeService = StoreKitService()
+    var storeService: StoreKitService
     @State private var gameCenterService = GameCenterService()
     private let puzzleStore = PuzzleStore()
     @State private var navigateToGame = false
@@ -158,7 +159,7 @@ struct HomeView: View {
                 }
                 .frame(maxWidth: .infinity)
             }
-            .background(Theme.backgroundGradient)
+            .background(theme.backgroundGradient)
             .navigationDestination(isPresented: $navigateToGame) {
                 GameView(
                     storeService: storeService,
@@ -182,7 +183,7 @@ struct HomeView: View {
             .padding(20)
             .frame(maxWidth: .infinity)
         }
-        .background(Theme.backgroundGradient)
+        .background(theme.backgroundGradient)
     }
 
     // MARK: - Hero Header
@@ -415,7 +416,7 @@ struct HomeView: View {
             HStack {
                 Label("Today's puzzles", systemImage: "calendar")
                     .font(.headline)
-                    .foregroundStyle(Theme.berryBlue)
+                    .foregroundStyle(theme.berry)
                 Spacer()
                 let solvedCount = Difficulty.allCases.filter { isDailySolved($0) }.count
                 Text("\(solvedCount) / 3 solved")
@@ -493,7 +494,7 @@ struct HomeView: View {
                 }
         } else if inProgress {
             RoundedRectangle(cornerRadius: radius, style: .continuous)
-                .fill(Theme.berryBlue)
+                .fill(theme.berry)
                 .frame(width: size, height: size)
                 .overlay {
                     Text("\(difficulty.displayIndex)")
@@ -502,16 +503,16 @@ struct HomeView: View {
                 }
         } else {
             RoundedRectangle(cornerRadius: radius, style: .continuous)
-                .fill(Theme.berryBlue.opacity(0.1))
+                .fill(theme.berry.opacity(0.1))
                 .overlay {
                     RoundedRectangle(cornerRadius: radius, style: .continuous)
-                        .stroke(Theme.berryBlue.opacity(0.3), lineWidth: 1.5)
+                        .stroke(theme.berry.opacity(0.3), lineWidth: 1.5)
                 }
                 .frame(width: size, height: size)
                 .overlay {
                     Text("\(difficulty.displayIndex)")
                         .font(.title2.weight(.semibold))
-                        .foregroundStyle(Theme.berryBlue)
+                        .foregroundStyle(theme.berry)
                 }
         }
     }
@@ -533,7 +534,7 @@ struct HomeView: View {
             .foregroundStyle(.white)
             .padding(.horizontal, 18)
             .padding(.vertical, 10)
-            .background(Theme.berryBlue)
+            .background(theme.berry)
             .clipShape(Capsule())
         }
     }
@@ -627,7 +628,7 @@ struct HomeView: View {
                     } label: {
                         Text("Unlock for \(product.displayPrice)")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(Theme.berryBlue)
+                            .foregroundStyle(theme.berry)
                             .padding(.horizontal, 22)
                             .padding(.vertical, 12)
                             .background(Color.white)
@@ -663,7 +664,7 @@ struct HomeView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             LinearGradient(
-                colors: [Theme.berryBlue.opacity(0.95), Theme.berryBlue],
+                colors: [theme.berry.opacity(0.95), theme.berry],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -693,7 +694,7 @@ struct HomeView: View {
                 } label: {
                     Image(systemName: showCalendar ? "number.square" : "calendar")
                         .font(.body)
-                        .foregroundStyle(Theme.berryBlue)
+                        .foregroundStyle(theme.berry)
                 }
             }
 
@@ -734,7 +735,7 @@ struct HomeView: View {
         VStack(spacing: 6) {
             Image(systemName: icon)
                 .font(.caption)
-                .foregroundStyle(Theme.berryBlue)
+                .foregroundStyle(theme.berry)
             Text(verbatim: value)
                 .font(.title2.bold().monospacedDigit())
             Text(label)
@@ -744,7 +745,7 @@ struct HomeView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
-        .background(Theme.berryBlue.opacity(0.06))
+        .background(theme.berry.opacity(0.06))
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
@@ -773,7 +774,7 @@ struct HomeView: View {
         let streaksRestored = stats?.streaksRestored ?? 0
 
         return [
-            AchievementInfo(id: "first", icon: "1.circle.fill", title: "First puzzle", subtitle: "Complete your first puzzle", progress: totalPuzzles, target: 1, color: Theme.berryBlue),
+            AchievementInfo(id: "first", icon: "1.circle.fill", title: "First puzzle", subtitle: "Complete your first puzzle", progress: totalPuzzles, target: 1, color: theme.berry),
             AchievementInfo(id: "dedicated", icon: "10.circle.fill", title: "Dedicated", subtitle: "Complete 10 puzzles", progress: totalPuzzles, target: 10, color: .teal),
             AchievementInfo(id: "centurion", icon: "star.circle.fill", title: "Centurion", subtitle: "Complete 100 puzzles", progress: totalPuzzles, target: 100, color: .indigo),
             AchievementInfo(id: "master", icon: "crown.fill", title: "Master", subtitle: "Complete 500 puzzles", progress: totalPuzzles, target: 500, color: .purple),
@@ -819,7 +820,7 @@ struct HomeView: View {
             Spacer()
 
             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Theme.berryBlue)
+                .fill(theme.berry)
                 .frame(width: 64, height: 64)
                 .overlay {
                     Image(systemName: "trophy.fill")
@@ -892,10 +893,10 @@ struct HomeView: View {
             ZStack {
                 if info.target > 1 {
                     Circle()
-                        .stroke(Theme.berryBlue.opacity(0.15), lineWidth: 3)
+                        .stroke(theme.berry.opacity(0.15), lineWidth: 3)
                     Circle()
                         .trim(from: 0, to: progressFraction)
-                        .stroke(Theme.berryBlue, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                        .stroke(theme.berry, style: StrokeStyle(lineWidth: 3, lineCap: .round))
                         .rotationEffect(.degrees(-90))
                 }
                 Circle()
@@ -922,7 +923,7 @@ struct HomeView: View {
                 if !info.earned && info.target > 1 {
                     Text("\(Int(progressFraction * 100))%")
                         .font(.caption2.weight(.semibold))
-                        .foregroundStyle(Theme.berryBlue)
+                        .foregroundStyle(theme.berry)
                         .padding(.top, 2)
                 }
             }
@@ -944,7 +945,7 @@ struct HomeView: View {
             onShowTutorial: { showTutorial = true }
         )
         .scrollContentBackground(.hidden)
-        .background(Theme.backgroundGradient)
+        .background(theme.backgroundGradient)
     }
 
     // MARK: - Helpers
@@ -1035,7 +1036,7 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView()
+    HomeView(storeService: StoreKitService())
         .modelContainer(for: [GameState.self, PlayerStats.self], inMemory: true)
 }
 
@@ -1076,7 +1077,7 @@ private struct InProgressGameAccessoryView: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            // Ensure scrolling content (e.g. the berryBlue Pro card)
+            // Ensure scrolling content (e.g. the berry Pro card)
             // doesn't bleed through the bar's translucent glass.
             .background(Color(.systemBackground))
             .contentShape(Rectangle())
@@ -1088,7 +1089,7 @@ private struct InProgressGameAccessoryView: View {
         HStack(spacing: 12) {
             ZStack {
                 Circle()
-                    .fill(Theme.berryBlue)
+                    .fill(theme.berry)
                     .frame(width: 32, height: 32)
                 Text("\(displayIndex)")
                     .font(.subheadline.weight(.bold))
@@ -1109,7 +1110,7 @@ private struct InProgressGameAccessoryView: View {
 
             Image(systemName: "play.fill")
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(Theme.berryBlue)
+                .foregroundStyle(theme.berry)
                 .padding(.trailing, 4)
         }
         .padding(.horizontal, 14)
@@ -1120,7 +1121,7 @@ private struct InProgressGameAccessoryView: View {
         HStack(spacing: 8) {
             ZStack {
                 Circle()
-                    .fill(Theme.berryBlue)
+                    .fill(theme.berry)
                     .frame(width: 22, height: 22)
                 Text("\(displayIndex)")
                     .font(.caption2.weight(.bold))

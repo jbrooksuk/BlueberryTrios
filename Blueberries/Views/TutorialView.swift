@@ -6,6 +6,7 @@ struct TutorialView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var statsRecords: [PlayerStats]
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appTheme) private var theme
 
     var gameCenterService: GameCenterService
     var dismissable: Bool = false
@@ -140,7 +141,7 @@ struct TutorialView: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .background(Theme.backgroundGradient)
+        .background(theme.backgroundGradient)
         .interactiveDismissDisabled(!dismissable)
         .task {
             soundService.isEnabled = soundEnabled
@@ -201,7 +202,7 @@ struct TutorialView: View {
                 VStack(spacing: 8) {
                     Image(systemName: "hand.wave.fill")
                         .font(.largeTitle)
-                        .foregroundStyle(Theme.berryBlue)
+                        .foregroundStyle(theme.berry)
                     Text("Let's solve your first puzzle!")
                         .font(.title3.bold())
                     Text("Place 3 berries in every row, column, and 3×3 block.")
@@ -252,7 +253,7 @@ struct TutorialView: View {
                 VStack(spacing: 4) {
                     HStack(spacing: 8) {
                         Image(systemName: "xmark.circle")
-                            .foregroundStyle(Theme.berryBlue)
+                            .foregroundStyle(theme.berry)
                         Text("Tap each highlighted cell once for ✕")
                             .font(.subheadline.weight(.medium))
                     }
@@ -262,7 +263,7 @@ struct TutorialView: View {
                 VStack(spacing: 4) {
                     HStack(spacing: 8) {
                         Image(systemName: "square.grid.3x3")
-                            .foregroundStyle(Theme.berryBlue)
+                            .foregroundStyle(theme.berry)
                         Text("Fill the block!")
                             .font(.subheadline.weight(.medium))
                     }
@@ -276,7 +277,7 @@ struct TutorialView: View {
                 VStack(spacing: 4) {
                     HStack(spacing: 8) {
                         Image(systemName: "arrow.right.circle")
-                            .foregroundStyle(Theme.berryBlue)
+                            .foregroundStyle(theme.berry)
                         Text("Row 2 has 3 berries!")
                             .font(.subheadline.weight(.medium))
                     }
@@ -290,7 +291,7 @@ struct TutorialView: View {
                 VStack(spacing: 4) {
                     HStack(spacing: 8) {
                         Image(systemName: "hand.tap.fill")
-                            .foregroundStyle(Theme.berryBlue)
+                            .foregroundStyle(theme.berry)
                         Text("Look at the **1** in the corner")
                             .font(.subheadline.weight(.medium))
                     }
@@ -304,7 +305,7 @@ struct TutorialView: View {
                 VStack(spacing: 4) {
                     HStack(spacing: 8) {
                         Image(systemName: "arrow.down.circle")
-                            .foregroundStyle(Theme.berryBlue)
+                            .foregroundStyle(theme.berry)
                         Text("Complete the column")
                             .font(.subheadline.weight(.medium))
                     }
@@ -318,7 +319,7 @@ struct TutorialView: View {
                 VStack(spacing: 4) {
                     HStack(spacing: 8) {
                         Image(systemName: "arrow.right.circle")
-                            .foregroundStyle(Theme.berryBlue)
+                            .foregroundStyle(theme.berry)
                         Text("Complete row 4")
                             .font(.subheadline.weight(.medium))
                     }
@@ -332,7 +333,7 @@ struct TutorialView: View {
                 VStack(spacing: 4) {
                     HStack(spacing: 8) {
                         Image(systemName: "sparkles")
-                            .foregroundStyle(Theme.berryBlue)
+                            .foregroundStyle(theme.berry)
                         Text("You've got the hang of it!")
                             .font(.subheadline.weight(.medium))
                     }

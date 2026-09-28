@@ -8,7 +8,7 @@
 import WidgetKit
 import SwiftUI
 
-private let berryBlue = Color(red: 0.208, green: 0.518, blue: 0.894)
+private let berry = Color(red: 0.208, green: 0.518, blue: 0.894)
 private let difficulties = ["Standard", "Advanced", "Expert"]
 
 struct DailyProgressEntry: TimelineEntry {
@@ -61,7 +61,7 @@ private struct SmallWidgetView: View {
             // Berry icon
             ZStack {
                 Circle()
-                    .fill(berryBlue.gradient)
+                    .fill(berry.gradient)
                     .frame(width: 40, height: 40)
                 Image(systemName: "circle.grid.3x3.fill")
                     .font(.system(size: 18, weight: .semibold))
@@ -76,7 +76,7 @@ private struct SmallWidgetView: View {
                     let hinted = solved && hintUsedForIndex(i, flags: entry.hintFlags)
                     ZStack {
                         Circle()
-                            .fill(solved ? (hinted ? Color.orange : berryBlue) : Color.gray.opacity(0.2))
+                            .fill(solved ? (hinted ? Color.orange : berry) : Color.gray.opacity(0.2))
                             .frame(width: 24, height: 24)
                         if solved && hinted {
                             Image(systemName: "lightbulb.fill")
@@ -135,7 +135,7 @@ private struct MediumWidgetView: View {
                 HStack(spacing: 8) {
                     ZStack {
                         Circle()
-                            .fill(berryBlue.gradient)
+                            .fill(berry.gradient)
                             .frame(width: 36, height: 36)
                         Image(systemName: "circle.grid.3x3.fill")
                             .font(.system(size: 16, weight: .semibold))
@@ -180,7 +180,7 @@ private struct MediumWidgetView: View {
                     HStack(spacing: 8) {
                         ZStack {
                             Circle()
-                                .fill(solved ? (hinted ? Color.orange : berryBlue) : Color.gray.opacity(0.15))
+                                .fill(solved ? (hinted ? Color.orange : berry) : Color.gray.opacity(0.15))
                                 .frame(width: 22, height: 22)
                             if solved && hinted {
                                 Image(systemName: "lightbulb.fill")
@@ -250,7 +250,7 @@ struct BlueberriesWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: DailyProgressProvider()) { entry in
             BlueberriesWidgetEntryView(entry: entry)
-                .containerBackground(berryBlue.gradient.opacity(0.08), for: .widget)
+                .containerBackground(berry.gradient.opacity(0.08), for: .widget)
         }
         .configurationDisplayName("Daily Progress")
         .description("Track your daily puzzle progress and streak.")

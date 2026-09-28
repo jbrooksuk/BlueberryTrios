@@ -14,6 +14,13 @@ struct BlueberriesApp: App {
     let modelContainer: ModelContainer = BlueberriesApp.makeContainer()
     @Environment(\.scenePhase) private var scenePhase
     @State private var notificationService = NotificationService()
+    @State private var storeService = StoreKitService()
+    @AppStorage(ThemeSelection.storageKey) private var selectedThemeID: String = ""
+
+    private var selectedTheme: AppTheme {
+        let preferredTheme = ThemeSelection.resolve(overrideRawValue: selectedThemeID)
+        return storeService.isThemeUnlocked(preferredTheme) ? preferredTheme : ThemeSelection.releaseDefault
+    }
 
     init() {
         SiriusRating.setup { config in
@@ -39,7 +46,9 @@ struct BlueberriesApp: App {
 
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            HomeView(storeService: storeService)
+                .environment(\.appTheme, selectedTheme.palette)
+                .tint(selectedTheme.palette.accent)
         }
         .modelContainer(modelContainer)
         .onChange(of: scenePhase) { _, phase in

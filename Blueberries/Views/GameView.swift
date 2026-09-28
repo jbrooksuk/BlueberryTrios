@@ -7,6 +7,7 @@ import SiriusRating
 struct GameView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.appTheme) private var theme
     @Query private var statsRecords: [PlayerStats]
 
     var storeService: StoreKitService
@@ -142,7 +143,7 @@ struct GameView: View {
         }
         .toolbarRole(.automatic)
         .toolbar(.hidden, for: .tabBar)
-        .background(Theme.backgroundGradient)
+        .background(theme.backgroundGradient)
         .navigationTitle("Berroku")
         .navigationBarTitleDisplayMode(.inline)
         .gesture(DragGesture())
@@ -456,7 +457,7 @@ struct GameView: View {
         return VStack(spacing: 14) {
             Image(systemName: "arrow.counterclockwise.circle.fill")
                 .font(.system(size: solvedIconSize))
-                .foregroundStyle(Theme.berryBlue)
+                .foregroundStyle(theme.berry)
                 .accessibilityHidden(true)
 
             Text("Fresh start?")

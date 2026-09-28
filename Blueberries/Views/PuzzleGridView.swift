@@ -9,6 +9,7 @@ struct PuzzleGridView: View {
     var highlightedCells: Set<CellID> = []
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appTheme) private var theme
 
     @State private var dragState: DragState?
     @State private var cellSize: Double = 0
@@ -171,18 +172,18 @@ struct PuzzleGridView: View {
 
             let bgColor: Color
             if isCelebrated {
-                bgColor = Theme.berryBlue.opacity(0.2)
+                bgColor = theme.berry.opacity(0.2)
             } else if isError {
-                bgColor = Theme.errorCell
+                bgColor = theme.errorCell
             } else {
-                bgColor = Theme.cellBackground
+                bgColor = theme.cellBackground
             }
 
             let cellPath = Path(roundedRect: insetRect, cornerRadius: 2)
             context.fill(cellPath, with: .color(bgColor))
 
             if isHinted || highlightedCells.contains(cell) {
-                context.fill(cellPath, with: .color(Theme.hintHighlight))
+                context.fill(cellPath, with: .color(theme.hintHighlight))
             }
         }
 
@@ -203,8 +204,8 @@ struct PuzzleGridView: View {
                 let isSatisfied = check?.satisfiedGroups.contains(group) ?? false
                 let isGroupError = shouldShowErrors && (check?.errorGroups.contains(group) ?? false)
 
-                let textColor: Color = isGroupError ? Theme.errorText : Theme.clueText
-                let opacity = isSatisfied ? Theme.satisfiedClueOpacity : 1.0
+                let textColor: Color = isGroupError ? theme.errorText : theme.clueText
+                let opacity = isSatisfied ? theme.satisfiedClueOpacity : 1.0
 
                 var textContext = context
                 textContext.opacity = opacity
@@ -221,7 +222,7 @@ struct PuzzleGridView: View {
                 let berryPath = Path(ellipseIn: CGRect(
                     x: center.x - r, y: center.y - r, width: r * 2, height: r * 2
                 ))
-                context.fill(berryPath, with: .color(Theme.berryBlue))
+                context.fill(berryPath, with: .color(theme.berry))
 
                 // Highlight spot
                 let highlightR = r * 0.35
@@ -240,7 +241,7 @@ struct PuzzleGridView: View {
                 xPath.addLine(to: CGPoint(x: center.x + xSize, y: center.y + xSize))
                 xPath.move(to: CGPoint(x: center.x + xSize, y: center.y - xSize))
                 xPath.addLine(to: CGPoint(x: center.x - xSize, y: center.y + xSize))
-                context.stroke(xPath, with: .color(Theme.emptyDot), style: StrokeStyle(lineWidth: 1.5, lineCap: .round))
+                context.stroke(xPath, with: .color(theme.emptyDot), style: StrokeStyle(lineWidth: 1.5, lineCap: .round))
             }
         }
     }
@@ -266,7 +267,7 @@ struct PuzzleGridView: View {
             path.move(to: CGPoint(x: x, y: 0))
             path.addLine(to: CGPoint(x: x, y: totalHeight))
         }
-        context.stroke(path, with: .color(Theme.gridLineThin.opacity(0.5)), lineWidth: 0.5)
+        context.stroke(path, with: .color(theme.gridLineThin.opacity(0.5)), lineWidth: 0.5)
     }
 
     private func drawBlockBoundaries(context: GraphicsContext, cellSize: Double) {
@@ -301,7 +302,7 @@ struct PuzzleGridView: View {
             }
         }
 
-        context.stroke(path, with: .color(Theme.gridLineThick), style: StrokeStyle(lineWidth: 2, lineCap: .round))
+        context.stroke(path, with: .color(theme.gridLineThick), style: StrokeStyle(lineWidth: 2, lineCap: .round))
 
         // Outer border — inset by half line width so it doesn't get clipped at corners
         let totalWidth = cellSize * Double(model.numColumns)
@@ -311,7 +312,7 @@ struct PuzzleGridView: View {
                                 width: totalWidth - borderInset * 2,
                                 height: totalHeight - borderInset * 2)
         let borderPath = Path(roundedRect: borderRect, cornerRadius: 4.75) // match clipShape minus inset
-        context.stroke(borderPath, with: .color(Theme.gridLineThick), lineWidth: 2.5)
+        context.stroke(borderPath, with: .color(theme.gridLineThick), lineWidth: 2.5)
     }
 
     private func cellRect(_ cell: CellID, cellSize: Double) -> CGRect {

@@ -7,10 +7,13 @@ import Observation
 final class StoreKitService {
     static let proProductID = "com.altthree.Berroku.pro"
     static let streakRevivalProductID = "com.altthree.Berroku.streakrevival"
+    static let themeProductIDs = Set(AppTheme.allCases.compactMap(\.productID))
 
     private(set) var proProduct: Product?
     private(set) var streakRevivalProduct: Product?
+    private(set) var themeProducts: [String: Product] = [:]
     private(set) var isProUnlocked: Bool = false
+    private(set) var unlockedThemeIDs: Set<String> = []
     /// Runs once per verified Berry Revival purchase, before the
     /// transaction is finished. Consumables leave the transaction stream
     /// permanently once finished, so a transaction that arrives while no
@@ -29,9 +32,15 @@ final class StoreKitService {
 
     func loadProducts() async {
         do {
-            let products = try await Product.products(for: [Self.proProductID, Self.streakRevivalProductID])
+            let productIDs = [Self.proProductID, Self.streakRevivalProductID] + Array(Self.themeProductIDs)
+            let products = try await Product.products(for: productIDs)
             proProduct = products.first { $0.id == Self.proProductID }
             streakRevivalProduct = products.first { $0.id == Self.streakRevivalProductID }
+            themeProducts = Dictionary(
+                uniqueKeysWithValues: products
+                    .filter { Self.themeProductIDs.contains($0.id) }
+                    .map { ($0.id, $0) }
+            )
         } catch {
             #if DEBUG
             print("Failed to load products: \(error)")
@@ -53,6 +62,33 @@ final class StoreKitService {
             break
         @unknown default:
             break
+        }
+    }
+
+    func product(for theme: AppTheme) -> Product? {
+        guard let productID = theme.productID else { return nil }
+        return themeProducts[productID]
+    }
+
+    func isThemeUnlocked(_ theme: AppTheme) -> Bool {
+        guard let productID = theme.productID else { return true }
+        return unlockedThemeIDs.contains(productID)
+    }
+
+    @discardableResult
+    func purchaseTheme(_ theme: AppTheme) async throws -> Bool {
+        guard let product = product(for: theme) else { return false }
+        let result = try await product.purchase()
+        switch result {
+        case .success(let verification):
+            let transaction = try checkVerified(verification)
+            await transaction.finish()
+            await updatePurchaseStatus()
+            return true
+        case .userCancelled, .pending:
+            return false
+        @unknown default:
+            return false
         }
     }
 
@@ -81,15 +117,19 @@ final class StoreKitService {
     }
 
     private func updatePurchaseStatus() async {
-        var unlocked = false
+        var proUnlocked = false
+        var unlockedThemes: Set<String> = []
         for await result in Transaction.currentEntitlements {
-            if case .verified(let transaction) = result,
-               transaction.productID == Self.proProductID {
-                unlocked = true
-                break
+            if case .verified(let transaction) = result {
+                if transaction.productID == Self.proProductID {
+                    proUnlocked = true
+                } else if Self.themeProductIDs.contains(transaction.productID) {
+                    unlockedThemes.insert(transaction.productID)
+                }
             }
         }
-        isProUnlocked = unlocked
+        isProUnlocked = proUnlocked
+        unlockedThemeIDs = unlockedThemes
     }
 
     private func listenForTransactions() -> Task<Void, Never> {
