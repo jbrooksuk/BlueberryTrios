@@ -17,17 +17,28 @@ struct BerryClusterView: View {
 
     private func clusterContent(phase: Bool) -> some View {
         ZStack {
-            BlueberryView(size: 48, expression: .smile)
+            berry(size: 48, expression: .smile)
                 .offset(x: -32, y: phase ? -6 : 2)
                 .rotationEffect(.degrees(phase ? -6 : -3))
 
-            BlueberryView(size: 44, expression: .wink)
+            berry(size: 44, expression: .wink)
                 .offset(x: 32, y: phase ? -4 : 4)
                 .rotationEffect(.degrees(phase ? 8 : 4))
 
-            BlueberryView(size: 64, expression: .happy)
+            berry(size: 64, expression: .happy)
                 .offset(x: 0, y: phase ? 4 : -4)
                 .shadow(color: theme.berry.opacity(0.3), radius: 8, y: 4)
+        }
+    }
+
+    @ViewBuilder
+    private func berry(size: Double, expression: BlueberryView.Expression) -> some View {
+        if let berrySymbol = theme.berrySymbol {
+            Text(berrySymbol)
+                .font(.system(size: size * 0.85))
+                .frame(width: size, height: size)
+        } else {
+            BlueberryView(size: size, expression: expression)
         }
     }
 }

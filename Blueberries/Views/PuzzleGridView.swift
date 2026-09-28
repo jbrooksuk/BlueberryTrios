@@ -218,21 +218,27 @@ struct PuzzleGridView: View {
                 let scale = isNew ? 1.15 : 1.0
                 let r = berryRadius * scale
 
-                // Berry with subtle gradient effect via layered circles
-                let berryPath = Path(ellipseIn: CGRect(
-                    x: center.x - r, y: center.y - r, width: r * 2, height: r * 2
-                ))
-                context.fill(berryPath, with: .color(theme.berry))
+                if let berrySymbol = theme.berrySymbol {
+                    let marker = Text(berrySymbol)
+                        .font(.system(size: r * 2.05))
+                    context.draw(marker, at: center)
+                } else {
+                    // Berry with subtle gradient effect via layered circles
+                    let berryPath = Path(ellipseIn: CGRect(
+                        x: center.x - r, y: center.y - r, width: r * 2, height: r * 2
+                    ))
+                    context.fill(berryPath, with: .color(theme.berry))
 
-                // Highlight spot
-                let highlightR = r * 0.35
-                let highlightPath = Path(ellipseIn: CGRect(
-                    x: center.x - r * 0.25 - highlightR,
-                    y: center.y - r * 0.3 - highlightR,
-                    width: highlightR * 2,
-                    height: highlightR * 2
-                ))
-                context.fill(highlightPath, with: .color(.white.opacity(0.25)))
+                    // Highlight spot
+                    let highlightR = r * 0.35
+                    let highlightPath = Path(ellipseIn: CGRect(
+                        x: center.x - r * 0.25 - highlightR,
+                        y: center.y - r * 0.3 - highlightR,
+                        width: highlightR * 2,
+                        height: highlightR * 2
+                    ))
+                    context.fill(highlightPath, with: .color(.white.opacity(0.25)))
+                }
             } else if state == .empty {
                 // Refined X mark instead of dot
                 let xSize = cellSize * 0.12

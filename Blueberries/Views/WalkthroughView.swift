@@ -285,9 +285,7 @@ private struct WalkthroughPageView: View {
                                         .font(.system(.caption2, design: .rounded, weight: .medium))
                                         .foregroundStyle(theme.clueText.opacity(0.6))
                                 } else if hasBerry {
-                                    Circle()
-                                        .fill(theme.berry)
-                                        .padding(3)
+                                    berryMarker(size: 16)
                                         .transition(.scale.combined(with: .opacity))
                                 } else if hasCross {
                                     // X mark
@@ -349,9 +347,7 @@ private struct WalkthroughPageView: View {
                                         .font(.system(.title2, design: .rounded, weight: .bold))
                                         .foregroundStyle(phase >= 3 ? theme.clueText.opacity(0.25) : theme.clueText)
                                 } else if isBerry {
-                                    Circle()
-                                        .fill(theme.berry)
-                                        .frame(width: 28, height: 28)
+                                    berryMarker(size: 28)
                                         .transition(.scale)
                                 } else if isCrossed {
                                     Canvas { context, size in
@@ -472,10 +468,21 @@ private struct WalkthroughPageView: View {
                 }
                 .frame(width: 56, height: 56)
             case .berryState:
-                Circle()
-                    .fill(theme.berry)
-                    .frame(width: 28, height: 28)
+                berryMarker(size: 28)
             }
+        }
+    }
+
+    @ViewBuilder
+    private func berryMarker(size: Double) -> some View {
+        if let berrySymbol = theme.berrySymbol {
+            Text(berrySymbol)
+                .font(.system(size: size * 0.9))
+                .frame(width: size, height: size)
+        } else {
+            Circle()
+                .fill(theme.berry)
+                .frame(width: size, height: size)
         }
     }
 

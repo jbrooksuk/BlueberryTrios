@@ -46,16 +46,20 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .halloween:
             Theme(
                 accent: Color(red: 0.92, green: 0.39, blue: 0.08),
-                berry: Color(red: 0.48, green: 0.25, blue: 0.70),
+                berry: Color(red: 0.92, green: 0.39, blue: 0.08),
                 backgroundAccent: Color(red: 0.92, green: 0.39, blue: 0.08),
-                hintHighlight: Color.orange.opacity(0.32)
+                hintHighlight: Color.orange.opacity(0.32),
+                berrySymbol: "🎃",
+                attribution: "Made with pumpkin spice by James Brooks 🎃"
             )
         case .christmas:
             Theme(
                 accent: Color(red: 0.76, green: 0.12, blue: 0.16),
                 berry: Color(red: 0.76, green: 0.12, blue: 0.16),
                 backgroundAccent: Color(red: 0.12, green: 0.48, blue: 0.28),
-                hintHighlight: Color.green.opacity(0.28)
+                hintHighlight: Color.green.opacity(0.28),
+                berrySymbol: "❄️",
+                attribution: "Made with gingerbread by James Brooks 🎅"
             )
         case .raspberry:
             Theme(
@@ -102,6 +106,8 @@ struct Theme {
     let hintHighlight: Color
     let satisfiedClueOpacity: Double
     let errorAnimationDelay: TimeInterval
+    let berrySymbol: String?
+    let attribution: LocalizedStringResource
 
     init(
         accent: Color,
@@ -116,7 +122,9 @@ struct Theme {
         emptyDot: Color = Color("EmptyDot"),
         hintHighlight: Color = Color("HintHighlight"),
         satisfiedClueOpacity: Double = 0.25,
-        errorAnimationDelay: TimeInterval = 1.0
+        errorAnimationDelay: TimeInterval = 1.0,
+        berrySymbol: String? = nil,
+        attribution: LocalizedStringResource = "Made with berries by James Brooks 🫐"
     ) {
         self.accent = accent
         self.berry = berry
@@ -131,6 +139,8 @@ struct Theme {
         self.hintHighlight = hintHighlight
         self.satisfiedClueOpacity = satisfiedClueOpacity
         self.errorAnimationDelay = errorAnimationDelay
+        self.berrySymbol = berrySymbol
+        self.attribution = attribution
     }
 
     var backgroundGradient: LinearGradient {

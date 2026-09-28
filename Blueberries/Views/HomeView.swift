@@ -156,6 +156,12 @@ struct HomeView: View {
                     .frame(maxWidth: 600)
                     .padding(.horizontal, 16)
                     .padding(.bottom, 24)
+
+                    Text(theme.attribution)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 32)
                 }
                 .frame(maxWidth: .infinity)
             }

@@ -19,4 +19,19 @@ struct ThemeSelectionTests {
     func unknownThemeFallsBack() {
         #expect(ThemeSelection.resolve(overrideRawValue: "retired-theme", releaseDefault: .blueberry) == .blueberry)
     }
+
+    @Test("Seasonal themes provide distinct puzzle markers")
+    func seasonalPuzzleMarkers() {
+        #expect(AppTheme.blueberry.palette.berrySymbol == nil)
+        #expect(AppTheme.halloween.palette.berrySymbol == "🎃")
+        #expect(AppTheme.christmas.palette.berrySymbol == "❄️")
+        #expect(AppTheme.raspberry.palette.berrySymbol == nil)
+    }
+
+    @Test("Seasonal themes provide matching attribution")
+    func seasonalAttribution() {
+        #expect(String(localized: AppTheme.blueberry.palette.attribution) == "Made with berries by James Brooks 🫐")
+        #expect(String(localized: AppTheme.halloween.palette.attribution) == "Made with pumpkin spice by James Brooks 🎃")
+        #expect(String(localized: AppTheme.christmas.palette.attribution) == "Made with gingerbread by James Brooks 🎅")
+    }
 }

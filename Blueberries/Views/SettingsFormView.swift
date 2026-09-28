@@ -3,6 +3,7 @@ import SwiftData
 import StoreKit
 
 struct SettingsFormView: View {
+    @Environment(\.appTheme) private var theme
     @AppStorage("autoCheck") private var autoCheck: Bool = true
     @AppStorage("showTimer") private var showTimer: Bool = true
     @AppStorage("fillHints") private var fillHints: Bool = false
@@ -128,7 +129,7 @@ struct SettingsFormView: View {
                 }
             }
             Section {
-                Text("Made with berries by James Brooks 🫐")
+                Text(theme.attribution)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .foregroundStyle(.secondary)
                     .font(.footnote)
@@ -177,8 +178,13 @@ struct SettingsFormView: View {
                 ZStack {
                     Circle()
                         .fill(palette.backgroundAccent.opacity(0.18))
-                    Image(systemName: symbolName)
-                        .foregroundStyle(palette.berry)
+                    if let berrySymbol = palette.berrySymbol {
+                        Text(berrySymbol)
+                            .font(.system(size: 18))
+                    } else {
+                        Image(systemName: symbolName)
+                            .foregroundStyle(palette.berry)
+                    }
                 }
                 .frame(width: 32, height: 32)
                 .accessibilityHidden(true)

@@ -33,6 +33,7 @@ private enum BerryPalette {
 /// can be animated and styled independently.
 struct IllustratedBerryClusterView: View {
     var animated: Bool = true
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
         if animated {
@@ -51,33 +52,62 @@ struct IllustratedBerryClusterView: View {
             let h = geo.size.height
             let scale = min(w / 300, h / 200)
 
-            ZStack {
-                // Leaves + stem behind the top of the cluster.
-                TopFoliage(scale: scale)
-                    .rotationEffect(.degrees(phase ? -3 : 3))
-                    .offset(y: (phase ? -20 : -30) * scale - 24)
-
-                // Leaves peeking out from under the bottom of the center berry.
-                BottomFoliage(scale: scale)
-                    .rotationEffect(.degrees(phase ? 3 : -2))
-                    .offset(y: (phase ? 12 : 18) * scale)
-
-                // Left berry
-                IllustratedBerry(expression: .smile, size: 80 * scale)
-                    .rotationEffect(.degrees(phase ? -6 : -3))
-                    .offset(x: -70 * scale, y: (phase ? -4 : 4) * scale + 22 * scale)
-
-                // Right berry
-                IllustratedBerry(expression: .wink, size: 76 * scale)
-                    .rotationEffect(.degrees(phase ? 8 : 4))
-                    .offset(x: 70 * scale, y: (phase ? -2 : 6) * scale + 24 * scale)
-
-                // Center berry (largest, front)
-                IllustratedBerry(expression: .happy, size: 102 * scale)
-                    .offset(x: 0, y: (phase ? 4 : -4) * scale + 10 * scale)
-                    .shadow(color: BerryPalette.bodyDark.opacity(0.25), radius: 8 * scale, y: 4 * scale)
+            Group {
+                if let berrySymbol = theme.berrySymbol {
+                    seasonalCluster(symbol: berrySymbol, scale: scale, phase: phase)
+                } else {
+                    blueberryCluster(scale: scale, phase: phase)
+                }
             }
             .frame(width: w, height: h)
+        }
+    }
+
+    private func seasonalCluster(symbol: String, scale: Double, phase: Bool) -> some View {
+        ZStack {
+            Text(symbol)
+                .font(.system(size: 72 * scale))
+                .rotationEffect(.degrees(phase ? -6 : -3))
+                .offset(x: -70 * scale, y: (phase ? -4 : 4) * scale + 22 * scale)
+
+            Text(symbol)
+                .font(.system(size: 68 * scale))
+                .rotationEffect(.degrees(phase ? 8 : 4))
+                .offset(x: 70 * scale, y: (phase ? -2 : 6) * scale + 24 * scale)
+
+            Text(symbol)
+                .font(.system(size: 92 * scale))
+                .offset(x: 0, y: (phase ? 4 : -4) * scale + 10 * scale)
+                .shadow(color: theme.berry.opacity(0.25), radius: 8 * scale, y: 4 * scale)
+        }
+    }
+
+    private func blueberryCluster(scale: Double, phase: Bool) -> some View {
+        ZStack {
+            // Leaves + stem behind the top of the cluster.
+            TopFoliage(scale: scale)
+                .rotationEffect(.degrees(phase ? -3 : 3))
+                .offset(y: (phase ? -20 : -30) * scale - 24)
+
+            // Leaves peeking out from under the bottom of the center berry.
+            BottomFoliage(scale: scale)
+                .rotationEffect(.degrees(phase ? 3 : -2))
+                .offset(y: (phase ? 12 : 18) * scale)
+
+            // Left berry
+            IllustratedBerry(expression: .smile, size: 80 * scale)
+                .rotationEffect(.degrees(phase ? -6 : -3))
+                .offset(x: -70 * scale, y: (phase ? -4 : 4) * scale + 22 * scale)
+
+            // Right berry
+            IllustratedBerry(expression: .wink, size: 76 * scale)
+                .rotationEffect(.degrees(phase ? 8 : 4))
+                .offset(x: 70 * scale, y: (phase ? -2 : 6) * scale + 24 * scale)
+
+            // Center berry (largest, front)
+            IllustratedBerry(expression: .happy, size: 102 * scale)
+                .offset(x: 0, y: (phase ? 4 : -4) * scale + 10 * scale)
+                .shadow(color: BerryPalette.bodyDark.opacity(0.25), radius: 8 * scale, y: 4 * scale)
         }
     }
 }
