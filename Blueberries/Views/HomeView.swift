@@ -1065,6 +1065,7 @@ private struct InProgressGameAccessoryView: View {
     let elapsedTime: TimeInterval
     let onTap: () -> Void
 
+    @Environment(\.appTheme) private var theme
     @Environment(\.tabViewBottomAccessoryPlacement) private var placement
 
     var body: some View {

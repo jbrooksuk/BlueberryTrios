@@ -115,6 +115,8 @@ private enum WalkthroughIllustration {
 private struct WalkthroughPageView: View {
     let page: WalkthroughPage
 
+    @Environment(\.appTheme) private var theme
+
     var body: some View {
         VStack(spacing: 24) {
             Spacer()
@@ -239,7 +241,7 @@ private struct WalkthroughPageView: View {
     }
 
     private var gridIllustration: some View {
-        PhaseAnimator(Array(0...14)) { phase in
+        PhaseAnimator(Array<Int>(0...14)) { (phase: Int) in
             let stepsShown = min(phase, 13)
 
             Grid(horizontalSpacing: 0, verticalSpacing: 0) {
@@ -310,7 +312,7 @@ private struct WalkthroughPageView: View {
             }
             .clipShape(.rect(cornerRadius: 4))
             .frame(maxWidth: 200, maxHeight: 200)
-        } animation: { phase in
+        } animation: { (phase: Int) in
             if phase == 0 {
                 .easeInOut(duration: 0.4)
             } else {
@@ -322,7 +324,7 @@ private struct WalkthroughPageView: View {
     // Animated clue demonstration: "3" at top-right (0,2) with berries surrounding it
     // Phases: 0=empty grid with clue, 1-3=berries appear, 4=crosses on remaining + pause
     private var clueIllustration: some View {
-        PhaseAnimator([0, 1, 2, 3, 4]) { phase in
+        PhaseAnimator([0, 1, 2, 3, 4] as [Int]) { (phase: Int) in
             // Clue "3" at (0,2). Its neighbors: (0,1), (1,1), (1,2) — all get berries
             let berryPositions: [(Int, Int)] = [(0, 1), (1, 2), (1, 1)]
             let crossedPositions: [(Int, Int)] = [(0, 0), (1, 0), (2, 0), (2, 1), (2, 2)]
@@ -370,7 +372,7 @@ private struct WalkthroughPageView: View {
                     }
                 }
             }
-        } animation: { phase in
+        } animation: { (phase: Int) in
             if phase == 0 {
                 .easeInOut(duration: 0.3)
             } else {
@@ -380,7 +382,7 @@ private struct WalkthroughPageView: View {
     }
 
     private var interactionIllustration: some View {
-        PhaseAnimator([0, 1, 2, 3]) { phase in
+        PhaseAnimator([0, 1, 2, 3] as [Int]) { (phase: Int) in
             HStack(spacing: 12) {
                 VStack(spacing: 4) {
                     cellStateView(.blank, active: phase == 0)
@@ -405,7 +407,7 @@ private struct WalkthroughPageView: View {
                         .foregroundStyle(.secondary)
                 }
             }
-        } animation: { _ in .easeInOut(duration: 1.0) }
+        } animation: { (_: Int) in .easeInOut(duration: 1.0) }
     }
 
     private var streakIllustration: some View {
