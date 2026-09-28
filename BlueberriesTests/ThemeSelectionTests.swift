@@ -102,6 +102,8 @@ struct ThemeSelectionTests {
         #expect(AppTheme.halloween.palette.berrySymbol == "🎃")
         #expect(AppTheme.christmas.palette.berrySymbol == "❄️")
         #expect(AppTheme.raspberry.palette.berrySymbol == nil)
+        #expect(AppTheme.blueberry.palette.usesRaspberryIllustration == false)
+        #expect(AppTheme.raspberry.palette.usesRaspberryIllustration == true)
 
         #expect(AppTheme.blueberry.palette.markerNamePlural == "berries")
         #expect(AppTheme.halloween.palette.markerName == "pumpkin")

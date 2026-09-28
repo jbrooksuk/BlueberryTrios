@@ -38,21 +38,6 @@ enum AppTheme: String, CaseIterable, Identifiable {
         }
     }
 
-    var iconPreviewName: String? {
-        #if DEBUG
-        if self == .blueberry {
-            return "IconPreview-Debug"
-        }
-        #endif
-
-        switch self {
-        case .blueberry: "IconPreview-Blueberry"
-        case .halloween: "IconPreview-Halloween"
-        case .christmas: "IconPreview-Christmas"
-        case .raspberry: "IconPreview-Raspberry"
-        }
-    }
-
     /// Add a product identifier here when a theme should be sold separately.
     /// Free and seasonal themes leave this nil.
     var productID: String? {
@@ -99,7 +84,8 @@ enum AppTheme: String, CaseIterable, Identifiable {
                 accent: Color(red: 0.82, green: 0.12, blue: 0.38),
                 berry: Color(red: 0.82, green: 0.12, blue: 0.38),
                 backgroundAccent: Color(red: 0.82, green: 0.12, blue: 0.38),
-                hintHighlight: Color.pink.opacity(0.25)
+                hintHighlight: Color.pink.opacity(0.25),
+                usesRaspberryIllustration: true
             )
         }
     }
@@ -232,6 +218,7 @@ struct Theme {
     let satisfiedClueOpacity: Double
     let errorAnimationDelay: TimeInterval
     let berrySymbol: String?
+    let usesRaspberryIllustration: Bool
     let markerName: String
     let markerNamePlural: String
     let proTagline: LocalizedStringResource
@@ -252,6 +239,7 @@ struct Theme {
         satisfiedClueOpacity: Double = 0.25,
         errorAnimationDelay: TimeInterval = 1.0,
         berrySymbol: String? = nil,
+        usesRaspberryIllustration: Bool = false,
         markerName: String = String(localized: "berry"),
         markerNamePlural: String = String(localized: "berries"),
         proTagline: LocalizedStringResource = "An endless berry patch",
@@ -271,6 +259,7 @@ struct Theme {
         self.satisfiedClueOpacity = satisfiedClueOpacity
         self.errorAnimationDelay = errorAnimationDelay
         self.berrySymbol = berrySymbol
+        self.usesRaspberryIllustration = usesRaspberryIllustration
         self.markerName = markerName
         self.markerNamePlural = markerNamePlural
         self.proTagline = proTagline

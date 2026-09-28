@@ -23,9 +23,17 @@ private enum BerryPalette {
     static let leafDark  = Color(red: 0.33, green: 0.49, blue: 0.20) // #547D33
 }
 
+private enum RaspberryPalette {
+    static let bodyDark  = Color(red: 0.48, green: 0.04, blue: 0.20)
+    static let bodyBase  = Color(red: 0.82, green: 0.12, blue: 0.38)
+    static let bodyLight = Color(red: 0.96, green: 0.36, blue: 0.57)
+}
+
+private enum BerryExpression { case happy, smile, wink }
+
 // MARK: - Cluster
 
-/// Illustrated cluster of three blueberries with leaves.
+/// Illustrated cluster of three themed characters.
 ///
 /// This view replaces the earlier kawaii `BerryClusterView` used on the home
 /// screen hero header. It is composed of discrete layers — leaves behind, the
@@ -55,11 +63,29 @@ struct IllustratedBerryClusterView: View {
             Group {
                 if let berrySymbol = theme.berrySymbol {
                     seasonalCluster(symbol: berrySymbol, scale: scale, phase: phase)
+                } else if theme.usesRaspberryIllustration {
+                    raspberryCluster(scale: scale, phase: phase)
                 } else {
                     blueberryCluster(scale: scale, phase: phase)
                 }
             }
             .frame(width: w, height: h)
+        }
+    }
+
+    private func raspberryCluster(scale: Double, phase: Bool) -> some View {
+        ZStack {
+            IllustratedRaspberry(expression: .smile, size: 82 * scale)
+                .rotationEffect(.degrees(phase ? -6 : -3))
+                .offset(x: -70 * scale, y: (phase ? -4 : 4) * scale + 22 * scale)
+
+            IllustratedRaspberry(expression: .wink, size: 78 * scale)
+                .rotationEffect(.degrees(phase ? 8 : 4))
+                .offset(x: 70 * scale, y: (phase ? -2 : 6) * scale + 24 * scale)
+
+            IllustratedRaspberry(expression: .happy, size: 104 * scale)
+                .offset(x: 0, y: (phase ? 4 : -4) * scale + 10 * scale)
+                .shadow(color: RaspberryPalette.bodyDark.opacity(0.25), radius: 8 * scale, y: 4 * scale)
         }
     }
 
@@ -115,9 +141,7 @@ struct IllustratedBerryClusterView: View {
 // MARK: - Single Berry
 
 private struct IllustratedBerry: View {
-    enum Expression { case happy, smile, wink }
-
-    let expression: Expression
+    let expression: BerryExpression
     let size: Double
 
     var body: some View {
@@ -156,13 +180,17 @@ private struct IllustratedBerry: View {
                     .offset(x: -size * 0.36, y: -size * 0.20)
             }
 
-            // Face
-            face
+            BerryFace(expression: expression, size: size)
         }
         .frame(width: size, height: size)
     }
+}
 
-    private var face: some View {
+private struct BerryFace: View {
+    let expression: BerryExpression
+    let size: Double
+
+    var body: some View {
         ZStack {
             // Cheeks
             Ellipse()
@@ -232,6 +260,45 @@ private struct IllustratedBerry: View {
                 .frame(width: size * 0.2, height: size * 0.09)
                 .offset(y: size * 0.22)
         }
+    }
+}
+
+private struct IllustratedRaspberry: View {
+    private let drupelets: [(x: Double, y: Double, scale: Double)] = [
+        (-0.15, -0.28, 0.94), (0.15, -0.28, 0.94),
+        (-0.28, -0.10, 0.98), (0, -0.10, 1.04), (0.28, -0.10, 0.98),
+        (-0.30, 0.10, 0.94), (-0.10, 0.10, 1.02), (0.10, 0.10, 1.02), (0.30, 0.10, 0.94),
+        (-0.20, 0.29, 0.88), (0, 0.30, 0.94), (0.20, 0.29, 0.88)
+    ]
+
+    let expression: BerryExpression
+    let size: Double
+
+    var body: some View {
+        ZStack {
+            ForEach(drupelets.indices, id: \.self) { index in
+                let drupelet = drupelets[index]
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [RaspberryPalette.bodyLight, RaspberryPalette.bodyBase, RaspberryPalette.bodyDark],
+                            center: UnitPoint(x: 0.36, y: 0.32),
+                            startRadius: 0,
+                            endRadius: size * 0.20
+                        )
+                    )
+                    .frame(width: size * 0.34 * drupelet.scale, height: size * 0.34 * drupelet.scale)
+                    .offset(x: size * drupelet.x, y: size * drupelet.y)
+            }
+
+            Calyx()
+                .fill(BerryPalette.leafMid)
+                .frame(width: size * 0.52, height: size * 0.26)
+                .offset(y: -size * 0.50)
+
+            BerryFace(expression: expression, size: size)
+        }
+        .frame(width: size, height: size * 1.08)
     }
 }
 
@@ -480,5 +547,11 @@ private struct BottomFoliage: View {
     IllustratedBerryClusterView(animated: false)
         .frame(width: 300, height: 200)
         .padding(40)
+}
 
+#Preview("Raspberry") {
+    IllustratedBerryClusterView(animated: false)
+        .frame(width: 300, height: 200)
+        .padding(40)
+        .environment(\.appTheme, AppTheme.raspberry.palette)
 }

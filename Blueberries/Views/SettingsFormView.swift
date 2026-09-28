@@ -28,7 +28,7 @@ struct SettingsFormView: View {
     }
 
     private var displayedIconThemes: [AppTheme] {
-        displayedThemes.filter { $0.iconPreviewName != nil }
+        displayedThemes
     }
 
     var body: some View {
@@ -193,50 +193,65 @@ struct SettingsFormView: View {
 
     @ViewBuilder
     private func appIconRow(_ appTheme: AppTheme) -> some View {
-        if let previewName = appTheme.iconPreviewName {
-            let isUnlocked = storeService.isThemeUnlocked(appTheme)
-            let isSelected = selectedIconName == appTheme.alternateIconName
+        let isUnlocked = storeService.isThemeUnlocked(appTheme)
+        let isSelected = selectedIconName == appTheme.alternateIconName
 
-            Button {
-                guard isUnlocked, UIApplication.shared.supportsAlternateIcons else { return }
-                let iconName = appTheme.alternateIconName
-                UIApplication.shared.setAlternateIconName(iconName) { error in
-                    Task { @MainActor in
-                        if error == nil {
-                            selectedIconName = iconName
-                        } else {
-                            showIconChangeError = true
-                        }
+        Button {
+            guard isUnlocked, UIApplication.shared.supportsAlternateIcons else { return }
+            let iconName = appTheme.alternateIconName
+            UIApplication.shared.setAlternateIconName(iconName) { error in
+                Task { @MainActor in
+                    if error == nil {
+                        selectedIconName = iconName
+                    } else {
+                        showIconChangeError = true
                     }
                 }
-            } label: {
-                HStack(spacing: 12) {
-                    Image(previewName)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 44, height: 44)
-                        .clipShape(.rect(cornerRadius: 10))
-                        .accessibilityHidden(true)
-
-                    Text(appTheme.name)
-                        .foregroundStyle(.primary)
-
-                    Spacer()
-
-                    if isSelected {
-                        Image(systemName: "checkmark")
-                            .fontWeight(.semibold)
-                            .accessibilityLabel("Selected")
-                    } else if !isUnlocked {
-                        Image(systemName: "lock.fill")
-                            .foregroundStyle(.secondary)
-                            .accessibilityLabel("Locked")
-                    }
-                }
-                .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
-            .disabled(!isUnlocked || !UIApplication.shared.supportsAlternateIcons)
+        } label: {
+            HStack(spacing: 12) {
+                appIconPreview(appTheme)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 44, height: 44)
+                    .clipShape(.rect(cornerRadius: 10))
+                    .accessibilityHidden(true)
+
+                Text(appTheme.name)
+                    .foregroundStyle(.primary)
+
+                Spacer()
+
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .fontWeight(.semibold)
+                        .accessibilityLabel("Selected")
+                } else if !isUnlocked {
+                    Image(systemName: "lock.fill")
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel("Locked")
+                }
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .disabled(!isUnlocked || !UIApplication.shared.supportsAlternateIcons)
+    }
+
+    private func appIconPreview(_ appTheme: AppTheme) -> Image {
+        switch appTheme {
+        case .blueberry:
+            #if DEBUG
+            return Image("ThemeIconDebugPreview")
+            #else
+            return Image("ThemeIconBlueberryPreview")
+            #endif
+        case .halloween:
+            return Image("ThemeIconHalloweenPreview")
+        case .christmas:
+            return Image("ThemeIconChristmasPreview")
+        case .raspberry:
+            return Image("ThemeIconRaspberryPreview")
         }
     }
 
