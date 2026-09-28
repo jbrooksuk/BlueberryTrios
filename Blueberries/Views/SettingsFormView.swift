@@ -60,10 +60,12 @@ struct SettingsFormView: View {
             } footer: {
                 Text("Choosing a theme saves it as your preference, even when a later update has a new seasonal look.")
             }
-            Section("App icon") {
+            Section {
                 ForEach(ThemeSelection.availableThemes().filter { $0.iconPreviewName != nil }) { appTheme in
                     appIconRow(appTheme)
                 }
+            } header: {
+                Text("App icon")
             } footer: {
                 Text("Seasonal icons are available during their matching theme.")
             }
