@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+step() {
+  local label="$1"
+  shift
+  local started=$SECONDS
+  printf '\n==> %s\n' "$label"
+  "$@"
+  printf '    completed in %ss\n' "$((SECONDS - started))"
+}
+
+install_jdk() {
+  if command -v javac >/dev/null 2>&1 && javac -version 2>&1 | grep -q '^javac 17\.'; then
+    return
+  fi
+
+  sudo apt-get update -qq
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq openjdk-17-jdk-headless
+}
+
+install_android_command_line_tools() {
+  if [[ -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]]; then
+    return
+  fi
+
+  local archive
+  local extracted
+  archive="$(mktemp)"
+  extracted="$(mktemp -d)"
+  curl --fail --location --silent --show-error --http1.1 \
+    --retry 3 --retry-all-errors --retry-delay 2 \
+    https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip \
+    --output "$archive"
+  unzip -q "$archive" -d "$extracted"
+  mkdir -p "$ANDROID_HOME/cmdline-tools/latest"
+  cp -a "$extracted/cmdline-tools/." "$ANDROID_HOME/cmdline-tools/latest/"
+  rm -rf "$archive" "$extracted"
+}
+
+accept_android_licenses() {
+  set +o pipefail
+  yes | sdkmanager --licenses >/dev/null
+  local sdkmanager_status="${PIPESTATUS[1]}"
+  set -o pipefail
+  return "$sdkmanager_status"
+}
+
+install_android_sdk() {
+  if [[ ! -f "$ANDROID_HOME/licenses/android-sdk-license" ]]; then
+    accept_android_licenses
+  fi
+
+  install_sdk_package 'platform-tools' 'platform-tools'
+  install_sdk_package 'platforms;android-36' 'platforms/android-36'
+  install_sdk_package 'build-tools;35.0.0' 'build-tools/35.0.0'
+}
+
+install_sdk_package() {
+  local package="$1"
+  local directory="$2"
+  local attempt
+  if [[ -d "$ANDROID_HOME/$directory" ]]; then
+    return
+  fi
+
+  for attempt in 1 2 3; do
+    if sdkmanager --install "$package"; then
+      return
+    fi
+    printf '    SDK download failed (attempt %s/3); retrying...\n' "$attempt" >&2
+    sleep 2
+  done
+  return 1
+}
+
+configure_login_shell() {
+  local marker='# Berroku orb environment'
+  touch "$HOME/.bash_profile"
+  if grep -Fqx "$marker" "$HOME/.bash_profile"; then
+    return
+  fi
+
+  cat >> "$HOME/.bash_profile" <<EOF
+
+$marker
+export JAVA_HOME="$JAVA_HOME"
+export ANDROID_HOME="$ANDROID_HOME"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+export PATH="\$ANDROID_HOME/cmdline-tools/latest/bin:\$ANDROID_HOME/platform-tools:\$PATH"
+export GRADLE_OPTS="-Dorg.gradle.jvmargs=-Xmx1g \${GRADLE_OPTS:-}"
+EOF
+}
+
+install_web_dependencies() {
+  npm --prefix web ci --no-audit --no-fund
+}
+
+warm_android_dependencies() {
+  (
+    cd android
+    ./gradlew --no-daemon -Dorg.gradle.jvmargs=-Xmx1g \
+      :game-core:dependencies :app:dependencies >/dev/null
+  )
+}
+
+step "Install JDK 17" install_jdk
+
+JAVA_HOME="$(dirname "$(dirname "$(readlink -f "$(command -v javac)")")")"
+ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
+ANDROID_SDK_ROOT="$ANDROID_HOME"
+export JAVA_HOME ANDROID_HOME ANDROID_SDK_ROOT
+export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+
+step "Install Android command-line tools" install_android_command_line_tools
+step "Install Android SDK 36" install_android_sdk
+step "Configure future login shells" configure_login_shell
+step "Install web dependencies" install_web_dependencies
+step "Warm Android dependency cache" warm_android_dependencies
+
+printf '\nOrb setup complete. The iOS target requires Xcode and must be built on macOS.\n'

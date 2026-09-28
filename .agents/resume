@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Berroku has no external services or session-scoped authentication to repair.
+printf 'Berroku orb ready.\n'
