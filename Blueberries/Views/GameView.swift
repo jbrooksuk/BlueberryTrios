@@ -72,72 +72,80 @@ struct GameView: View {
         }
         .frame(maxWidth: .infinity)
         .toolbar {
-            ToolbarItemGroup(placement: .bottomBar) {
+            ToolbarItem(placement: .bottomBar) {
                 if let model {
                     let solved = model.isSolved
-                    HoldToRepeatButton(
-                        isEnabled: model.canUndo && !solved,
-                        onTap: { model.undo(); saveCurrentState() },
-                        onHoldStep: {
-                            guard model.canUndo, !model.isSolved else { return false }
-                            model.undo()
-                            saveCurrentState()
-                            return true
-                        },
-                        accessibilityRepeatLabel: String(
-                            localized: "Undo step",
-                            comment: "VoiceOver custom action label for repeated undo")
-                    ) {
-                        Label("Undo", systemImage: "arrow.uturn.backward")
-                    }
-                    .accessibilityHint(String(
-                        localized: "Hold to undo multiple steps",
-                        comment: "Accessibility hint for undo toolbar button"))
+                    HStack(spacing: 16) {
+                        HoldToRepeatButton(
+                            isEnabled: model.canUndo && !solved,
+                            onTap: { model.undo(); saveCurrentState() },
+                            onHoldStep: {
+                                guard model.canUndo, !model.isSolved else { return false }
+                                model.undo()
+                                saveCurrentState()
+                                return true
+                            },
+                            accessibilityRepeatLabel: String(
+                                localized: "Undo step",
+                                comment: "VoiceOver custom action label for repeated undo")
+                        ) {
+                            Label("Undo", systemImage: "arrow.uturn.backward")
+                        }
+                        .accessibilityHint(String(
+                            localized: "Hold to undo multiple steps",
+                            comment: "Accessibility hint for undo toolbar button"))
 
-                    HoldToRepeatButton(
-                        isEnabled: model.canRedo && !solved,
-                        onTap: { model.redo(); saveCurrentState() },
-                        onHoldStep: {
-                            guard model.canRedo, !model.isSolved else { return false }
-                            model.redo()
-                            saveCurrentState()
-                            return true
-                        },
-                        accessibilityRepeatLabel: String(
-                            localized: "Redo step",
-                            comment: "VoiceOver custom action label for repeated redo")
-                    ) {
-                        Label("Redo", systemImage: "arrow.uturn.forward")
-                    }
-                    .accessibilityHint(String(
-                        localized: "Hold to redo multiple steps",
-                        comment: "Accessibility hint for redo toolbar button"))
+                        HoldToRepeatButton(
+                            isEnabled: model.canRedo && !solved,
+                            onTap: { model.redo(); saveCurrentState() },
+                            onHoldStep: {
+                                guard model.canRedo, !model.isSolved else { return false }
+                                model.redo()
+                                saveCurrentState()
+                                return true
+                            },
+                            accessibilityRepeatLabel: String(
+                                localized: "Redo step",
+                                comment: "VoiceOver custom action label for repeated redo")
+                        ) {
+                            Label("Redo", systemImage: "arrow.uturn.forward")
+                        }
+                        .accessibilityHint(String(
+                            localized: "Hold to redo multiple steps",
+                            comment: "Accessibility hint for redo toolbar button"))
 
-                    Button { model.erase(); saveCurrentState() } label: {
-                        Label("Erase", systemImage: "eraser")
-                    }
-                    .disabled(solved)
-                    .accessibilityHint(String(
-                        localized: "Clears all cells",
-                        comment: "Accessibility hint for erase toolbar button"))
+                        Button { model.erase(); saveCurrentState() } label: {
+                            Label("Erase", systemImage: "eraser")
+                                .frame(minWidth: 44, minHeight: 44)
+                        }
+                        .disabled(solved)
+                        .accessibilityHint(String(
+                            localized: "Clears all cells",
+                            comment: "Accessibility hint for erase toolbar button"))
 
-                    Button { useHint(model: model) } label: {
-                        Label("Hint", systemImage: "lightbulb")
-                    }
-                    .disabled(solved)
-                    .accessibilityHint(String(
-                        localized: "Reveals a logical next step",
-                        comment: "Accessibility hint for hint toolbar button"))
+                        Button { useHint(model: model) } label: {
+                            Label("Hint", systemImage: "lightbulb")
+                                .frame(minWidth: 44, minHeight: 44)
+                        }
+                        .disabled(solved)
+                        .accessibilityHint(String(
+                            localized: "Reveals a logical next step",
+                            comment: "Accessibility hint for hint toolbar button"))
 
-                    Button { _ = model.checkSolved() } label: {
-                        Label("Check", systemImage: "checkmark.circle")
+                        if !autoCheck {
+                            Button { _ = model.checkSolved() } label: {
+                                Label("Check", systemImage: "checkmark.circle")
+                                    .frame(minWidth: 44, minHeight: 44)
+                            }
+                            .disabled(solved)
+                            .accessibilityHint(String(
+                                localized: "Checks your current solution for errors",
+                                comment: "Accessibility hint for check toolbar button"))
+                        }
                     }
-                    .disabled(solved)
-                    .opacity(autoCheck ? 0 : 1)
-                    .accessibilityHidden(autoCheck)
-                    .accessibilityHint(String(
-                        localized: "Checks your current solution for errors",
-                        comment: "Accessibility hint for check toolbar button"))
+                    // A single custom toolbar view avoids an iOS 26 UIKit bug
+                    // that briefly constrains individual bar buttons to zero width.
+                    .labelStyle(.iconOnly)
                 }
             }
         }
@@ -311,7 +319,11 @@ struct GameView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { showSettings = false }
+                    // Force a custom toolbar view rather than UIKit's faulty
+                    // iOS 26 modern bar-button wrapper.
+                    HStack {
+                        Button("Done") { showSettings = false }
+                    }
                 }
             }
         }
@@ -912,6 +924,7 @@ private struct HoldToRepeatButton<L: View>: View {
             }
         } label: {
             label()
+                .frame(minWidth: 44, minHeight: 44)
         }
         .disabled(!isEnabled)
         .buttonStyle(PressObservingButtonStyle { pressed in
