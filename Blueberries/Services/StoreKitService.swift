@@ -14,6 +14,7 @@ final class StoreKitService {
     private(set) var themeProducts: [String: Product] = [:]
     private(set) var isProUnlocked: Bool = false
     private(set) var unlockedThemeIDs: Set<String> = []
+    private(set) var hasLoadedPurchaseStatus: Bool = false
     /// Runs once per verified Berry Revival purchase, before the
     /// transaction is finished. Consumables leave the transaction stream
     /// permanently once finished, so a transaction that arrives while no
@@ -56,6 +57,7 @@ final class StoreKitService {
             let transaction = try checkVerified(verification)
             await transaction.finish()
             isProUnlocked = true
+            hasLoadedPurchaseStatus = true
         case .userCancelled:
             break
         case .pending:
@@ -74,9 +76,24 @@ final class StoreKitService {
         #if DEBUG
         return true
         #else
-        guard let productID = theme.productID else { return true }
-        return unlockedThemeIDs.contains(productID)
+        return Self.isThemeUnlocked(
+            theme,
+            isProUnlocked: isProUnlocked,
+            purchasedThemeProductIDs: unlockedThemeIDs
+        )
         #endif
+    }
+
+    static func isThemeUnlocked(
+        _ theme: AppTheme,
+        isProUnlocked: Bool,
+        purchasedThemeProductIDs: Set<String>
+    ) -> Bool {
+        if theme.requiresPro {
+            return isProUnlocked
+        }
+        guard let productID = theme.productID else { return true }
+        return purchasedThemeProductIDs.contains(productID)
     }
 
     @discardableResult
@@ -134,6 +151,7 @@ final class StoreKitService {
         }
         isProUnlocked = proUnlocked
         unlockedThemeIDs = unlockedThemes
+        hasLoadedPurchaseStatus = true
     }
 
     private func listenForTransactions() -> Task<Void, Never> {

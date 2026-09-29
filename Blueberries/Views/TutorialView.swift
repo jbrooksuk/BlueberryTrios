@@ -141,7 +141,7 @@ struct TutorialView: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .background(theme.backgroundGradient)
+        .background { ThemeBackground(theme: theme) }
         .interactiveDismissDisabled(!dismissable)
         .task {
             soundService.isEnabled = soundEnabled

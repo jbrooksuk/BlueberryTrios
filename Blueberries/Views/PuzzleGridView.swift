@@ -155,7 +155,6 @@ struct PuzzleGridView: View {
     private func drawGrid(context: GraphicsContext, cellSize: Double, canvasSize: CGSize, reduceMotion: Bool) {
         let check = autoCheck ? model.lastCheck : nil
         let berryRadius = cellSize * 0.3
-        let dotRadius = cellSize * 0.06
         let shouldShowErrors = model.showErrors && autoCheck
         let celebrating = !reduceMotion && model.celebrationProgress > 0
 
@@ -185,6 +184,10 @@ struct PuzzleGridView: View {
             if isHinted || highlightedCells.contains(cell) {
                 context.fill(cellPath, with: .color(theme.hintHighlight))
             }
+        }
+
+        if theme.usesPaperTexture {
+            drawPaperTexture(context: context, canvasSize: canvasSize)
         }
 
         // Thin grid lines — subtle, anti-aliased
@@ -222,6 +225,8 @@ struct PuzzleGridView: View {
                     let marker = Text(berrySymbol)
                         .font(.system(size: r * 2.05))
                     context.draw(marker, at: center)
+                } else if theme.usesStampedMarkers {
+                    drawStampedBerry(context: context, cell: cell, center: center, radius: r)
                 } else {
                     // Berry with subtle gradient effect via layered circles
                     let berryPath = Path(ellipseIn: CGRect(
@@ -250,6 +255,68 @@ struct PuzzleGridView: View {
                 context.stroke(xPath, with: .color(theme.emptyDot), style: StrokeStyle(lineWidth: 1.5, lineCap: .round))
             }
         }
+    }
+
+    private func drawPaperTexture(context: GraphicsContext, canvasSize: CGSize) {
+        for index in 0..<120 {
+            let x = fraction(index * 43 + 13) * canvasSize.width
+            let y = fraction(index * 71 + 31) * canvasSize.height
+            let length = 2 + fraction(index * 29 + 5) * 5
+            let rise = (fraction(index * 61 + 17) - 0.5) * 1.4
+
+            var fibre = Path()
+            fibre.move(to: CGPoint(x: x, y: y))
+            fibre.addLine(to: CGPoint(x: min(canvasSize.width, x + length), y: y + rise))
+            context.stroke(
+                fibre,
+                with: .color(theme.gridLineThin.opacity(0.15)),
+                style: StrokeStyle(lineWidth: 0.4, lineCap: .round)
+            )
+        }
+    }
+
+    private func drawStampedBerry(
+        context: GraphicsContext,
+        cell: CellID,
+        center: CGPoint,
+        radius: Double
+    ) {
+        var stamp = Path()
+        let pointCount = 24
+        for point in 0..<pointCount {
+            let angle = (Double(point) / Double(pointCount)) * .pi * 2
+            let seed = cell.row * 1_009 + cell.column * 313 + point * 47
+            let jitter = 0.965 + fraction(seed) * 0.07
+            let position = CGPoint(
+                x: center.x + cos(angle) * radius * jitter,
+                y: center.y + sin(angle) * radius * jitter
+            )
+            if point == 0 {
+                stamp.move(to: position)
+            } else {
+                stamp.addLine(to: position)
+            }
+        }
+        stamp.closeSubpath()
+        context.fill(stamp, with: .color(theme.berry))
+
+        for speck in 0..<4 {
+            let angle = fraction(cell.row * 97 + cell.column * 53 + speck * 19) * .pi * 2
+            let distance = radius * (0.2 + fraction(cell.row * 41 + cell.column * 67 + speck * 23) * 0.45)
+            let speckRadius = radius * (0.035 + fraction(speck * 37 + 3) * 0.025)
+            let rect = CGRect(
+                x: center.x + cos(angle) * distance - speckRadius,
+                y: center.y + sin(angle) * distance - speckRadius,
+                width: speckRadius * 2,
+                height: speckRadius * 2
+            )
+            context.fill(Path(ellipseIn: rect), with: .color(theme.cellBackground.opacity(0.55)))
+        }
+    }
+
+    private func fraction(_ seed: Int) -> Double {
+        let value = sin(Double(seed) * 12.9898) * 43_758.5453
+        return value - floor(value)
     }
 
     private func celebrationReached(_ cell: CellID) -> Bool {

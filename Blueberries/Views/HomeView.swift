@@ -60,6 +60,11 @@ struct HomeView: View {
                 .tabItem { Label("Settings", systemImage: "gearshape") }
                 .tag(HomeTab.settings)
         }
+        .background {
+            ThemeBackground(theme: theme)
+        }
+        .toolbarBackground(theme.backgroundBase, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
         .inProgressGameAccessory(visible: inProgressPuzzle != nil && !navigateToGame) {
             if let inProgressPuzzle {
                 gameAccessoryContent(for: inProgressPuzzle)
@@ -165,7 +170,7 @@ struct HomeView: View {
                 }
                 .frame(maxWidth: .infinity)
             }
-            .background(theme.backgroundGradient)
+            .background { ThemeBackground(theme: theme) }
             .navigationDestination(isPresented: $navigateToGame) {
                 GameView(
                     storeService: storeService,
@@ -189,7 +194,7 @@ struct HomeView: View {
             .padding(20)
             .frame(maxWidth: .infinity)
         }
-        .background(theme.backgroundGradient)
+        .background { ThemeBackground(theme: theme) }
     }
 
     // MARK: - Hero Header
@@ -589,7 +594,7 @@ struct HomeView: View {
                     .foregroundStyle(.green)
             }
 
-            Text("Unlimited puzzle sets unlocked.")
+            Text("Unlimited puzzle sets and Puzzle Press unlocked.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
@@ -624,7 +629,7 @@ struct HomeView: View {
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Text("Unlimited puzzle sets beyond the daily three. One-time purchase.")
+            Text("Unlimited puzzle sets, plus the exclusive Puzzle Press theme and app icon. One-time purchase.")
                 .font(.subheadline)
                 .foregroundStyle(.white.opacity(0.85))
                 .fixedSize(horizontal: false, vertical: true)
@@ -953,7 +958,7 @@ struct HomeView: View {
             onShowTutorial: { showTutorial = true }
         )
         .scrollContentBackground(.hidden)
-        .background(theme.backgroundGradient)
+        .background { ThemeBackground(theme: theme) }
     }
 
     // MARK: - Helpers

@@ -76,6 +76,15 @@ struct BlueberriesApp: App {
                         clearUnavailableAppIcon()
                     }
                 }
+                .onChange(of: storeService.hasLoadedPurchaseStatus) { _, hasLoaded in
+                    guard hasLoaded else { return }
+                    clearUnavailableThemeSelection()
+                    clearUnavailableAppIcon()
+                }
+                .onChange(of: storeService.isProUnlocked) {
+                    clearUnavailableThemeSelection()
+                    clearUnavailableAppIcon()
+                }
         }
         .modelContainer(modelContainer)
         .onChange(of: scenePhase) { _, phase in
@@ -91,7 +100,8 @@ struct BlueberriesApp: App {
     private func clearUnavailableThemeSelection() {
         guard !selectedThemeID.isEmpty else { return }
         guard let selectedTheme = AppTheme(rawValue: selectedThemeID),
-              ThemeSelection.isAvailableInCurrentBuild(selectedTheme, on: themeDate) else {
+              ThemeSelection.isAvailableInCurrentBuild(selectedTheme, on: themeDate),
+              !storeService.hasLoadedPurchaseStatus || storeService.isThemeUnlocked(selectedTheme) else {
             selectedThemeID = ""
             return
         }
@@ -99,10 +109,12 @@ struct BlueberriesApp: App {
 
     private func clearUnavailableAppIcon() {
         guard let iconName = UIApplication.shared.alternateIconName,
-              let iconTheme = AppTheme.allCases.first(where: { $0.alternateIconName == iconName }),
-              !ThemeSelection.isAvailableInCurrentBuild(iconTheme, on: themeDate) else {
+              let iconTheme = AppTheme.allCases.first(where: { $0.alternateIconName == iconName }) else {
             return
         }
+        let isUnavailable = !ThemeSelection.isAvailableInCurrentBuild(iconTheme, on: themeDate)
+            || (storeService.hasLoadedPurchaseStatus && !storeService.isThemeUnlocked(iconTheme))
+        guard isUnavailable else { return }
         UIApplication.shared.setAlternateIconName(nil)
     }
 

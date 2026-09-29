@@ -4,6 +4,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
     case blueberry
     case halloween
     case christmas
+    case puzzlePress
     case raspberry
 
     var id: String { rawValue }
@@ -13,6 +14,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .blueberry: "Blueberry"
         case .halloween: "Halloween"
         case .christmas: "Christmas"
+        case .puzzlePress: "Puzzle Press"
         case .raspberry: "Raspberry"
         }
     }
@@ -22,20 +24,25 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .blueberry: "drop.fill"
         case .halloween: "moon.stars.fill"
         case .christmas: "snowflake"
+        case .puzzlePress: "newspaper.fill"
         case .raspberry: "heart.fill"
         }
     }
 
     /// The asset-catalog app icon name passed to UIApplication. The primary
-    /// blueberry icon uses nil; future paid themes unlock their icon through
-    /// the same product entitlement as the theme.
+    /// blueberry icon uses nil; alternate icons share their theme's access.
     var alternateIconName: String? {
         switch self {
         case .blueberry: nil
         case .halloween: "AppIcon-Halloween"
         case .christmas: "AppIcon-Christmas"
+        case .puzzlePress: "AppIcon-PuzzlePress"
         case .raspberry: "AppIcon-Raspberry"
         }
+    }
+
+    var requiresPro: Bool {
+        self == .puzzlePress
     }
 
     /// Add a product identifier here when a theme should be sold separately.
@@ -43,7 +50,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
     var productID: String? {
         switch self {
         case .raspberry: "com.altthree.Berroku.theme.raspberry"
-        case .blueberry, .halloween, .christmas: nil
+        case .blueberry, .halloween, .christmas, .puzzlePress: nil
         }
     }
 
@@ -78,6 +85,23 @@ enum AppTheme: String, CaseIterable, Identifiable {
                 markerNamePlural: String(localized: "snowflakes"),
                 proTagline: "An endless flurry of snowflakes",
                 attribution: "Made with gingerbread by James Brooks 🎅"
+            )
+        case .puzzlePress:
+            Theme(
+                accent: Color("PuzzlePressAccent"),
+                berry: Color("PuzzlePressBerry"),
+                backgroundAccent: Color("PuzzlePressInk"),
+                backgroundBase: Color("PuzzlePressBackground"),
+                cellBackground: Color("PuzzlePressPaper"),
+                gridLineThin: Color("PuzzlePressGridThin"),
+                gridLineThick: Color("PuzzlePressInk"),
+                clueText: Color("PuzzlePressInk"),
+                emptyDot: Color("PuzzlePressEmptyMark"),
+                hintHighlight: Color("PuzzlePressHint").opacity(0.32),
+                satisfiedClueOpacity: 0.55,
+                usesPaperTexture: true,
+                usesStampedMarkers: true,
+                attribution: "Pressed with berries by James Brooks 🫐"
             )
         case .raspberry:
             Theme(
@@ -121,7 +145,7 @@ enum ThemeSelection {
         calendar: Calendar = .current
     ) -> Bool {
         switch theme {
-        case .blueberry:
+        case .blueberry, .puzzlePress:
             true
         case .halloween, .christmas:
             theme == automaticTheme(on: date, calendar: calendar)
@@ -207,6 +231,7 @@ struct Theme {
     let accent: Color
     let berry: Color
     let backgroundAccent: Color
+    let backgroundBase: Color
     let cellBackground: Color
     let gridLineThin: Color
     let gridLineThick: Color
@@ -219,6 +244,8 @@ struct Theme {
     let errorAnimationDelay: TimeInterval
     let berrySymbol: String?
     let usesRaspberryIllustration: Bool
+    let usesPaperTexture: Bool
+    let usesStampedMarkers: Bool
     let markerName: String
     let markerNamePlural: String
     let proTagline: LocalizedStringResource
@@ -228,6 +255,7 @@ struct Theme {
         accent: Color,
         berry: Color,
         backgroundAccent: Color,
+        backgroundBase: Color = Color(.systemGroupedBackground),
         cellBackground: Color = Color("CellBackground"),
         gridLineThin: Color = Color("GridLineThin"),
         gridLineThick: Color = Color("GridLineThick"),
@@ -240,6 +268,8 @@ struct Theme {
         errorAnimationDelay: TimeInterval = 1.0,
         berrySymbol: String? = nil,
         usesRaspberryIllustration: Bool = false,
+        usesPaperTexture: Bool = false,
+        usesStampedMarkers: Bool = false,
         markerName: String = String(localized: "berry"),
         markerNamePlural: String = String(localized: "berries"),
         proTagline: LocalizedStringResource = "An endless berry patch",
@@ -248,6 +278,7 @@ struct Theme {
         self.accent = accent
         self.berry = berry
         self.backgroundAccent = backgroundAccent
+        self.backgroundBase = backgroundBase
         self.cellBackground = cellBackground
         self.gridLineThin = gridLineThin
         self.gridLineThick = gridLineThick
@@ -260,6 +291,8 @@ struct Theme {
         self.errorAnimationDelay = errorAnimationDelay
         self.berrySymbol = berrySymbol
         self.usesRaspberryIllustration = usesRaspberryIllustration
+        self.usesPaperTexture = usesPaperTexture
+        self.usesStampedMarkers = usesStampedMarkers
         self.markerName = markerName
         self.markerNamePlural = markerNamePlural
         self.proTagline = proTagline
@@ -268,7 +301,7 @@ struct Theme {
 
     var backgroundGradient: LinearGradient {
         LinearGradient(
-            colors: [backgroundAccent.opacity(0.10), Color(.systemGroupedBackground)],
+            colors: [backgroundAccent.opacity(0.10), backgroundBase],
             startPoint: .top,
             endPoint: .center
         )

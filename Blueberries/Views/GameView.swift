@@ -143,7 +143,7 @@ struct GameView: View {
         }
         .toolbarRole(.automatic)
         .toolbar(.hidden, for: .tabBar)
-        .background(theme.backgroundGradient)
+        .background { ThemeBackground(theme: theme) }
         .navigationTitle("Berroku")
         .navigationBarTitleDisplayMode(.inline)
         .gesture(DragGesture())
@@ -305,6 +305,8 @@ struct GameView: View {
                     }
                 }
             )
+            .scrollContentBackground(.hidden)
+            .background { ThemeBackground(theme: theme) }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

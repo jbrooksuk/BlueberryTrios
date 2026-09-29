@@ -76,12 +76,12 @@ struct SettingsFormView: View {
                 } header: {
                     Text("App icon")
                 } footer: {
-                    Text("Seasonal icons are available during their matching theme.")
+                    Text("Seasonal icons are available during their matching theme. Puzzle Press is included with Pro.")
                 }
             }
-            Section("Pro puzzles") {
+            Section("Berroku Pro") {
                 if storeService.isProUnlocked {
-                    Label("Pro unlocked", systemImage: "checkmark.seal.fill")
+                    Label("Pro puzzles and Puzzle Press unlocked", systemImage: "checkmark.seal.fill")
                         .foregroundStyle(.green)
                 } else {
                     if let product = storeService.proProduct {
@@ -89,7 +89,7 @@ struct SettingsFormView: View {
                             Task { try? await storeService.purchasePro() }
                         } label: {
                             HStack {
-                                Text("Unlock Pro puzzles")
+                                Text("Unlock Berroku Pro")
                                 Spacer()
                                 Text(verbatim: product.displayPrice)
                                     .foregroundStyle(.secondary)
@@ -172,7 +172,9 @@ struct SettingsFormView: View {
         let product = storeService.product(for: appTheme)
         themeRow(
             name: String(localized: appTheme.name),
-            subtitle: isUnlocked ? nil : product?.displayPrice ?? String(localized: "Coming soon"),
+            subtitle: appTheme.requiresPro
+                ? String(localized: "Included with Pro")
+                : (isUnlocked ? nil : product?.displayPrice ?? String(localized: "Coming soon")),
             symbolName: appTheme.symbolName,
             palette: appTheme.palette,
             isSelected: selectedThemeID == appTheme.rawValue,
@@ -217,8 +219,15 @@ struct SettingsFormView: View {
                     .clipShape(.rect(cornerRadius: 10))
                     .accessibilityHidden(true)
 
-                Text(appTheme.name)
-                    .foregroundStyle(.primary)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(appTheme.name)
+                        .foregroundStyle(.primary)
+                    if appTheme.requiresPro {
+                        Text("Included with Pro")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
 
                 Spacer()
 
@@ -250,6 +259,8 @@ struct SettingsFormView: View {
             return Image("ThemeIconHalloweenPreview")
         case .christmas:
             return Image("ThemeIconChristmasPreview")
+        case .puzzlePress:
+            return Image("ThemeIconPuzzlePressPreview")
         case .raspberry:
             return Image("ThemeIconRaspberryPreview")
         }
@@ -269,13 +280,8 @@ struct SettingsFormView: View {
                 ZStack {
                     Circle()
                         .fill(palette.backgroundAccent.opacity(0.18))
-                    if let berrySymbol = palette.berrySymbol {
-                        Text(berrySymbol)
-                            .font(.system(size: 18))
-                    } else {
-                        Image(systemName: symbolName)
-                            .foregroundStyle(palette.berry)
-                    }
+                    Image(systemName: symbolName)
+                        .foregroundStyle(palette.berry)
                 }
                 .frame(width: 32, height: 32)
                 .accessibilityHidden(true)

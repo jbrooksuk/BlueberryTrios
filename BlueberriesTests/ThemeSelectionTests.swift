@@ -64,10 +64,39 @@ struct ThemeSelectionTests {
 
     @Test("Festive themes are available only inside their date windows")
     func seasonalAvailability() {
-        #expect(ThemeSelection.availableThemes(on: date(2026, 9, 1), calendar: calendar) == [.blueberry])
-        #expect(ThemeSelection.availableThemes(on: date(2026, 10, 26), calendar: calendar) == [.blueberry, .halloween])
-        #expect(ThemeSelection.availableThemes(on: date(2026, 12, 23), calendar: calendar) == [.blueberry, .christmas])
+        #expect(ThemeSelection.availableThemes(on: date(2026, 9, 1), calendar: calendar) == [.blueberry, .puzzlePress])
+        #expect(ThemeSelection.availableThemes(on: date(2026, 10, 26), calendar: calendar) == [.blueberry, .halloween, .puzzlePress])
+        #expect(ThemeSelection.availableThemes(on: date(2026, 12, 23), calendar: calendar) == [.blueberry, .christmas, .puzzlePress])
         #expect(!ThemeSelection.availableThemes(on: date(2026, 9, 1), calendar: calendar).contains(.raspberry))
+    }
+
+    @Test("Puzzle Press uses the Pro entitlement, not the Raspberry purchase")
+    func puzzlePressEntitlement() {
+        #expect(AppTheme.puzzlePress.requiresPro)
+        #expect(AppTheme.puzzlePress.productID == nil)
+        #expect(!AppTheme.raspberry.requiresPro)
+        #expect(AppTheme.raspberry.productID == "com.altthree.Berroku.theme.raspberry")
+
+        #expect(!StoreKitService.isThemeUnlocked(
+            .puzzlePress,
+            isProUnlocked: false,
+            purchasedThemeProductIDs: []
+        ))
+        #expect(StoreKitService.isThemeUnlocked(
+            .puzzlePress,
+            isProUnlocked: true,
+            purchasedThemeProductIDs: []
+        ))
+        #expect(!StoreKitService.isThemeUnlocked(
+            .raspberry,
+            isProUnlocked: true,
+            purchasedThemeProductIDs: []
+        ))
+        #expect(StoreKitService.isThemeUnlocked(
+            .raspberry,
+            isProUnlocked: false,
+            purchasedThemeProductIDs: ["com.altthree.Berroku.theme.raspberry"]
+        ))
     }
 
     @Test("Expired festive choices return to automatic")
@@ -101,9 +130,12 @@ struct ThemeSelectionTests {
         #expect(AppTheme.blueberry.palette.berrySymbol == nil)
         #expect(AppTheme.halloween.palette.berrySymbol == "🎃")
         #expect(AppTheme.christmas.palette.berrySymbol == "❄️")
+        #expect(AppTheme.puzzlePress.palette.berrySymbol == nil)
         #expect(AppTheme.raspberry.palette.berrySymbol == nil)
         #expect(AppTheme.blueberry.palette.usesRaspberryIllustration == false)
         #expect(AppTheme.raspberry.palette.usesRaspberryIllustration == true)
+        #expect(AppTheme.puzzlePress.palette.usesPaperTexture == true)
+        #expect(AppTheme.puzzlePress.palette.usesStampedMarkers == true)
 
         #expect(AppTheme.blueberry.palette.markerNamePlural == "berries")
         #expect(AppTheme.halloween.palette.markerName == "pumpkin")
