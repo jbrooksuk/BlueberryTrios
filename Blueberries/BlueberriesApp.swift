@@ -139,24 +139,33 @@ struct BlueberriesApp: App {
     private static func makeContainer() -> ModelContainer {
         let schema = Schema(versionedSchema: SchemaV5.self)
 
-        #if DEBUG
-        // Pin the debug store to the debug app's private Application Support
-        // directory. ModelConfiguration's `groupContainer` defaults to
-        // `.automatic`, which would place the store in the shared
-        // `group.com.altthree.berroku` container — where it would survive
-        // a debug-app uninstall, because the release app keeps that group
-        // container alive. An explicit `url:` keeps debug experiments
-        // genuinely isolated and reliably wipeable by deleting the app.
-        let appSupport = URL.applicationSupportDirectory
-        try? FileManager.default.createDirectory(at: appSupport, withIntermediateDirectories: true)
-        let storeURL = appSupport.appendingPathComponent("Berroku-Debug.store")
-        let configuration = ModelConfiguration("Berroku-Debug", schema: schema, url: storeURL)
-        #else
-        // Default configuration — matches the implicit name SwiftData used
-        // prior to introducing this migration plan, so shipped users'
-        // existing "default.store" continues to be found and migrated.
-        let configuration = ModelConfiguration(schema: schema)
-        #endif
+        let configuration: ModelConfiguration
+        if ProcessInfo.processInfo.arguments.contains("--uitesting") {
+            configuration = ModelConfiguration(
+                "Berroku-UITests",
+                schema: schema,
+                isStoredInMemoryOnly: true
+            )
+        } else {
+            #if DEBUG
+            // Pin the debug store to the debug app's private Application Support
+            // directory. ModelConfiguration's `groupContainer` defaults to
+            // `.automatic`, which would place the store in the shared
+            // `group.com.altthree.berroku` container — where it would survive
+            // a debug-app uninstall, because the release app keeps that group
+            // container alive. An explicit `url:` keeps debug experiments
+            // genuinely isolated and reliably wipeable by deleting the app.
+            let appSupport = URL.applicationSupportDirectory
+            try? FileManager.default.createDirectory(at: appSupport, withIntermediateDirectories: true)
+            let storeURL = appSupport.appendingPathComponent("Berroku-Debug.store")
+            configuration = ModelConfiguration("Berroku-Debug", schema: schema, url: storeURL)
+            #else
+            // Default configuration — matches the implicit name SwiftData used
+            // prior to introducing this migration plan, so shipped users'
+            // existing "default.store" continues to be found and migrated.
+            configuration = ModelConfiguration(schema: schema)
+            #endif
+        }
 
         do {
             return try ModelContainer(

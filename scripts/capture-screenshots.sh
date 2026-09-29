@@ -1,34 +1,132 @@
 #!/bin/bash
 set -euo pipefail
 
-# Berroku App Store Screenshot Automation
-# Captures screenshots in light and dark mode on iPhone 17 Pro Max
-
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-OUTPUT_DIR="$PROJECT_DIR/screenshots/appstore"
-RESULT_DIR="$PROJECT_DIR/build/screenshots"
-SIMULATOR="iPhone 17 Pro Max"
-SCHEME="Blueberries"
-BUNDLE_ID="com.altthree.Berroku"
+BUILD_DIR="$PROJECT_DIR/build/screenshots"
+DERIVED_DATA_DIR="$BUILD_DIR/DerivedData"
+RESULT_DIR="$BUILD_DIR/results"
+OUTPUT_DIR="$BUILD_DIR/output"
+SIMULATOR="${SIMULATOR:-iPhone 17 Pro Max}"
+SCHEME="Screenshots"
 
-echo "🫐 Berroku Screenshot Capture"
-echo "=============================="
+format_xcodebuild() {
+    if command -v xcbeautify >/dev/null 2>&1; then
+        xcbeautify
+    else
+        cat
+    fi
+}
 
-# Clean output
-rm -rf "$OUTPUT_DIR" "$RESULT_DIR"
-mkdir -p "$OUTPUT_DIR/light" "$OUTPUT_DIR/dark" "$RESULT_DIR"
+expected_names() {
+    local appearance="$1"
+    printf '%s\n' \
+        "01-blueberry-home-$appearance" \
+        "02-blueberry-puzzle-$appearance" \
+        "03-halloween-home-$appearance" \
+        "04-christmas-home-$appearance" \
+        "05-raspberry-home-$appearance" \
+        "06-raspberry-puzzle-$appearance" \
+        "07-blueberry-achievements-$appearance"
+}
 
-# Boot simulator
-echo "📱 Booting $SIMULATOR..."
-SIM_ID=$(xcrun simctl list devices available | grep "$SIMULATOR" | grep -oE '[0-9A-F-]{36}' | head -1)
-if [ -z "$SIM_ID" ]; then
-    echo "❌ Simulator '$SIMULATOR' not found"
+find_simulator() {
+    xcrun simctl list devices available --json | python3 -c '
+import json, sys
+
+name = sys.argv[1]
+devices = json.load(sys.stdin)["devices"]
+for runtime in sorted(devices, reverse=True):
+    for device in devices[runtime]:
+        if device["name"] == name and device.get("isAvailable", True):
+            print(device["udid"])
+            raise SystemExit(0)
+raise SystemExit(1)
+' "$SIMULATOR"
+}
+
+extract_screenshots() {
+    local appearance="$1"
+    local result_bundle="$RESULT_DIR/$appearance.xcresult"
+    local exported_dir="$RESULT_DIR/$appearance-attachments"
+    local output_subdir="$OUTPUT_DIR/$appearance"
+
+    rm -rf "$exported_dir"
+    mkdir -p "$exported_dir" "$output_subdir"
+    xcrun xcresulttool export attachments \
+        --path "$result_bundle" \
+        --output-path "$exported_dir"
+
+    local manifest="$exported_dir/manifest.json"
+    local name exported_filename source
+    while IFS= read -r name; do
+        exported_filename="$(python3 - "$manifest" "$name" <<'PY'
+import json, sys
+
+with open(sys.argv[1]) as file:
+    results = json.load(file)
+
+prefix = f"{sys.argv[2]}_"
+for result in results:
+    for attachment in result.get("attachments", []):
+        if attachment.get("suggestedHumanReadableName", "").startswith(prefix):
+            print(attachment["exportedFileName"])
+            raise SystemExit(0)
+raise SystemExit(1)
+PY
+)"
+        source="$exported_dir/$exported_filename"
+        if [[ ! -f "$source" ]]; then
+            echo "Missing screenshot attachment: $name" >&2
+            exit 1
+        fi
+        cp "$source" "$output_subdir/$name.png"
+    done < <(expected_names "$appearance")
+}
+
+run_screenshots() {
+    local appearance="$1"
+    local method_prefix="$2"
+    local only_testing=()
+    local suffix
+
+    for suffix in 01Blueberry 02Halloween 03Christmas 04Raspberry 05Achievements; do
+        only_testing+=("-only-testing:BerrokuUITests/ScreenshotTests/test${method_prefix}${suffix}")
+    done
+
+    echo "Capturing $appearance screenshots..."
+    xcrun simctl ui "$SIM_ID" appearance "$appearance"
+    xcodebuild test-without-building \
+        -project "$PROJECT_DIR/Blueberries.xcodeproj" \
+        -scheme "$SCHEME" \
+        -sdk iphonesimulator \
+        -destination "platform=iOS Simulator,id=$SIM_ID" \
+        -derivedDataPath "$DERIVED_DATA_DIR" \
+        "${only_testing[@]}" \
+        -resultBundlePath "$RESULT_DIR/$appearance.xcresult" \
+        | format_xcodebuild
+    extract_screenshots "$appearance"
+}
+
+cleanup() {
+    xcrun simctl ui "$SIM_ID" appearance light >/dev/null 2>&1 || true
+    xcrun simctl status_bar "$SIM_ID" clear >/dev/null 2>&1 || true
+}
+
+echo "Berroku screenshot capture"
+echo "==========================="
+
+rm -rf "$BUILD_DIR"
+mkdir -p "$RESULT_DIR" "$OUTPUT_DIR"
+
+if ! SIM_ID="$(find_simulator)"; then
+    echo "Simulator '$SIMULATOR' is not installed. Available iPhone simulators:" >&2
+    xcrun simctl list devices available | grep iPhone >&2 || true
     exit 1
 fi
-xcrun simctl boot "$SIM_ID" 2>/dev/null || true
 
-# Clean status bar
-echo "🔋 Setting clean status bar..."
+trap cleanup EXIT
+xcrun simctl boot "$SIM_ID" >/dev/null 2>&1 || true
+xcrun simctl bootstatus "$SIM_ID" -b
 xcrun simctl status_bar "$SIM_ID" override \
     --time "9:41" \
     --batteryState charged \
@@ -37,113 +135,22 @@ xcrun simctl status_bar "$SIM_ID" override \
     --cellularBars 4 \
     --cellularMode active
 
-# Build for testing
-echo "🔨 Building..."
+echo "Building screenshot tests for $SIMULATOR..."
 xcodebuild build-for-testing \
     -project "$PROJECT_DIR/Blueberries.xcodeproj" \
     -scheme "$SCHEME" \
     -sdk iphonesimulator \
     -destination "platform=iOS Simulator,id=$SIM_ID" \
-    -derivedDataPath "$PROJECT_DIR/build" \
-    2>&1 | tail -1
+    -derivedDataPath "$DERIVED_DATA_DIR" \
+    | format_xcodebuild
 
-# --- Light Mode ---
-echo ""
-echo "☀️  Capturing Light Mode..."
-xcrun simctl ui "$SIM_ID" appearance light
-sleep 1
+run_screenshots light Light
+run_screenshots dark Dark
 
-# Reset app state for clean screenshots
-xcrun simctl terminate "$SIM_ID" "$BUNDLE_ID" 2>/dev/null || true
-xcrun simctl privacy "$SIM_ID" reset all "$BUNDLE_ID" 2>/dev/null || true
+count="$(find "$OUTPUT_DIR" -type f -name '*.png' | wc -l | tr -d ' ')"
+if [[ "$count" != "14" ]]; then
+    echo "Expected 14 screenshots, found $count" >&2
+    exit 1
+fi
 
-xcodebuild test-without-building \
-    -project "$PROJECT_DIR/Blueberries.xcodeproj" \
-    -scheme "$SCHEME" \
-    -sdk iphonesimulator \
-    -destination "platform=iOS Simulator,id=$SIM_ID" \
-    -derivedDataPath "$PROJECT_DIR/build" \
-    -only-testing "BerrokuUITests/ScreenshotTests/test01_HomeLight" \
-    -only-testing "BerrokuUITests/ScreenshotTests/test02_PuzzleInProgressLight" \
-    -only-testing "BerrokuUITests/ScreenshotTests/test03_PuzzleCompletedLight" \
-    -only-testing "BerrokuUITests/ScreenshotTests/test04_AchievementsLight" \
-    -resultBundlePath "$RESULT_DIR/light.xcresult" \
-    2>&1 | grep -E 'Test Suite|Test Case|passed|failed' || true
-
-# --- Dark Mode ---
-echo ""
-echo "🌙 Capturing Dark Mode..."
-xcrun simctl ui "$SIM_ID" appearance dark
-sleep 1
-
-xcrun simctl terminate "$SIM_ID" "$BUNDLE_ID" 2>/dev/null || true
-
-xcodebuild test-without-building \
-    -project "$PROJECT_DIR/Blueberries.xcodeproj" \
-    -scheme "$SCHEME" \
-    -sdk iphonesimulator \
-    -destination "platform=iOS Simulator,id=$SIM_ID" \
-    -derivedDataPath "$PROJECT_DIR/build" \
-    -only-testing "BerrokuUITests/ScreenshotTests/test05_HomeDark" \
-    -only-testing "BerrokuUITests/ScreenshotTests/test06_PuzzleInProgressDark" \
-    -only-testing "BerrokuUITests/ScreenshotTests/test07_PuzzleCompletedDark" \
-    -only-testing "BerrokuUITests/ScreenshotTests/test08_AchievementsDark" \
-    -resultBundlePath "$RESULT_DIR/dark.xcresult" \
-    2>&1 | grep -E 'Test Suite|Test Case|passed|failed' || true
-
-# --- Extract Screenshots ---
-echo ""
-echo "📸 Extracting screenshots..."
-
-extract_screenshots() {
-    local result_bundle="$1"
-    local output_subdir="$2"
-
-    xcresulttool get \
-        --path "$result_bundle" \
-        --format json \
-        2>/dev/null | python3 -c "
-import json, sys, subprocess, os
-
-data = json.load(sys.stdin)
-output_dir = '$OUTPUT_DIR/$output_subdir'
-
-def find_attachments(obj, path=''):
-    if isinstance(obj, dict):
-        if obj.get('_type', {}).get('_name') == 'ActionTestAttachment':
-            name = obj.get('name', {}).get('_value', 'unknown')
-            payload_ref = obj.get('payloadRef', {}).get('id', {}).get('_value')
-            if payload_ref and name.endswith(('-light', '-dark')):
-                output_path = os.path.join(output_dir, f'{name}.png')
-                subprocess.run([
-                    'xcresulttool', 'get',
-                    '--path', '$result_bundle',
-                    '--id', payload_ref,
-                    '--output-path', output_path
-                ], check=True)
-                print(f'  ✅ {name}.png')
-        for v in obj.values():
-            find_attachments(v, path)
-    elif isinstance(obj, list):
-        for item in obj:
-            find_attachments(item, path)
-
-find_attachments(data)
-" 2>/dev/null || echo "  ⚠️  Could not extract from $result_bundle (try manual extraction)"
-}
-
-extract_screenshots "$RESULT_DIR/light.xcresult" "light"
-extract_screenshots "$RESULT_DIR/dark.xcresult" "dark"
-
-# Reset appearance
-xcrun simctl ui "$SIM_ID" appearance light
-xcrun simctl status_bar "$SIM_ID" clear
-
-echo ""
-echo "✨ Done! Screenshots saved to: $OUTPUT_DIR"
-echo ""
-ls -la "$OUTPUT_DIR/light/" 2>/dev/null || echo "  (light dir empty — check xcresult manually)"
-ls -la "$OUTPUT_DIR/dark/" 2>/dev/null || echo "  (dark dir empty — check xcresult manually)"
-echo ""
-echo "💡 Result bundles at: $RESULT_DIR/"
-echo "   Open in Xcode: open $RESULT_DIR/light.xcresult"
+echo "Generated $count screenshots in $OUTPUT_DIR"

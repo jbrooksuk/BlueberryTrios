@@ -14,6 +14,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		1AB200000000000000000006 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A7217622F74765A00B7D285 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1A7217692F74765A00B7D285;
+			remoteInfo = Blueberries;
+		};
 		1A295E852F7A88AF00016082 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 1A7217622F74765A00B7D285 /* Project object */;
@@ -42,6 +49,7 @@
 		1A295E752F7A88AE00016082 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		1A295E772F7A88AE00016082 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		1A72176A2F74765A00B7D285 /* Blueberries.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Blueberries.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1AB200000000000000000001 /* BerrokuUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BerrokuUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -78,6 +86,11 @@
 			path = Blueberries;
 			sourceTree = "<group>";
 		};
+		1AB200000000000000000002 /* BerrokuUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = BerrokuUITests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +111,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1AB200000000000000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -115,6 +135,7 @@
 			children = (
 				1A72176C2F74765A00B7D285 /* Blueberries */,
 				1A295E792F7A88AE00016082 /* BlueberriesWidget */,
+				1AB200000000000000000002 /* BerrokuUITests */,
 				1A295E742F7A88AE00016082 /* Frameworks */,
 				1A72176B2F74765A00B7D285 /* Products */,
 			);
@@ -125,6 +146,7 @@
 			children = (
 				1A72176A2F74765A00B7D285 /* Blueberries.app */,
 				1A295E732F7A88AE00016082 /* BlueberriesWidgetExtension.appex */,
+				1AB200000000000000000001 /* BerrokuUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -179,6 +201,29 @@
 			productReference = 1A72176A2F74765A00B7D285 /* Blueberries.app */;
 			productType = "com.apple.product-type.application";
 		};
+		1AB200000000000000000008 /* BerrokuUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1AB20000000000000000000B /* Build configuration list for PBXNativeTarget "BerrokuUITests" */;
+			buildPhases = (
+				1AB200000000000000000003 /* Sources */,
+				1AB200000000000000000004 /* Frameworks */,
+				1AB200000000000000000005 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1AB200000000000000000007 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				1AB200000000000000000002 /* BerrokuUITests */,
+			);
+			name = BerrokuUITests;
+			packageProductDependencies = (
+			);
+			productName = BerrokuUITests;
+			productReference = 1AB200000000000000000001 /* BerrokuUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -189,6 +234,10 @@
 				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 2700;
 				TargetAttributes = {
+					1AB200000000000000000008 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = 1A7217692F74765A00B7D285;
+					};
 					1A295E722F7A88AE00016082 = {
 						CreatedOnToolsVersion = 26.2;
 					};
@@ -216,6 +265,7 @@
 			targets = (
 				1A7217692F74765A00B7D285 /* Blueberries */,
 				1A295E722F7A88AE00016082 /* BlueberriesWidgetExtension */,
+				1AB200000000000000000008 /* BerrokuUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -229,6 +279,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		1A7217682F74765A00B7D285 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AB200000000000000000005 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -252,6 +309,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1AB200000000000000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -259,6 +323,11 @@
 			isa = PBXTargetDependency;
 			target = 1A295E722F7A88AE00016082 /* BlueberriesWidgetExtension */;
 			targetProxy = 1A295E852F7A88AF00016082 /* PBXContainerItemProxy */;
+		};
+		1AB200000000000000000007 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1A7217692F74765A00B7D285 /* Blueberries */;
+			targetProxy = 1AB200000000000000000006 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -536,6 +605,44 @@
 			};
 			name = Release;
 		};
+		1AB200000000000000000009 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 94MWDYL76Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.altthree.BerrokuUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Blueberries;
+			};
+			name = Debug;
+		};
+		1AB20000000000000000000A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 94MWDYL76Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.altthree.BerrokuUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Blueberries;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -562,6 +669,15 @@
 			buildConfigurations = (
 				1A7217782F74765B00B7D285 /* Debug */,
 				1A7217792F74765B00B7D285 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1AB20000000000000000000B /* Build configuration list for PBXNativeTarget "BerrokuUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1AB200000000000000000009 /* Debug */,
+				1AB20000000000000000000A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

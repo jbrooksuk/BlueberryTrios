@@ -69,6 +69,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
                 backgroundAccent: Color(red: 0.92, green: 0.39, blue: 0.08),
                 hintHighlight: Color.orange.opacity(0.32),
                 berrySymbol: "🎃",
+                seasonalArtwork: .pumpkin,
                 markerName: String(localized: "pumpkin"),
                 markerNamePlural: String(localized: "pumpkins"),
                 proTagline: "An endless pumpkin patch",
@@ -81,6 +82,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
                 backgroundAccent: Color(red: 0.12, green: 0.48, blue: 0.28),
                 hintHighlight: Color.green.opacity(0.28),
                 berrySymbol: "❄️",
+                seasonalArtwork: .snowflake,
                 markerName: String(localized: "snowflake"),
                 markerNamePlural: String(localized: "snowflakes"),
                 proTagline: "An endless flurry of snowflakes",
@@ -227,6 +229,11 @@ enum ThemeSelection {
     }
 }
 
+enum SeasonalArtwork {
+    case pumpkin
+    case snowflake
+}
+
 struct Theme {
     let accent: Color
     let berry: Color
@@ -243,6 +250,7 @@ struct Theme {
     let satisfiedClueOpacity: Double
     let errorAnimationDelay: TimeInterval
     let berrySymbol: String?
+    let seasonalArtwork: SeasonalArtwork?
     let usesRaspberryIllustration: Bool
     let usesPaperTexture: Bool
     let usesStampedMarkers: Bool
@@ -267,6 +275,7 @@ struct Theme {
         satisfiedClueOpacity: Double = 0.25,
         errorAnimationDelay: TimeInterval = 1.0,
         berrySymbol: String? = nil,
+        seasonalArtwork: SeasonalArtwork? = nil,
         usesRaspberryIllustration: Bool = false,
         usesPaperTexture: Bool = false,
         usesStampedMarkers: Bool = false,
@@ -290,6 +299,7 @@ struct Theme {
         self.satisfiedClueOpacity = satisfiedClueOpacity
         self.errorAnimationDelay = errorAnimationDelay
         self.berrySymbol = berrySymbol
+        self.seasonalArtwork = seasonalArtwork
         self.usesRaspberryIllustration = usesRaspberryIllustration
         self.usesPaperTexture = usesPaperTexture
         self.usesStampedMarkers = usesStampedMarkers

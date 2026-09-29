@@ -1,163 +1,141 @@
 import XCTest
 
 final class ScreenshotTests: XCTestCase {
-    let app = XCUIApplication()
+    private var app: XCUIApplication!
 
     override func setUp() {
         continueAfterFailure = false
-        app.launchArguments = ["--uitesting"]
+        app = XCUIApplication()
     }
 
-    // MARK: - Light Mode
-
-    func test01_HomeLight() {
-        app.launch()
-        sleep(3)
-        // Dismiss walkthrough if shown
-        dismissWalkthroughIfPresent()
-        takeScreenshot(named: "01-home-light")
+    override func tearDown() {
+        if app.state != .notRunning {
+            app.terminate()
+        }
+        app = nil
     }
 
-    func test02_PuzzleInProgressLight() {
-        app.launch()
-        sleep(2)
-        dismissWalkthroughIfPresent()
-
-        // Tap Standard "1" button
-        tapDifficultyButton("Standard")
-        sleep(2)
-
-        // Place a few berries to show "in progress"
-        placeSomeMoves()
-        sleep(1)
-
-        takeScreenshot(named: "02-puzzle-inprogress-light")
+    func testLight01Blueberry() {
+        captureTheme("blueberry", appearance: "light", homeNumber: 1, puzzleNumber: 2)
     }
 
-    func test03_PuzzleCompletedLight() {
-        app.launch()
-        sleep(2)
-        dismissWalkthroughIfPresent()
-
-        // Navigate to a puzzle that's already solved, or tap Standard
-        tapDifficultyButton("Standard")
-        sleep(2)
-
-        // Take screenshot showing the puzzle (may be in progress or solved)
-        takeScreenshot(named: "03-puzzle-completed-light")
+    func testLight02Halloween() {
+        captureTheme("halloween", appearance: "light", homeNumber: 3)
     }
 
-    func test04_AchievementsLight() {
-        app.launch()
-        sleep(2)
-        dismissWalkthroughIfPresent()
+    func testLight03Christmas() {
+        captureTheme("christmas", appearance: "light", homeNumber: 4)
+    }
 
+    func testLight04Raspberry() {
+        captureTheme("raspberry", appearance: "light", homeNumber: 5, puzzleNumber: 6)
+    }
+
+    func testLight05Achievements() {
+        captureAchievements(appearance: "light")
+    }
+
+    func testDark01Blueberry() {
+        captureTheme("blueberry", appearance: "dark", homeNumber: 1, puzzleNumber: 2)
+    }
+
+    func testDark02Halloween() {
+        captureTheme("halloween", appearance: "dark", homeNumber: 3)
+    }
+
+    func testDark03Christmas() {
+        captureTheme("christmas", appearance: "dark", homeNumber: 4)
+    }
+
+    func testDark04Raspberry() {
+        captureTheme("raspberry", appearance: "dark", homeNumber: 5, puzzleNumber: 6)
+    }
+
+    func testDark05Achievements() {
+        captureAchievements(appearance: "dark")
+    }
+
+    private func captureTheme(
+        _ theme: String,
+        appearance: String,
+        homeNumber: Int,
+        puzzleNumber: Int? = nil
+    ) {
+        launch(theme: theme)
+        takeScreenshot(named: filename(number: homeNumber, theme: theme, screen: "home", appearance: appearance))
+
+        if let puzzleNumber {
+            openStandardPuzzle()
+            placeMarkers()
+            takeScreenshot(named: filename(number: puzzleNumber, theme: theme, screen: "puzzle", appearance: appearance))
+        }
+    }
+
+    private func captureAchievements(appearance: String) {
+        launch(theme: "blueberry")
         let achievementsTab = app.tabBars.buttons["Achievements"]
-        if achievementsTab.waitForExistence(timeout: 5) {
-            achievementsTab.tap()
-            sleep(2)
-        }
-        takeScreenshot(named: "04-achievements-light")
+        XCTAssertTrue(achievementsTab.waitForExistence(timeout: 5), "Achievements tab did not appear")
+        achievementsTab.tap()
+        XCTAssertTrue(app.staticTexts["Achievements earned"].waitForExistence(timeout: 5), "Achievements screen did not appear")
+        takeScreenshot(named: "07-blueberry-achievements-\(appearance)")
     }
 
-    // MARK: - Dark Mode (separate test class invoked by script with appearance override)
+    private func launch(theme: String) {
+        if app.state != .notRunning {
+            app.terminate()
+        }
 
-    func test05_HomeDark() {
+        app.launchArguments = [
+            "--uitesting",
+            "-AppleLanguages", "(en)",
+            "-AppleLocale", "en_GB",
+            "-hasSeenWalkthrough", "YES",
+            "-hasCompletedTutorial", "YES",
+            "-selectedThemeID", theme,
+            "-autoCheck", "NO",
+            "-showTimer", "YES",
+        ]
         app.launch()
-        sleep(3)
-        dismissWalkthroughIfPresent()
-        takeScreenshot(named: "05-home-dark")
+
+        XCTAssertTrue(app.staticTexts["Berroku"].waitForExistence(timeout: 8), "Home screen did not appear for \(theme)")
     }
 
-    func test06_PuzzleInProgressDark() {
-        app.launch()
-        sleep(2)
-        dismissWalkthroughIfPresent()
-
-        tapDifficultyButton("Standard")
-        sleep(2)
-        placeSomeMoves()
-        sleep(1)
-
-        takeScreenshot(named: "06-puzzle-inprogress-dark")
+    private func openStandardPuzzle() {
+        let standardLabel = app.staticTexts["Standard"]
+        XCTAssertTrue(standardLabel.waitForExistence(timeout: 5), "Standard puzzle row did not appear")
+        standardLabel.tap()
+        XCTAssertTrue(app.buttons["Settings"].waitForExistence(timeout: 8), "Puzzle screen did not appear")
     }
 
-    func test07_PuzzleCompletedDark() {
-        app.launch()
-        sleep(2)
-        dismissWalkthroughIfPresent()
+    private func placeMarkers() {
+        let undecidedCells = app.descendants(matching: .any).matching(
+            NSPredicate(format: "label BEGINSWITH 'Row ' AND label ENDSWITH ', empty'")
+        )
 
-        tapDifficultyButton("Standard")
-        sleep(2)
+        // Two markers make the themed puzzle treatment visible while keeping
+        // each simulator test short enough to avoid testmanagerd timeouts.
+        for _ in 0..<2 {
+            let cell = undecidedCells.firstMatch
+            XCTAssertTrue(cell.waitForExistence(timeout: 3), "Could not find an editable puzzle cell")
+            let crossedLabel = cell.label.replacingOccurrences(of: ", empty", with: ", crossed")
+            cell.tap()
 
-        takeScreenshot(named: "07-puzzle-completed-dark")
-    }
-
-    func test08_AchievementsDark() {
-        app.launch()
-        sleep(2)
-        dismissWalkthroughIfPresent()
-
-        let achievementsTab = app.tabBars.buttons["Achievements"]
-        if achievementsTab.waitForExistence(timeout: 5) {
-            achievementsTab.tap()
-            sleep(2)
-        }
-        takeScreenshot(named: "08-achievements-dark")
-    }
-
-    // MARK: - Helpers
-
-    private func dismissWalkthroughIfPresent() {
-        // If walkthrough is showing, tap through to dismiss
-        let letsPlayButton = app.buttons["Let's play!"]
-        if letsPlayButton.waitForExistence(timeout: 2) {
-            // Tap Next until we reach the last page
-            let nextButton = app.buttons["Next"]
-            for _ in 0..<10 {
-                if letsPlayButton.exists {
-                    letsPlayButton.tap()
-                    sleep(1)
-                    return
-                }
-                if nextButton.exists {
-                    nextButton.tap()
-                    sleep(0.5)
-                }
-            }
+            let crossedCell = app.descendants(matching: .any).matching(
+                NSPredicate(format: "label == %@", crossedLabel)
+            ).firstMatch
+            XCTAssertTrue(crossedCell.waitForExistence(timeout: 3), "Cell did not advance to crossed")
+            crossedCell.tap()
         }
     }
 
-    private func tapDifficultyButton(_ difficulty: String) {
-        // Try tapping the difficulty button text
-        let button = app.staticTexts[difficulty]
-        if button.waitForExistence(timeout: 3) {
-            button.tap()
-        }
-    }
-
-    private func placeSomeMoves() {
-        // Tap a few cells on the puzzle grid to show in-progress state
-        // The grid is roughly centered, try tapping cells
-        let grid = app.otherElements.firstMatch
-        if grid.waitForExistence(timeout: 3) {
-            let frame = grid.frame
-            // Tap at various positions within the grid area
-            let positions: [(CGFloat, CGFloat)] = [
-                (0.2, 0.3), (0.5, 0.2), (0.8, 0.5),
-                (0.3, 0.7), (0.6, 0.4), (0.7, 0.8),
-            ]
-            for (xRatio, yRatio) in positions {
-                let point = grid.coordinate(withNormalizedOffset: CGVector(dx: xRatio, dy: yRatio))
-                point.tap()
-                usleep(200_000)
-            }
-        }
+    private func filename(number: Int, theme: String, screen: String, appearance: String) -> String {
+        "\(String(format: "%02d", number))-\(theme)-\(screen)-\(appearance)"
     }
 
     private func takeScreenshot(named name: String) {
-        let screenshot = XCUIScreen.main.screenshot()
-        let attachment = XCTAttachment(screenshot: screenshot)
+        // Give SwiftUI animations and Canvas drawing one frame to settle.
+        usleep(500_000)
+        let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         attachment.name = name
         attachment.lifetime = .keepAlways
         add(attachment)

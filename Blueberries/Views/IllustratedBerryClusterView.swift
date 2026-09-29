@@ -61,8 +61,8 @@ struct IllustratedBerryClusterView: View {
             let scale = min(w / 300, h / 200)
 
             Group {
-                if let berrySymbol = theme.berrySymbol {
-                    seasonalCluster(symbol: berrySymbol, scale: scale, phase: phase)
+                if let seasonalArtwork = theme.seasonalArtwork {
+                    seasonalCluster(artwork: seasonalArtwork, scale: scale, phase: phase)
                 } else if theme.usesRaspberryIllustration {
                     raspberryCluster(scale: scale, phase: phase)
                 } else {
@@ -89,20 +89,17 @@ struct IllustratedBerryClusterView: View {
         }
     }
 
-    private func seasonalCluster(symbol: String, scale: Double, phase: Bool) -> some View {
+    private func seasonalCluster(artwork: SeasonalArtwork, scale: Double, phase: Bool) -> some View {
         ZStack {
-            Text(symbol)
-                .font(.system(size: 72 * scale))
+            SeasonalHeroMarker(artwork: artwork, size: 72 * scale)
                 .rotationEffect(.degrees(phase ? -6 : -3))
                 .offset(x: -70 * scale, y: (phase ? -4 : 4) * scale + 22 * scale)
 
-            Text(symbol)
-                .font(.system(size: 68 * scale))
+            SeasonalHeroMarker(artwork: artwork, size: 68 * scale)
                 .rotationEffect(.degrees(phase ? 8 : 4))
                 .offset(x: 70 * scale, y: (phase ? -2 : 6) * scale + 24 * scale)
 
-            Text(symbol)
-                .font(.system(size: 92 * scale))
+            SeasonalHeroMarker(artwork: artwork, size: 92 * scale)
                 .offset(x: 0, y: (phase ? 4 : -4) * scale + 10 * scale)
                 .shadow(color: theme.berry.opacity(0.25), radius: 8 * scale, y: 4 * scale)
         }
@@ -135,6 +132,59 @@ struct IllustratedBerryClusterView: View {
                 .offset(x: 0, y: (phase ? 4 : -4) * scale + 10 * scale)
                 .shadow(color: BerryPalette.bodyDark.opacity(0.25), radius: 8 * scale, y: 4 * scale)
         }
+    }
+}
+
+private struct SeasonalHeroMarker: View {
+    let artwork: SeasonalArtwork
+    let size: Double
+
+    var body: some View {
+        switch artwork {
+        case .pumpkin:
+            pumpkin
+        case .snowflake:
+            Image(systemName: "snowflake")
+                .font(.system(size: size * 0.82, weight: .semibold))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [.white, Color(red: 0.38, green: 0.72, blue: 0.92)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: size, height: size)
+        }
+    }
+
+    private var pumpkin: some View {
+        ZStack {
+            Capsule()
+                .fill(Color(red: 0.24, green: 0.48, blue: 0.16))
+                .frame(width: size * 0.16, height: size * 0.28)
+                .rotationEffect(.degrees(12))
+                .offset(x: size * 0.06, y: -size * 0.42)
+
+            Ellipse()
+                .fill(
+                    LinearGradient(
+                        colors: [Color(red: 1.0, green: 0.58, blue: 0.12), Color(red: 0.88, green: 0.24, blue: 0.04)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .frame(width: size, height: size * 0.78)
+
+            HStack(spacing: size * 0.18) {
+                Capsule()
+                    .fill(Color.black.opacity(0.12))
+                    .frame(width: size * 0.06, height: size * 0.58)
+                Capsule()
+                    .fill(Color.black.opacity(0.12))
+                    .frame(width: size * 0.06, height: size * 0.58)
+            }
+        }
+        .frame(width: size, height: size)
     }
 }
 
