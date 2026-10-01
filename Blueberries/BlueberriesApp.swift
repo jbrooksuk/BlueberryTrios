@@ -16,7 +16,9 @@ struct BlueberriesApp: App {
     @Environment(\.scenePhase) private var scenePhase
     @State private var notificationService = NotificationService()
     @State private var storeService = StoreKitService()
+    @State private var backgroundMusicService = BackgroundMusicService()
     @State private var themeDate = Date.now
+    @AppStorage("backgroundMusicEnabled") private var backgroundMusicEnabled: Bool = false
     @AppStorage(ThemeSelection.storageKey) private var selectedThemeID: String = ""
 
     private var selectedTheme: AppTheme {
@@ -85,9 +87,17 @@ struct BlueberriesApp: App {
                     clearUnavailableThemeSelection()
                     clearUnavailableAppIcon()
                 }
+                .task(id: backgroundMusicEnabled) {
+                    backgroundMusicService.setEnabled(
+                        backgroundMusicEnabled && scenePhase == .active
+                    )
+                }
         }
         .modelContainer(modelContainer)
         .onChange(of: scenePhase) { _, phase in
+            backgroundMusicService.setEnabled(
+                backgroundMusicEnabled && phase == .active
+            )
             if phase == .active {
                 themeDate = .now
                 clearUnavailableThemeSelection()

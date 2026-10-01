@@ -10,6 +10,7 @@ struct SettingsFormView: View {
     @AppStorage("fillHints") private var fillHints: Bool = false
     @AppStorage("hapticsEnabled") private var hapticsEnabled: Bool = true
     @AppStorage("soundEnabled") private var soundEnabled: Bool = true
+    @AppStorage("backgroundMusicEnabled") private var backgroundMusicEnabled: Bool = false
     @AppStorage(ThemeSelection.storageKey) private var selectedThemeID: String = ""
 
     @Query private var statsRecords: [PlayerStats]
@@ -39,6 +40,7 @@ struct SettingsFormView: View {
                 Toggle("Fill hints", isOn: $fillHints)
                 Toggle("Haptics", isOn: $hapticsEnabled)
                 Toggle("Sound", isOn: $soundEnabled)
+                Toggle("Background music", isOn: $backgroundMusicEnabled)
                 Toggle("Daily reminder", isOn: Binding(
                     get: { notificationService.isEnabled },
                     set: { newValue in
