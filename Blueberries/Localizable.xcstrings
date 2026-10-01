@@ -87,13 +87,13 @@
     "An endless pumpkin patch" : {
 
     },
-    "Allows App Review to access the purchase without waiting for a streak to lapse." : {
-
-    },
     "Another three hints down. A fresh start might help this puzzle click. Your hint count stays the same either way." : {
 
     },
     "App icon" : {
+
+    },
+    "App Store offer codes are redeemed securely by Apple." : {
 
     },
     "Auto check" : {
@@ -132,9 +132,6 @@
     "Berry Revival" : {
 
     },
-    "Berry Revival Demo Mode" : {
-
-    },
     "Best streak" : {
 
     },
@@ -145,6 +142,9 @@
       "comment" : "Walkthrough page 5 title"
     },
     "Buy Berry Revival for %@" : {
+
+    },
+    "Cancel" : {
 
     },
     "Centurion" : {
@@ -164,6 +164,9 @@
     },
     "Clears all cells" : {
       "comment" : "Accessibility hint for erase toolbar button"
+    },
+    "Code not recognized." : {
+
     },
     "Come back every day" : {
       "comment" : "Walkthrough page 5 subtitle"
@@ -258,6 +261,9 @@
     },
     "Empty" : {
       "comment" : "Walkthrough cell state label"
+    },
+    "Enter a code supplied by Berroku." : {
+
     },
     "Erase" : {
 
@@ -494,7 +500,16 @@
     "Raspberry Theme" : {
 
     },
+    "Redeem" : {
+
+    },
+    "Redeem an App Store offer code" : {
+
+    },
     "Redeem code" : {
+
+    },
+    "Redemption code" : {
 
     },
     "Redo" : {

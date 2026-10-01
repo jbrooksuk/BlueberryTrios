@@ -40,7 +40,7 @@ final class ScreenshotTests: XCTestCase {
     }
 
     func testLight07PurchasesAreDiscoverable() {
-        launch(theme: "blueberry", fixture: "berry-revival-demo")
+        launch(theme: "blueberry", fixture: "berry-revival-review")
 
         let settingsTab = app.tabBars.buttons["Settings"]
         XCTAssertTrue(settingsTab.waitForExistence(timeout: 5), "Settings tab did not appear")
@@ -52,21 +52,31 @@ final class ScreenshotTests: XCTestCase {
         }
         XCTAssertTrue(berryRevival.isHittable, "Berry Revival did not appear in Settings")
         XCTAssertTrue(app.staticTexts["Available after a streak lapses."].exists)
+        XCTAssertFalse(app.switches["Berry Revival Demo Mode"].exists)
 
-        let demoMode = app.switches["Berry Revival Demo Mode"]
-        XCTAssertTrue(demoMode.isHittable, "Berry Revival Demo Mode did not appear in Settings")
-        demoMode.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
-        expectation(for: NSPredicate(format: "value == '1'"), evaluatedWith: demoMode)
-        waitForExpectations(timeout: 3)
-        takeScreenshot(named: "09-blueberry-purchases-light")
+        app.buttons["Redeem code"].tap()
+        let codeField = app.textFields["Redemption code"]
+        XCTAssertTrue(codeField.waitForExistence(timeout: 3), "Redemption code field did not appear")
+        codeField.tap()
+        codeField.typeText("BERROKU-REVIEW")
+        takeScreenshot(named: "09-blueberry-review-code-light")
+        app.navigationBars["Redeem code"].buttons["Redeem"].tap()
         XCTAssertTrue(app.buttons["Buy Berry Revival for £0.99"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["Restore your lapsed streak to 7 days."].exists)
+        takeScreenshot(named: "10-blueberry-purchases-light")
 
         let raspberryTheme = app.staticTexts["Raspberry Theme"]
         for _ in 0..<5 where !raspberryTheme.isHittable {
             app.swipeUp(velocity: .slow)
         }
         XCTAssertTrue(raspberryTheme.isHittable, "Raspberry Theme did not appear in Settings")
-        takeScreenshot(named: "10-raspberry-theme-purchase-light")
+        takeScreenshot(named: "11-raspberry-theme-purchase-light")
+    }
+
+    func testLight08RevivedStreakBar() {
+        launch(theme: "blueberry", fixture: "berry-revived")
+        XCTAssertTrue(app.staticTexts["Streak going strong!"].waitForExistence(timeout: 5))
+        takeScreenshot(named: "12-blueberry-revived-streak-light")
     }
 
     func testDark01Blueberry() {

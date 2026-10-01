@@ -8,6 +8,7 @@ final class StoreKitService {
     static let proProductID = "com.altthree.Berroku.pro"
     static let streakRevivalProductID = "com.altthree.Berroku.streakrevival"
     static let themeProductIDs = Set(AppTheme.allCases.compactMap(\.productID))
+    private static let reviewAccessCode = "BERROKU-REVIEW"
 
     private(set) var proProduct: Product?
     private(set) var streakRevivalProduct: Product?
@@ -101,6 +102,10 @@ final class StoreKitService {
         return purchasedThemeProductIDs.contains(productID)
     }
 
+    static func allowsReviewAccess(in environment: AppStore.Environment) -> Bool {
+        environment == .sandbox || environment == .xcode
+    }
+
     @discardableResult
     func purchaseTheme(_ theme: AppTheme) async throws -> Bool {
         guard let product = product(for: theme) else { return false }
@@ -140,6 +145,27 @@ final class StoreKitService {
     func restorePurchases() async {
         try? await AppStore.sync()
         await updatePurchaseStatus()
+    }
+
+    /// Enables Berry Revival for App Review without granting the purchase.
+    /// The code only works against sandbox or Xcode receipts, so production
+    /// customers cannot use it to purchase a revival without a lapsed streak.
+    func redeemReviewAccessCode(_ code: String) async -> Bool {
+        let normalizedCode = code.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        guard normalizedCode == Self.reviewAccessCode else { return false }
+
+        if ScreenshotFixture.current == .berryRevivalReview {
+            return true
+        }
+
+        do {
+            guard case .verified(let appTransaction) = try await AppTransaction.shared else {
+                return false
+            }
+            return Self.allowsReviewAccess(in: appTransaction.environment)
+        } catch {
+            return false
+        }
     }
 
     private func updatePurchaseStatus() async {

@@ -5,19 +5,23 @@ import UIKit
 
 struct SettingsFormView: View {
     @Environment(\.appTheme) private var theme
+    @Environment(\.modelContext) private var modelContext
     @AppStorage("autoCheck") private var autoCheck: Bool = true
     @AppStorage("showTimer") private var showTimer: Bool = true
     @AppStorage("fillHints") private var fillHints: Bool = false
     @AppStorage("hapticsEnabled") private var hapticsEnabled: Bool = true
     @AppStorage("soundEnabled") private var soundEnabled: Bool = true
     @AppStorage("backgroundMusicEnabled") private var backgroundMusicEnabled: Bool = false
-    @AppStorage("berryRevivalDemoMode") private var berryRevivalDemoMode: Bool = false
     @AppStorage(ThemeSelection.storageKey) private var selectedThemeID: String = ""
 
     @Query private var statsRecords: [PlayerStats]
 
     @State private var notificationService = NotificationService()
     @State private var showOfferCode: Bool = false
+    @State private var showCodeEntry: Bool = false
+    @State private var redemptionCode: String = ""
+    @State private var redemptionError: String?
+    @State private var isRedeemingCode: Bool = false
     @State private var selectedIconName = UIApplication.shared.alternateIconName
     @State private var showIconChangeError = false
 
@@ -39,7 +43,7 @@ struct SettingsFormView: View {
     }
 
     private var canPurchaseStreakRevival: Bool {
-        hasLapsedStreak || berryRevivalDemoMode
+        hasLapsedStreak
     }
 
     var body: some View {
@@ -69,16 +73,6 @@ struct SettingsFormView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Toggle(isOn: $berryRevivalDemoMode) {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("Berry Revival Demo Mode")
-                        Text("Allows App Review to access the purchase without waiting for a streak to lapse.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .accessibilityLabel("Berry Revival Demo Mode")
-
                 if storeService.isProUnlocked {
                     Label("Pro puzzles and Puzzle Press unlocked", systemImage: "checkmark.seal.fill")
                         .foregroundStyle(.green)
@@ -107,7 +101,9 @@ struct SettingsFormView: View {
                     Task { await storeService.restorePurchases() }
                 }
                 Button("Redeem code") {
-                    showOfferCode = true
+                    redemptionCode = ""
+                    redemptionError = nil
+                    showCodeEntry = true
                 }
             }
             Section("Gameplay") {
@@ -205,10 +201,102 @@ struct SettingsFormView: View {
             }
         }
         .offerCodeRedemption(isPresented: $showOfferCode)
+        .sheet(isPresented: $showCodeEntry) {
+            redemptionCodeSheet
+        }
         .alert("Couldn't change app icon", isPresented: $showIconChangeError) {
             Button("OK", role: .cancel) {}
         } message: {
             Text("Please try again.")
+        }
+    }
+
+    private var redemptionCodeSheet: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    TextField("Redemption code", text: $redemptionCode)
+                        .textInputAutocapitalization(.characters)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
+                        .onSubmit(redeemEnteredCode)
+
+                    if let redemptionError {
+                        Text(redemptionError)
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                    }
+                } footer: {
+                    Text("Enter a code supplied by Berroku.")
+                }
+
+                Section {
+                    Button("Redeem an App Store offer code") {
+                        openAppStoreOfferCode()
+                    }
+                } footer: {
+                    Text("App Store offer codes are redeemed securely by Apple.")
+                }
+            }
+            .navigationTitle("Redeem code")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        showCodeEntry = false
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Redeem") {
+                        redeemEnteredCode()
+                    }
+                    .disabled(redemptionCode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isRedeemingCode)
+                }
+            }
+        }
+        .presentationDetents([.medium])
+    }
+
+    private func redeemEnteredCode() {
+        guard !isRedeemingCode else { return }
+        isRedeemingCode = true
+        redemptionError = nil
+
+        Task {
+            if await storeService.redeemReviewAccessCode(redemptionCode) {
+                do {
+                    try prepareLapsedStreakForReview()
+                    showCodeEntry = false
+                } catch {
+                    redemptionError = String(localized: "Please try again.")
+                }
+            } else {
+                redemptionError = String(localized: "Code not recognized.")
+            }
+            isRedeemingCode = false
+        }
+    }
+
+    private func prepareLapsedStreakForReview() throws {
+        let stats: PlayerStats
+        if let existingStats = statsRecords.first {
+            stats = existingStats
+        } else {
+            stats = PlayerStats()
+            modelContext.insert(stats)
+        }
+
+        stats.currentStreak = 7
+        stats.longestStreak = max(stats.longestStreak, 7)
+        stats.lastPlayedDate = Calendar.current.date(byAdding: .day, value: -3, to: .now)
+        try modelContext.save()
+    }
+
+    private func openAppStoreOfferCode() {
+        showCodeEntry = false
+        Task {
+            try? await Task.sleep(for: .milliseconds(400))
+            showOfferCode = true
         }
     }
 

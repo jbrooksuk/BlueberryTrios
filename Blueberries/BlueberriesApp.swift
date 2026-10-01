@@ -12,7 +12,8 @@ import UIKit
 
 enum ScreenshotFixture: String {
     case berryRevival = "berry-revival"
-    case berryRevivalDemo = "berry-revival-demo"
+    case berryRevivalReview = "berry-revival-review"
+    case berryRevived = "berry-revived"
 
     static var current: ScreenshotFixture? {
         #if DEBUG
@@ -30,7 +31,7 @@ enum ScreenshotFixture: String {
 
     var streakRevivalDisplayPrice: String? {
         switch self {
-        case .berryRevival, .berryRevivalDemo: "£0.99"
+        case .berryRevival, .berryRevivalReview, .berryRevived: "£0.99"
         }
     }
 
@@ -47,8 +48,15 @@ enum ScreenshotFixture: String {
                 longestStreak: 12,
                 lastPlayedDate: expiredDate
             ))
-        case .berryRevivalDemo:
-            UserDefaults.standard.set(false, forKey: "berryRevivalDemoMode")
+        case .berryRevivalReview:
+            break
+        case .berryRevived:
+            context.insert(PlayerStats(
+                totalPuzzlesCompleted: 24,
+                currentStreak: 7,
+                longestStreak: 12,
+                lastPlayedDate: .now
+            ))
         }
 
         try context.save()

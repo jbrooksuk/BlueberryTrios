@@ -22,7 +22,6 @@ struct HomeView: View {
     @State private var selectedTab: HomeTab = .home
     @AppStorage("hasSeenWalkthrough") private var hasSeenWalkthrough: Bool = false
     @AppStorage("hasCompletedTutorial") private var hasCompletedTutorial: Bool = false
-    @AppStorage("berryRevivalDemoMode") private var berryRevivalDemoMode: Bool = false
     @State private var showTutorial: Bool = false
     @State private var currentDay: Date = Calendar.current.startOfDay(for: .now)
 
@@ -279,22 +278,27 @@ struct HomeView: View {
 
     // MARK: - Streak Banner
 
-    /// Whether the player completed any puzzle on each of the last 7 days,
-    /// from oldest (index 0, 6 days ago) to newest (index 6, today).
+    /// Whether each of the last 7 streak days is filled, from oldest (index
+    /// 0, 6 days ago) to newest (index 6, today). A revived streak fills the
+    /// full bar even though those restored days have no puzzle completion.
     private var last7DaysCompletion: [Bool] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: .now)
-        let completedDays: Set<Date> = Set(
+        let actualCompletionDays: Set<Date> = Set(
             savedStates.compactMap { state in
                 guard state.solved, let date = state.completionDate else { return nil }
                 return calendar.startOfDay(for: date)
             }
         )
-        return (0..<7).map { offset in
+        let completedDays = (0..<7).map { offset in
             guard let day = calendar.date(byAdding: .day, value: offset - 6, to: today) else {
                 return false
             }
-            return completedDays.contains(day)
+            return actualCompletionDays.contains(day)
+        }
+        let activeStreakDays = min(stats?.effectiveCurrentStreak ?? 0, 7)
+        return completedDays.enumerated().map { index, completed in
+            completed || index >= 7 - activeStreakDays
         }
     }
 
@@ -344,12 +348,12 @@ struct HomeView: View {
 
     // MARK: - Streak Revival Card
 
-    /// Offer Berry Revival when there is a dead streak to revive or the
-    /// reviewer has enabled demo mode. Hidden while the product hasn't
-    /// loaded — there's nothing to sell without a price.
+    /// Offer Berry Revival only when there is a dead streak to revive.
+    /// Hidden while the product hasn't loaded — there's nothing to sell
+    /// without a price.
     private var shouldOfferStreakRevival: Bool {
         let hasLapsedStreak = stats?.lastPlayedDate != nil && stats?.effectiveCurrentStreak == 0
-        return (hasLapsedStreak || berryRevivalDemoMode) && storeService.streakRevivalDisplayPrice != nil
+        return hasLapsedStreak && storeService.streakRevivalDisplayPrice != nil
     }
 
     @ViewBuilder
@@ -417,7 +421,6 @@ struct HomeView: View {
             assertionFailure("Failed to save streak revival: \(error)")
         }
         gameCenterService.reportStreakRevival()
-        berryRevivalDemoMode = false
         updateWidgetData()
     }
 
