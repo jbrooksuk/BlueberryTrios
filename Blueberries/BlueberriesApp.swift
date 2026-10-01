@@ -168,20 +168,20 @@ struct BlueberriesApp: App {
             }
             .task(id: backgroundMusicEnabled) {
                 backgroundMusicService.setEnabled(
-                    backgroundMusicEnabled && scenePhase == .active
+                    backgroundMusicEnabled && scenePhase != .background
                 )
             }
         }
         .modelContainer(modelContainer)
         .onChange(of: scenePhase) { _, phase in
-            backgroundMusicService.setEnabled(
-                backgroundMusicEnabled && phase == .active
-            )
             if phase == .active {
+                backgroundMusicService.setEnabled(backgroundMusicEnabled)
                 themeDate = .now
                 clearUnavailableThemeSelection()
                 clearUnavailableAppIcon()
                 notificationService.refreshIfScheduled(currentStreak: currentEffectiveStreak())
+            } else if phase == .background {
+                backgroundMusicService.setEnabled(false)
             }
         }
     }
