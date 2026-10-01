@@ -67,10 +67,12 @@ enum ScreenshotFixture: String {
 struct BlueberriesApp: App {
     let modelContainer: ModelContainer = BlueberriesApp.makeContainer()
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var notificationService = NotificationService()
     @State private var storeService = StoreKitService()
     @State private var backgroundMusicService = BackgroundMusicService()
     @State private var themeDate = Date.now
+    @State private var isShowingLaunchOverlay = true
     @AppStorage("backgroundMusicEnabled") private var backgroundMusicEnabled: Bool = false
     @AppStorage(ThemeSelection.storageKey) private var selectedThemeID: String = ""
 
@@ -111,40 +113,64 @@ struct BlueberriesApp: App {
 
     var body: some Scene {
         WindowGroup {
-            HomeView(storeService: storeService)
-                .environment(\.appTheme, selectedTheme.palette)
-                .tint(selectedTheme.palette.accent)
-                .task(id: themeDay) {
+            ZStack {
+                HomeView(storeService: storeService)
+
+                if isShowingLaunchOverlay {
+                    Color("LaunchBackground")
+                        .ignoresSafeArea()
+                        .overlay {
+                            Image("LaunchBerries")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 210, height: 161)
+                        }
+                        .accessibilityHidden(true)
+                        .allowsHitTesting(false)
+                        .transition(.opacity)
+                        .zIndex(1)
+                }
+            }
+            .environment(\.appTheme, selectedTheme.palette)
+            .tint(selectedTheme.palette.accent)
+            .task {
+                try? await Task.sleep(for: .milliseconds(120))
+                guard !Task.isCancelled else { return }
+                withAnimation(.easeOut(duration: reduceMotion ? 0.15 : 0.4)) {
+                    isShowingLaunchOverlay = false
+                }
+            }
+            .task(id: themeDay) {
+                clearUnavailableThemeSelection()
+                clearUnavailableAppIcon()
+                let calendar = Calendar.current
+                let now = Date.now
+                let nextMidnight = calendar.nextDate(
+                    after: now,
+                    matching: DateComponents(hour: 0, minute: 0, second: 0),
+                    matchingPolicy: .nextTime
+                ) ?? now.addingTimeInterval(86400)
+                try? await Task.sleep(for: .seconds(max(1, nextMidnight.timeIntervalSince(now))))
+                if !Task.isCancelled {
+                    themeDate = .now
                     clearUnavailableThemeSelection()
                     clearUnavailableAppIcon()
-                    let calendar = Calendar.current
-                    let now = Date.now
-                    let nextMidnight = calendar.nextDate(
-                        after: now,
-                        matching: DateComponents(hour: 0, minute: 0, second: 0),
-                        matchingPolicy: .nextTime
-                    ) ?? now.addingTimeInterval(86400)
-                    try? await Task.sleep(for: .seconds(max(1, nextMidnight.timeIntervalSince(now))))
-                    if !Task.isCancelled {
-                        themeDate = .now
-                        clearUnavailableThemeSelection()
-                        clearUnavailableAppIcon()
-                    }
                 }
-                .onChange(of: storeService.hasLoadedPurchaseStatus) { _, hasLoaded in
-                    guard hasLoaded else { return }
-                    clearUnavailableThemeSelection()
-                    clearUnavailableAppIcon()
-                }
-                .onChange(of: storeService.isProUnlocked) {
-                    clearUnavailableThemeSelection()
-                    clearUnavailableAppIcon()
-                }
-                .task(id: backgroundMusicEnabled) {
-                    backgroundMusicService.setEnabled(
-                        backgroundMusicEnabled && scenePhase == .active
-                    )
-                }
+            }
+            .onChange(of: storeService.hasLoadedPurchaseStatus) { _, hasLoaded in
+                guard hasLoaded else { return }
+                clearUnavailableThemeSelection()
+                clearUnavailableAppIcon()
+            }
+            .onChange(of: storeService.isProUnlocked) {
+                clearUnavailableThemeSelection()
+                clearUnavailableAppIcon()
+            }
+            .task(id: backgroundMusicEnabled) {
+                backgroundMusicService.setEnabled(
+                    backgroundMusicEnabled && scenePhase == .active
+                )
+            }
         }
         .modelContainer(modelContainer)
         .onChange(of: scenePhase) { _, phase in
