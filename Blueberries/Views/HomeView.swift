@@ -22,6 +22,7 @@ struct HomeView: View {
     @State private var selectedTab: HomeTab = .home
     @AppStorage("hasSeenWalkthrough") private var hasSeenWalkthrough: Bool = false
     @AppStorage("hasCompletedTutorial") private var hasCompletedTutorial: Bool = false
+    @AppStorage("berryRevivalDemoMode") private var berryRevivalDemoMode: Bool = false
     @State private var showTutorial: Bool = false
     @State private var currentDay: Date = Calendar.current.startOfDay(for: .now)
 
@@ -343,18 +344,17 @@ struct HomeView: View {
 
     // MARK: - Streak Revival Card
 
-    /// Offer Berry Revival only when there is actually a dead streak to
-    /// revive: the player has completed a puzzle before, but the streak
-    /// has lapsed (no completion today or yesterday). Hidden while the
-    /// product hasn't loaded — there's nothing to sell without a price.
+    /// Offer Berry Revival when there is a dead streak to revive or the
+    /// reviewer has enabled demo mode. Hidden while the product hasn't
+    /// loaded — there's nothing to sell without a price.
     private var shouldOfferStreakRevival: Bool {
-        guard let stats, stats.lastPlayedDate != nil else { return false }
-        return stats.effectiveCurrentStreak == 0 && storeService.streakRevivalProduct != nil
+        let hasLapsedStreak = stats?.lastPlayedDate != nil && stats?.effectiveCurrentStreak == 0
+        return (hasLapsedStreak || berryRevivalDemoMode) && storeService.streakRevivalDisplayPrice != nil
     }
 
     @ViewBuilder
     private var streakRevivalCard: some View {
-        if let product = storeService.streakRevivalProduct {
+        if let displayPrice = storeService.streakRevivalDisplayPrice {
             HStack(spacing: 14) {
                 ZStack {
                     Circle()
@@ -379,7 +379,7 @@ struct HomeView: View {
                 Button {
                     Task { try? await storeService.purchaseStreakRevival() }
                 } label: {
-                    Text(verbatim: product.displayPrice)
+                    Text(verbatim: displayPrice)
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 18)
@@ -388,7 +388,7 @@ struct HomeView: View {
                         .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Buy Berry Revival for \(product.displayPrice)")
+                .accessibilityLabel("Buy Berry Revival for \(displayPrice)")
             }
             .padding(16)
             .frame(maxWidth: .infinity)
@@ -417,6 +417,7 @@ struct HomeView: View {
             assertionFailure("Failed to save streak revival: \(error)")
         }
         gameCenterService.reportStreakRevival()
+        berryRevivalDemoMode = false
         updateWidgetData()
     }
 

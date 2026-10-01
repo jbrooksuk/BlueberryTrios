@@ -26,7 +26,8 @@ expected_names() {
         "04-christmas-home-$appearance" \
         "05-raspberry-home-$appearance" \
         "06-raspberry-puzzle-$appearance" \
-        "07-blueberry-achievements-$appearance"
+        "07-blueberry-achievements-$appearance" \
+        "08-blueberry-berry-revival-$appearance"
 }
 
 find_simulator() {
@@ -89,7 +90,7 @@ run_screenshots() {
     local only_testing=()
     local suffix
 
-    for suffix in 01Blueberry 02Halloween 03Christmas 04Raspberry 05Achievements; do
+    for suffix in 01Blueberry 02Halloween 03Christmas 04Raspberry 05Achievements 06BerryRevival; do
         only_testing+=("-only-testing:BerrokuUITests/ScreenshotTests/test${method_prefix}${suffix}")
     done
 
@@ -148,8 +149,8 @@ run_screenshots light Light
 run_screenshots dark Dark
 
 count="$(find "$OUTPUT_DIR" -type f -name '*.png' | wc -l | tr -d ' ')"
-if [[ "$count" != "14" ]]; then
-    echo "Expected 14 screenshots, found $count" >&2
+if [[ "$count" != "16" ]]; then
+    echo "Expected 16 screenshots, found $count" >&2
     exit 1
 fi
 

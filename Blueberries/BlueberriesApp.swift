@@ -10,6 +10,51 @@ import SwiftData
 import SiriusRating
 import UIKit
 
+enum ScreenshotFixture: String {
+    case berryRevival = "berry-revival"
+    case berryRevivalDemo = "berry-revival-demo"
+
+    static var current: ScreenshotFixture? {
+        #if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        guard arguments.contains("--uitesting"),
+              let flagIndex = arguments.firstIndex(of: "--screenshot-fixture"),
+              arguments.indices.contains(flagIndex + 1) else {
+            return nil
+        }
+        return ScreenshotFixture(rawValue: arguments[flagIndex + 1])
+        #else
+        return nil
+        #endif
+    }
+
+    var streakRevivalDisplayPrice: String? {
+        switch self {
+        case .berryRevival, .berryRevivalDemo: "£0.99"
+        }
+    }
+
+    @MainActor
+    func seed(in container: ModelContainer) throws {
+        let context = ModelContext(container)
+
+        switch self {
+        case .berryRevival:
+            let expiredDate = Calendar.current.date(byAdding: .day, value: -3, to: .now)
+            context.insert(PlayerStats(
+                totalPuzzlesCompleted: 24,
+                currentStreak: 7,
+                longestStreak: 12,
+                lastPlayedDate: expiredDate
+            ))
+        case .berryRevivalDemo:
+            UserDefaults.standard.set(false, forKey: "berryRevivalDemoMode")
+        }
+
+        try context.save()
+    }
+}
+
 @main
 struct BlueberriesApp: App {
     let modelContainer: ModelContainer = BlueberriesApp.makeContainer()
@@ -178,11 +223,13 @@ struct BlueberriesApp: App {
         }
 
         do {
-            return try ModelContainer(
+            let container = try ModelContainer(
                 for: schema,
                 migrationPlan: BerrokuMigrationPlan.self,
                 configurations: configuration
             )
+            try ScreenshotFixture.current?.seed(in: container)
+            return container
         } catch {
             // Surface the *real* error instead of letting SwiftData silently
             // fall back to a fresh store (which is what was happening before

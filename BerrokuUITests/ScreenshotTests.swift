@@ -35,6 +35,40 @@ final class ScreenshotTests: XCTestCase {
         captureAchievements(appearance: "light")
     }
 
+    func testLight06BerryRevival() {
+        captureBerryRevival(appearance: "light")
+    }
+
+    func testLight07PurchasesAreDiscoverable() {
+        launch(theme: "blueberry", fixture: "berry-revival-demo")
+
+        let settingsTab = app.tabBars.buttons["Settings"]
+        XCTAssertTrue(settingsTab.waitForExistence(timeout: 5), "Settings tab did not appear")
+        settingsTab.tap()
+
+        let berryRevival = app.staticTexts["Berry Revival"]
+        for _ in 0..<5 where !berryRevival.isHittable {
+            app.swipeUp(velocity: .slow)
+        }
+        XCTAssertTrue(berryRevival.isHittable, "Berry Revival did not appear in Settings")
+        XCTAssertTrue(app.staticTexts["Available after a streak lapses."].exists)
+
+        let demoMode = app.switches["Berry Revival Demo Mode"]
+        XCTAssertTrue(demoMode.isHittable, "Berry Revival Demo Mode did not appear in Settings")
+        demoMode.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        expectation(for: NSPredicate(format: "value == '1'"), evaluatedWith: demoMode)
+        waitForExpectations(timeout: 3)
+        takeScreenshot(named: "09-blueberry-purchases-light")
+        XCTAssertTrue(app.buttons["Buy Berry Revival for £0.99"].waitForExistence(timeout: 3))
+
+        let raspberryTheme = app.staticTexts["Raspberry Theme"]
+        for _ in 0..<5 where !raspberryTheme.isHittable {
+            app.swipeUp(velocity: .slow)
+        }
+        XCTAssertTrue(raspberryTheme.isHittable, "Raspberry Theme did not appear in Settings")
+        takeScreenshot(named: "10-raspberry-theme-purchase-light")
+    }
+
     func testDark01Blueberry() {
         captureTheme("blueberry", appearance: "dark", homeNumber: 1, puzzleNumber: 2)
     }
@@ -53,6 +87,10 @@ final class ScreenshotTests: XCTestCase {
 
     func testDark05Achievements() {
         captureAchievements(appearance: "dark")
+    }
+
+    func testDark06BerryRevival() {
+        captureBerryRevival(appearance: "dark")
     }
 
     private func captureTheme(
@@ -80,7 +118,14 @@ final class ScreenshotTests: XCTestCase {
         takeScreenshot(named: "07-blueberry-achievements-\(appearance)")
     }
 
-    private func launch(theme: String) {
+    private func captureBerryRevival(appearance: String) {
+        launch(theme: "blueberry", fixture: "berry-revival")
+        XCTAssertTrue(app.staticTexts["Berry Revival"].waitForExistence(timeout: 5), "Berry Revival offer did not appear")
+        XCTAssertTrue(app.buttons["Buy Berry Revival for £0.99"].exists, "Berry Revival purchase button did not appear")
+        takeScreenshot(named: "08-blueberry-berry-revival-\(appearance)")
+    }
+
+    private func launch(theme: String, fixture: String? = nil) {
         if app.state != .notRunning {
             app.terminate()
         }
@@ -95,6 +140,9 @@ final class ScreenshotTests: XCTestCase {
             "-autoCheck", "NO",
             "-showTimer", "YES",
         ]
+        if let fixture {
+            app.launchArguments += ["--screenshot-fixture", fixture]
+        }
         app.launch()
 
         XCTAssertTrue(app.staticTexts["Berroku"].waitForExistence(timeout: 8), "Home screen did not appear for \(theme)")

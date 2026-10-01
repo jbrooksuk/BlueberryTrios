@@ -15,6 +15,11 @@ final class StoreKitService {
     private(set) var isProUnlocked: Bool = false
     private(set) var unlockedThemeIDs: Set<String> = []
     private(set) var hasLoadedPurchaseStatus: Bool = false
+
+    var streakRevivalDisplayPrice: String? {
+        ScreenshotFixture.current?.streakRevivalDisplayPrice ?? streakRevivalProduct?.displayPrice
+    }
+
     /// Runs once per verified Berry Revival purchase, before the
     /// transaction is finished. Consumables leave the transaction stream
     /// permanently once finished, so a transaction that arrives while no

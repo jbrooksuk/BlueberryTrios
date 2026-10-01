@@ -15,7 +15,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .halloween: "Halloween"
         case .christmas: "Christmas"
         case .puzzlePress: "Puzzle Press"
-        case .raspberry: "Raspberry"
+        case .raspberry: "Raspberry Theme"
         }
     }
 
@@ -147,12 +147,10 @@ enum ThemeSelection {
         calendar: Calendar = .current
     ) -> Bool {
         switch theme {
-        case .blueberry, .puzzlePress:
+        case .blueberry, .puzzlePress, .raspberry:
             true
         case .halloween, .christmas:
             theme == automaticTheme(on: date, calendar: calendar)
-        case .raspberry:
-            false
         }
     }
 

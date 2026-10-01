@@ -11,6 +11,7 @@ struct SettingsFormView: View {
     @AppStorage("hapticsEnabled") private var hapticsEnabled: Bool = true
     @AppStorage("soundEnabled") private var soundEnabled: Bool = true
     @AppStorage("backgroundMusicEnabled") private var backgroundMusicEnabled: Bool = false
+    @AppStorage("berryRevivalDemoMode") private var berryRevivalDemoMode: Bool = false
     @AppStorage(ThemeSelection.storageKey) private var selectedThemeID: String = ""
 
     @Query private var statsRecords: [PlayerStats]
@@ -32,8 +33,83 @@ struct SettingsFormView: View {
         displayedThemes
     }
 
+    private var hasLapsedStreak: Bool {
+        guard let stats = statsRecords.first, stats.lastPlayedDate != nil else { return false }
+        return stats.effectiveCurrentStreak == 0
+    }
+
+    private var canPurchaseStreakRevival: Bool {
+        hasLapsedStreak || berryRevivalDemoMode
+    }
+
     var body: some View {
         Form {
+            Section("Purchases") {
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack {
+                        Text("Berry Revival")
+                        Spacer()
+                        if canPurchaseStreakRevival, let displayPrice = storeService.streakRevivalDisplayPrice {
+                            Button {
+                                Task { try? await storeService.purchaseStreakRevival() }
+                            } label: {
+                                Text(verbatim: displayPrice)
+                            }
+                            .buttonStyle(.borderless)
+                            .accessibilityLabel("Buy Berry Revival for \(displayPrice)")
+                        } else if let displayPrice = storeService.streakRevivalDisplayPrice {
+                            Text(verbatim: displayPrice)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    Text(canPurchaseStreakRevival
+                         ? "Restore your lapsed streak to 7 days."
+                         : "Available after a streak lapses.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Toggle(isOn: $berryRevivalDemoMode) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Berry Revival Demo Mode")
+                        Text("Allows App Review to access the purchase without waiting for a streak to lapse.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .accessibilityLabel("Berry Revival Demo Mode")
+
+                if storeService.isProUnlocked {
+                    Label("Pro puzzles and Puzzle Press unlocked", systemImage: "checkmark.seal.fill")
+                        .foregroundStyle(.green)
+                } else {
+                    if let product = storeService.proProduct {
+                        Button {
+                            Task { try? await storeService.purchasePro() }
+                        } label: {
+                            HStack {
+                                Text("Unlock Berroku Pro")
+                                Spacer()
+                                Text(verbatim: product.displayPrice)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    } else {
+                        HStack {
+                            ProgressView()
+                                .controlSize(.small)
+                            Text("Loading Berroku Pro…")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                Button("Restore purchases") {
+                    Task { await storeService.restorePurchases() }
+                }
+                Button("Redeem code") {
+                    showOfferCode = true
+                }
+            }
             Section("Gameplay") {
                 Toggle("Auto check", isOn: $autoCheck)
                 Toggle("Show timer", isOn: $showTimer)
@@ -79,38 +155,6 @@ struct SettingsFormView: View {
                     Text("App icon")
                 } footer: {
                     Text("Seasonal icons are available during their matching theme. Puzzle Press is included with Pro.")
-                }
-            }
-            Section("Berroku Pro") {
-                if storeService.isProUnlocked {
-                    Label("Pro puzzles and Puzzle Press unlocked", systemImage: "checkmark.seal.fill")
-                        .foregroundStyle(.green)
-                } else {
-                    if let product = storeService.proProduct {
-                        Button {
-                            Task { try? await storeService.purchasePro() }
-                        } label: {
-                            HStack {
-                                Text("Unlock Berroku Pro")
-                                Spacer()
-                                Text(verbatim: product.displayPrice)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                    } else {
-                        HStack {
-                            ProgressView()
-                                .controlSize(.small)
-                            Text("Loading products…")
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
-                Button("Restore purchases") {
-                    Task { await storeService.restorePurchases() }
-                }
-                Button("Redeem code") {
-                    showOfferCode = true
                 }
             }
             Section("Help") {

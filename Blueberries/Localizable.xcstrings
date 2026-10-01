@@ -87,6 +87,9 @@
     "An endless pumpkin patch" : {
 
     },
+    "Allows App Review to access the purchase without waiting for a streak to lapse." : {
+
+    },
     "Another three hints down. A fresh start might help this puzzle click. Your hint count stays the same either way." : {
 
     },
@@ -97,6 +100,9 @@
 
     },
     "Automatic" : {
+
+    },
+    "Available after a streak lapses." : {
 
     },
     "Avg hints / puzzle" : {
@@ -124,6 +130,9 @@
 
     },
     "Berry Revival" : {
+
+    },
+    "Berry Revival Demo Mode" : {
 
     },
     "Best streak" : {
@@ -328,6 +337,9 @@
     "In every row, column, and block" : {
       "comment" : "Walkthrough page 2 subtitle"
     },
+    "Included with Pro" : {
+
+    },
     "It has only one empty neighbor — that cell must be a %@! Tap it **twice**." : {
 
     },
@@ -361,7 +373,7 @@
     "Lightning" : {
 
     },
-    "Loading products…" : {
+    "Loading Berroku Pro…" : {
 
     },
     "Locked" : {
@@ -443,6 +455,9 @@
     "Please try again." : {
 
     },
+    "Pressed with berries by James Brooks 🫐" : {
+
+    },
     "Pro" : {
 
     },
@@ -452,13 +467,19 @@
     "Pro puzzles" : {
 
     },
-    "Pro unlocked" : {
+    "Pro puzzles and Puzzle Press unlocked" : {
 
     },
     "pumpkin" : {
 
     },
     "pumpkins" : {
+
+    },
+    "Purchases" : {
+
+    },
+    "Puzzle Press" : {
 
     },
     "Puzzle solved!" : {
@@ -470,7 +491,7 @@
     "Quick and intuitive controls" : {
       "comment" : "Walkthrough page 4 subtitle"
     },
-    "Raspberry" : {
+    "Raspberry Theme" : {
 
     },
     "Redeem code" : {
@@ -489,6 +510,9 @@
 
     },
     "Restore purchases" : {
+
+    },
+    "Restore your lapsed streak to 7 days." : {
 
     },
     "Reveals a logical next step" : {
@@ -523,7 +547,7 @@
     "Ruled out" : {
       "comment" : "Walkthrough crossed state label"
     },
-    "Seasonal icons are available during their matching theme." : {
+    "Seasonal icons are available during their matching theme. Puzzle Press is included with Pro." : {
 
     },
     "Selected" : {
@@ -674,16 +698,16 @@
     "Undo step" : {
       "comment" : "VoiceOver custom action label for repeated undo"
     },
-    "Unlimited puzzle sets beyond the daily three. One-time purchase." : {
+    "Unlimited puzzle sets and Puzzle Press unlocked." : {
 
     },
-    "Unlimited puzzle sets unlocked." : {
+    "Unlimited puzzle sets, plus the exclusive Puzzle Press theme and app icon. One-time purchase." : {
+
+    },
+    "Unlock Berroku Pro" : {
 
     },
     "Unlock for %@" : {
-
-    },
-    "Unlock Pro puzzles" : {
 
     },
     "Use 100 hints" : {

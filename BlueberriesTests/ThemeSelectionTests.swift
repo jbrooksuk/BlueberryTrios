@@ -64,10 +64,9 @@ struct ThemeSelectionTests {
 
     @Test("Festive themes are available only inside their date windows")
     func seasonalAvailability() {
-        #expect(ThemeSelection.availableThemes(on: date(2026, 9, 1), calendar: calendar) == [.blueberry, .puzzlePress])
-        #expect(ThemeSelection.availableThemes(on: date(2026, 10, 26), calendar: calendar) == [.blueberry, .halloween, .puzzlePress])
-        #expect(ThemeSelection.availableThemes(on: date(2026, 12, 23), calendar: calendar) == [.blueberry, .christmas, .puzzlePress])
-        #expect(!ThemeSelection.availableThemes(on: date(2026, 9, 1), calendar: calendar).contains(.raspberry))
+        #expect(ThemeSelection.availableThemes(on: date(2026, 9, 1), calendar: calendar) == [.blueberry, .puzzlePress, .raspberry])
+        #expect(ThemeSelection.availableThemes(on: date(2026, 10, 26), calendar: calendar) == [.blueberry, .halloween, .puzzlePress, .raspberry])
+        #expect(ThemeSelection.availableThemes(on: date(2026, 12, 23), calendar: calendar) == [.blueberry, .christmas, .puzzlePress, .raspberry])
     }
 
     @Test("Puzzle Press uses the Pro entitlement, not the Raspberry purchase")
