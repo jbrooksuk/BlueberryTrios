@@ -142,7 +142,10 @@ private struct SeasonalHeroMarker: View {
     var body: some View {
         switch artwork {
         case .pumpkin:
-            pumpkin
+            Image("PumpkinEmoji")
+                .resizable()
+                .scaledToFit()
+                .frame(width: size, height: size)
         case .snowflake:
             Image(systemName: "snowflake")
                 .font(.system(size: size * 0.82, weight: .semibold))
@@ -155,36 +158,6 @@ private struct SeasonalHeroMarker: View {
                 )
                 .frame(width: size, height: size)
         }
-    }
-
-    private var pumpkin: some View {
-        ZStack {
-            Capsule()
-                .fill(Color(red: 0.24, green: 0.48, blue: 0.16))
-                .frame(width: size * 0.16, height: size * 0.28)
-                .rotationEffect(.degrees(12))
-                .offset(x: size * 0.06, y: -size * 0.42)
-
-            Ellipse()
-                .fill(
-                    LinearGradient(
-                        colors: [Color(red: 1.0, green: 0.58, blue: 0.12), Color(red: 0.88, green: 0.24, blue: 0.04)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .frame(width: size, height: size * 0.78)
-
-            HStack(spacing: size * 0.18) {
-                Capsule()
-                    .fill(Color.black.opacity(0.12))
-                    .frame(width: size * 0.06, height: size * 0.58)
-                Capsule()
-                    .fill(Color.black.opacity(0.12))
-                    .frame(width: size * 0.06, height: size * 0.58)
-            }
-        }
-        .frame(width: size, height: size)
     }
 }
 
