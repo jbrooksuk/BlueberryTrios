@@ -107,6 +107,47 @@
                 </a>
             </div>
         </section>
+
+        <!-- Other games -->
+        <section class="other-games">
+            <div class="container">
+                <div class="other-games-heading fade-up">
+                    <h2>Other games.</h2>
+                </div>
+
+                <a
+                    class="shapoku-card fade-up"
+                    href="https://shapoku.com"
+                    target="_blank"
+                    rel="noopener"
+                    aria-label="Discover Shapoku (opens in a new tab)"
+                >
+                    <div class="shapoku-art" aria-hidden="true">
+                        <div class="shapoku-piece shapoku-piece-honey">
+                            <i /><i /><i /><i />
+                        </div>
+                        <div class="shapoku-board">
+                            <i
+                                v-for="cell in 81"
+                                :key="cell"
+                                class="shapoku-cell"
+                                :class="shapokuCellClass(cell - 1)"
+                            />
+                        </div>
+                        <div class="shapoku-piece shapoku-piece-blue">
+                            <i /><i /><i /><i />
+                        </div>
+                    </div>
+
+                    <div class="shapoku-copy">
+                        <span class="shapoku-eyebrow">A block puzzle for iPhone</span>
+                        <h3>Shapoku</h3>
+                        <p>Place sets of three blocks on a 9×9 grid. Complete rows, columns, and 3×3 regions to clear them and beat your best score.</p>
+                        <strong>Discover Shapoku <b aria-hidden="true">↗</b></strong>
+                    </div>
+                </a>
+            </div>
+        </section>
     </div>
 </template>
 
@@ -136,6 +177,20 @@ const features = [
     { icon: '🔥', title: 'Streak tracking', desc: 'Build your daily streak. How many consecutive days can you solve?' },
     { icon: '📱', title: 'Home screen widget', desc: 'Track your daily progress and streak right from your home screen.' },
 ]
+
+const shapokuCells = {
+    green: new Set([0, 1, 9]),
+    red: new Set([4, 5, 6, 15]),
+    orange: new Set([20, 21, 30, 39]),
+    yellow: new Set([34, 43, 52, 53]),
+    blue: new Set([54, 55, 64, 73]),
+    purple: new Set([67, 68, 77, 78]),
+}
+
+function shapokuCellClass(index) {
+    const color = Object.entries(shapokuCells).find(([, cells]) => cells.has(index))?.[0]
+    return color ? `shapoku-cell-${color}` : ''
+}
 
 onMounted(() => {
     const observer = new IntersectionObserver((entries) => {
@@ -434,20 +489,196 @@ h2 {
     filter: drop-shadow(0 8px 18px var(--accent-shadow));
 }
 
+/* ---- Other games ---- */
+.other-games {
+    padding: 100px 0 120px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+}
+.other-games-heading {
+    margin-bottom: 40px;
+}
+.other-games-heading h2 { margin-bottom: 0; }
+.shapoku-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 500px;
+    color: #faf4e8;
+    background: #241b2d;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: 0 30px 70px rgba(0,0,0,0.25);
+    transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+}
+.shapoku-art {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-width: 0;
+    overflow: hidden;
+    background: #f2e8d6;
+    background-image:
+        radial-gradient(circle at 50% 48%, rgba(255,255,255,0.58) 0 25%, transparent 58%),
+        repeating-linear-gradient(0deg, rgba(105,75,50,0.025) 0 1px, transparent 1px 5px);
+}
+.shapoku-art::before,
+.shapoku-art::after {
+    content: '';
+    position: absolute;
+    border: 1px solid rgba(102,75,50,0.10);
+    border-radius: 50%;
+}
+.shapoku-art::before { width: 430px; height: 430px; }
+.shapoku-art::after { width: 350px; height: 350px; }
+.shapoku-board {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    width: min(68%, 330px);
+    aspect-ratio: 1;
+    padding: 12px;
+    gap: 4px;
+    border-radius: 16px;
+    background: #9fa797;
+    box-shadow: 0 22px 35px rgba(77,82,70,0.26), inset 0 1px 0 rgba(255,255,255,0.3);
+    transform: rotate(-4deg);
+}
+.shapoku-cell {
+    border-radius: 4px;
+    background: #bec2b3;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), inset 0 -1px 1px rgba(77,82,70,0.12);
+}
+.shapoku-cell-green,
+.shapoku-cell-red,
+.shapoku-cell-orange,
+.shapoku-cell-yellow,
+.shapoku-cell-blue,
+.shapoku-cell-purple {
+    border: 1px solid rgba(255,255,255,0.16);
+    box-shadow: inset 0 2px 2px rgba(255,255,255,0.24), 0 2px 3px rgba(54,34,24,0.22);
+}
+.shapoku-cell-green { background: #20a950; }
+.shapoku-cell-red { background: #ef4935; }
+.shapoku-cell-orange { background: #f78b10; }
+.shapoku-cell-yellow { background: #f9bd24; }
+.shapoku-cell-blue { background: #2d8dc5; }
+.shapoku-cell-purple { background: #ad3fa5; }
+.shapoku-piece {
+    position: absolute;
+    z-index: 2;
+    display: grid;
+    gap: 4px;
+    filter: drop-shadow(0 8px 8px rgba(72,47,31,0.2));
+}
+.shapoku-piece i {
+    width: 28px;
+    aspect-ratio: 1;
+    border-radius: 5px;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: inset 0 2px 2px rgba(255,255,255,0.25);
+}
+.shapoku-piece-honey {
+    top: 10%;
+    left: 8%;
+    grid-template-columns: repeat(2, 1fr);
+    transform: rotate(11deg);
+}
+.shapoku-piece-honey i { background: #f78b10; }
+.shapoku-piece-blue {
+    right: 8%;
+    bottom: 11%;
+    grid-template-columns: repeat(4, 1fr);
+    transform: rotate(-9deg);
+}
+.shapoku-piece-blue i { background: #ad3fa5; }
+.shapoku-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: clamp(40px, 6vw, 64px);
+}
+.shapoku-eyebrow {
+    margin-bottom: 20px;
+    color: #d9b15c;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+.shapoku-card h3 {
+    margin-bottom: 22px;
+    color: #faf4e8;
+    font-family: ui-rounded, "SF Pro Rounded", "Avenir Next", Avenir, system-ui, sans-serif;
+    font-size: clamp(3.3rem, 6vw, 5rem);
+    font-weight: 900;
+    letter-spacing: -0.055em;
+    line-height: 0.95;
+}
+.shapoku-card p {
+    max-width: 460px;
+    color: #cfc2ce;
+    font-size: 1rem;
+    line-height: 1.75;
+}
+.shapoku-card strong {
+    margin-top: 34px;
+    padding-bottom: 5px;
+    color: #f0ce79;
+    border-bottom: 1px solid #9675a2;
+    font-size: 0.85rem;
+}
+.shapoku-card strong b { margin-left: 8px; }
+.shapoku-card:focus-visible {
+    outline: 3px solid var(--berry-glow);
+    outline-offset: 5px;
+}
+@media (hover: hover) {
+    .shapoku-card:hover {
+        color: #faf4e8;
+        border-color: rgba(240,206,121,0.3);
+        transform: translateY(-4px);
+        box-shadow: 0 36px 80px rgba(0,0,0,0.32);
+    }
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 900px) {
     .features-grid,
     .pro-grid { grid-template-columns: repeat(2, 1fr); }
+
+    .shapoku-card { grid-template-columns: 1fr; }
+    .shapoku-art { min-height: 430px; }
 }
 @media (max-width: 640px) {
     .rules-grid,
     .features-grid,
     .pro-grid { grid-template-columns: 1fr; }
     .rules-grid { max-width: 340px; margin: 0 auto; }
+
+    .other-games { padding: 72px 0 80px; }
+    .other-games-heading {
+        margin-bottom: 28px;
+    }
+    .shapoku-card { border-radius: 24px; }
+    .shapoku-art { min-height: 330px; }
+    .shapoku-board {
+        width: min(70%, 250px);
+        padding: 9px;
+        gap: 3px;
+        border-radius: 13px;
+    }
+    .shapoku-piece i { width: 19px; border-radius: 4px; }
+    .shapoku-copy { padding: 36px 28px 42px; }
+    .shapoku-eyebrow { margin-bottom: 16px; }
+    .shapoku-card h3 { font-size: 3.4rem; }
+    .shapoku-card p { font-size: 0.95rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .hero-cluster,
     .seasonal-cluster span { animation: none; }
+    .shapoku-card { transition: none; }
 }
 </style>
